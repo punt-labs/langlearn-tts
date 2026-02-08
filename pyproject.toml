@@ -1,5 +1,5 @@
 [project]
-name = "langlearn-polly"
+name = "langlearn-tts"
 version = "0.1.0"
 description = "AWS Polly TTS MCP server and CLI for language learning"
 readme = "README.md"
@@ -23,12 +23,12 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/jmf-pobox/langlearn-polly-mcp"
-"Bug Tracker" = "https://github.com/jmf-pobox/langlearn-polly-mcp/issues"
+Homepage = "https://github.com/jmf-pobox/langlearn-tts-mcp"
+"Bug Tracker" = "https://github.com/jmf-pobox/langlearn-tts-mcp/issues"
 
 [project.scripts]
-langlearn-polly = "langlearn_polly.cli:main"
-langlearn-polly-server = "langlearn_polly.server:run_server"
+langlearn-tts = "langlearn_tts.cli:main"
+langlearn-tts-server = "langlearn_tts.server:run_server"
 
 [project.optional-dependencies]
 dev = [
@@ -68,7 +68,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["langlearn_polly"]
+known-first-party = ["langlearn_tts"]
 combine-as-imports = true
 
 [tool.ruff.format]

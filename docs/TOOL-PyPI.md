@@ -1,4 +1,4 @@
-# PyPI Publishing Checklist for langlearn-polly
+# PyPI Publishing Checklist for langlearn-tts
 
 Build with `uv build`, publish with `twine` (reads `~/.pypirc` for credentials).
 
@@ -9,7 +9,7 @@ Build with `uv build`, publish with `twine` (reads `~/.pypirc` for credentials).
 Update the version in two places (keep them in sync):
 
 - `pyproject.toml` — `version = "X.Y.Z"`
-- `src/langlearn_polly/__init__.py` — `__version__ = "X.Y.Z"`
+- `src/langlearn_tts/__init__.py` — `__version__ = "X.Y.Z"`
 
 ---
 
@@ -39,7 +39,7 @@ Validates the distribution metadata and README rendering.
 uv pip install -e .
 ```
 
-Installs in editable mode for local development. Uninstall with `uv pip uninstall langlearn-polly`.
+Installs in editable mode for local development. Uninstall with `uv pip uninstall langlearn-tts`.
 
 ---
 
@@ -48,9 +48,9 @@ Installs in editable mode for local development. Uninstall with `uv pip uninstal
 ```sh
 uv venv /tmp/langlearn-test
 source /tmp/langlearn-test/bin/activate
-uv pip install dist/langlearn_polly-*.whl
-langlearn-polly --help
-langlearn-polly doctor
+uv pip install dist/langlearn_tts-*.whl
+langlearn-tts --help
+langlearn-tts doctor
 deactivate
 ```
 
@@ -65,7 +65,7 @@ uvx twine upload --repository testpypi dist/*
 Install from TestPyPI to verify:
 
 ```sh
-uv pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ langlearn-polly
+uv pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ langlearn-tts
 ```
 
 The `--extra-index-url` fallback is needed because dependencies (boto3, click, etc.) are on PyPI, not TestPyPI.
@@ -82,13 +82,13 @@ uvx twine upload dist/*
 
 ## 8. Verify on PyPI
 
-- Check: https://pypi.org/project/langlearn-polly/
+- Check: https://pypi.org/project/langlearn-tts/
 - Install in a fresh environment:
 
 ```sh
-uv tool install langlearn-polly
-langlearn-polly --help
-langlearn-polly doctor
+uv tool install langlearn-tts
+langlearn-tts --help
+langlearn-tts doctor
 ```
 
 ---

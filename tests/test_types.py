@@ -1,4 +1,4 @@
-"""Tests for langlearn_polly.types."""
+"""Tests for langlearn_tts.types."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from langlearn_polly.types import (
+from langlearn_tts.types import (
     MergeStrategy,
     SynthesisRequest,
     SynthesisResult,
@@ -60,9 +60,9 @@ class TestBestEngine:
 
 
 class TestResolveVoice:
-    @patch("langlearn_polly.types.boto3")
+    @patch("langlearn_tts.types.boto3")
     def test_resolve_from_api(self, mock_boto3: MagicMock) -> None:
-        import langlearn_polly.types as t
+        import langlearn_tts.types as t
 
         t.VOICES.clear()
         t._voices_loaded = False  # pyright: ignore[reportPrivateUsage]
@@ -79,9 +79,9 @@ class TestResolveVoice:
         assert cfg.language_code == "en-US"
         assert cfg.engine == "neural"
 
-    @patch("langlearn_polly.types.boto3")
+    @patch("langlearn_tts.types.boto3")
     def test_resolve_case_insensitive(self, mock_boto3: MagicMock) -> None:
-        import langlearn_polly.types as t
+        import langlearn_tts.types as t
 
         t.VOICES.clear()
         t._voices_loaded = False  # pyright: ignore[reportPrivateUsage]
@@ -95,9 +95,9 @@ class TestResolveVoice:
         cfg = resolve_voice("HANS")
         assert cfg.voice_id == "Hans"
 
-    @patch("langlearn_polly.types.boto3")
+    @patch("langlearn_tts.types.boto3")
     def test_resolve_unknown_voice_raises(self, mock_boto3: MagicMock) -> None:
-        import langlearn_polly.types as t
+        import langlearn_tts.types as t
 
         t.VOICES.clear()
         t._voices_loaded = False  # pyright: ignore[reportPrivateUsage]
@@ -109,9 +109,9 @@ class TestResolveVoice:
         with pytest.raises(ValueError, match="Unknown voice 'nonexistent'"):
             resolve_voice("nonexistent")
 
-    @patch("langlearn_polly.types.boto3")
+    @patch("langlearn_tts.types.boto3")
     def test_caches_api_results(self, mock_boto3: MagicMock) -> None:
-        import langlearn_polly.types as t
+        import langlearn_tts.types as t
 
         t.VOICES.clear()
         t._voices_loaded = False  # pyright: ignore[reportPrivateUsage]
@@ -128,7 +128,7 @@ class TestResolveVoice:
         mock_client.describe_voices.assert_called_once()
 
     def test_uses_cached_voice(self) -> None:
-        import langlearn_polly.types as t
+        import langlearn_tts.types as t
 
         t.VOICES["joanna"] = VoiceConfig(
             voice_id="Joanna", language_code="en-US", engine="neural"

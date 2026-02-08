@@ -1,0 +1,198 @@
+# CLAUDE.md
+
+## Project Overview
+
+TTS MCP server and CLI for language learning. Currently uses AWS Polly; future providers (ElevenLabs, OpenAI) tracked in beads.
+
+- **Package**: `langlearn-tts`
+- **CLI**: `langlearn-tts`
+- **MCP server**: `langlearn-tts-server`
+- **Python**: 3.13+, managed with `uv`
+
+## Build & Run
+
+```bash
+# Install with dev dependencies
+uv sync --all-extras
+
+# CLI
+uv run langlearn-tts --help
+uv run langlearn-tts doctor
+
+# MCP server (stdio transport)
+uv run langlearn-tts-server
+```
+
+## Quality Gates
+
+Run after every code change. All must pass with zero violations.
+
+```bash
+uv run ruff check src/ tests/        # Lint
+uv run ruff format --check src/ tests/ # Format check
+uv run mypy src/ tests/               # Type check (strict)
+uv run pyright src/ tests/            # Type check (strict)
+uv run pytest tests/ -v               # All tests pass
+```
+
+Build validation:
+
+```bash
+uv build
+uvx twine check dist/*
+```
+
+## Architecture
+
+Flat module structure under `src/langlearn_tts/`:
+
+| Module | Responsibility |
+|--------|---------------|
+| `types.py` | Domain types: `VoiceConfig`, `SynthesisRequest`, `SynthesisResult`, `MergeStrategy`, voice resolution |
+| `core.py` | `PollyClient` — synthesis, batching, pair stitching, audio merge |
+| `cli.py` | Click CLI — synthesize, batch, pair, pair-batch, doctor, install |
+| `server.py` | FastMCP server — exposes same operations as MCP tools |
+
+Tests mirror source: `test_types.py`, `test_core.py`, `test_cli.py` plus `conftest.py` for shared fixtures.
+
+## Python Coding Standards
+
+### Types
+
+- `from __future__ import annotations` in every file.
+- Full type annotations on every function signature and return type.
+- mypy strict mode and pyright strict mode. Zero errors.
+- Never `Any` unless interfacing with untyped libraries (pydub). Document why with inline ignores.
+- `@dataclass(frozen=True)` for immutable value types.
+- Use Protocol classes for abstractions. Never `hasattr()` or duck typing.
+- `cast()` in string form for ruff TC006: `cast("list[str]", x)`.
+
+### Exceptions and Error Handling
+
+- Fail fast. Raise exceptions on invalid input. No defensive fallbacks.
+- No warning filters to hide problems. Fix root causes.
+- `ValueError` for domain violations. `click.ClickException` for CLI user errors.
+- Never catch broad `Exception` unless re-raising or at a boundary (CLI entry point, MCP tool handler).
+
+### Logging
+
+- `logger = logging.getLogger(__name__)` per module.
+- `logging.basicConfig()` configured once in CLI and server entry points.
+- `logger.debug()` for synthesis details. `logger.info()` for file writes.
+- MCP server logs to stderr only (stdout reserved for stdio transport).
+
+### Imports and Style
+
+- All imports at top of file, grouped per PEP 8 (stdlib → third-party → local).
+- Double quotes. 88-character line limit. Enforced by ruff.
+- No inline imports. No `type | None` parameters unless necessary.
+- No backwards-compatibility shims. No `# removed` tombstones. No re-exports of dead symbols.
+
+### Prohibited Patterns
+
+- No `hasattr()` — use protocols.
+- No mock objects in production code.
+- No defensive coding or fallback logic unless explicitly requested.
+- No `Any` without a documented reason and inline type-ignore comment.
+
+## Testing
+
+- **All tests must pass.** No exceptions for "pre-existing failures."
+- If a test fails, fix it. Do not skip, ignore, or work around it.
+- Mock Polly responses need valid MP3 bytes — pydub hands files to ffmpeg which rejects fake data. Use `AudioSegment.silent(duration=50)` in fixtures.
+- Use `side_effect=lambda` instead of `return_value` for fresh mocks per call.
+- Integration tests requiring AWS credentials are marked `@pytest.mark.integration`.
+
+### Coverage
+
+| Metric | Value |
+|--------|-------|
+| Unit tests | 69 |
+| All pass | Required |
+
+## Issue Tracking with Beads
+
+This project uses **beads** (`bd`) for issue tracking.
+
+### When to Use Beads vs TodoWrite
+
+| Use Beads (`bd`) | Use TodoWrite |
+|------------------|---------------|
+| Multi-session work | Single-session tasks |
+| Work with dependencies | Simple linear execution |
+| Discovered work to track | Immediate TODO items |
+| Strategic planning | Tactical execution |
+
+### Essential Commands
+
+```bash
+bd ready                    # Show issues ready to work
+bd list --status=open       # All open issues
+bd show <id>                # View issue details
+bd update <id> --status=in_progress   # Claim work
+bd close <id>               # Mark complete
+bd create --title="..." --type=task   # Create issue
+bd dep add <child> <parent> # child depends on parent
+bd sync                     # Sync with git remote
+```
+
+### Creating Issues for Discovered Work
+
+When you discover work that isn't part of the current task:
+1. Create a beads issue: `bd create --title="..." --type=task`
+2. Add dependencies if relevant: `bd dep add <new-issue> <blocking-issue>`
+3. Continue with current work.
+
+## Development Workflow
+
+### Micro-Commits
+
+- One logical change per commit. 1-5 files, under 100 lines.
+- Quality gates pass before every commit.
+- Commit message format: `type(scope): description`
+
+| Prefix | Use |
+|--------|-----|
+| `feat:` | New feature |
+| `fix:` | Bug fix |
+| `refactor:` | Code change, no behavior change |
+| `test:` | Adding or updating tests |
+| `docs:` | Documentation |
+| `chore:` | Build, dependencies, CI |
+
+### Session Close Protocol
+
+Before ending any session:
+
+```bash
+git status                  # Check for uncommitted work
+git add <files>             # Stage changes
+git commit -m "..."         # Commit
+bd sync                     # Sync beads
+git push                    # Push to remote
+git status                  # Must show "up to date with origin"
+```
+
+Work is NOT complete until `git push` succeeds.
+
+## Known Type Checker Workarounds
+
+### mypy vs pyright on boto3
+
+boto3-stubs types `boto3.client("polly")` correctly for mypy but pyright sees partially unknown overloads. Solution:
+
+```python
+cast("PollyClientType", boto3.client("polly"))  # type: ignore[redundant-cast]  # pyright: ignore[reportUnknownMemberType]
+```
+
+### pydub has no type stubs
+
+Use `Any` annotations and pyright inline ignores. This is the one acceptable `Any` usage.
+
+## Standards
+
+- Always find the root cause. No workarounds, no shortcuts.
+- Do not suggest skipping tests, lowering standards, or ignoring failures.
+- Do not present workarounds for failing tests — fix the actual problem.
+- Report complete, unfiltered data.
+- The user makes decisions. Ask before making up rationales.

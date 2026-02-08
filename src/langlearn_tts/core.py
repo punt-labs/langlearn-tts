@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, cast
 import boto3
 from pydub import AudioSegment
 
-from langlearn_polly.types import (
+from langlearn_tts.types import (
     MergeStrategy,
     SynthesisRequest,
     SynthesisResult,

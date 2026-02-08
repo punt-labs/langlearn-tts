@@ -1,4 +1,4 @@
-"""FastMCP server for langlearn-polly."""
+"""FastMCP server for langlearn-tts."""
 
 from __future__ import annotations
 
@@ -10,8 +10,8 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
-from langlearn_polly.core import PollyClient
-from langlearn_polly.types import (
+from langlearn_tts.core import PollyClient
+from langlearn_tts.types import (
     MergeStrategy,
     SynthesisRequest,
     resolve_voice,
@@ -25,7 +25,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-mcp = FastMCP("langlearn-polly")
+mcp = FastMCP("langlearn-tts")
 
 
 def _default_output_dir() -> Path:
@@ -259,7 +259,7 @@ def synthesize_pair_batch(
 
 def run_server() -> None:
     """Run the MCP server with stdio transport."""
-    logger.info("Starting langlearn-polly MCP server")
+    logger.info("Starting langlearn-tts MCP server")
     mcp.run(transport="stdio")
 
 

@@ -1,4 +1,4 @@
-# langlearn-polly
+# langlearn-tts
 
 AWS Polly text-to-speech for language learning. Provides both an MCP server (for Claude Desktop) and a CLI with identical functionality.
 
@@ -25,24 +25,24 @@ AWS Polly text-to-speech for language learning. Provides both an MCP server (for
 
 ```bash
 # Using uv
-uv tool install langlearn-polly
+uv tool install langlearn-tts
 
 # Or using pip
-pip install langlearn-polly
+pip install langlearn-tts
 ```
 
 ### From source (development)
 
 ```bash
-git clone https://github.com/jmf-pobox/langlearn-polly-mcp.git
-cd langlearn-polly-mcp
+git clone https://github.com/jmf-pobox/langlearn-tts-mcp.git
+cd langlearn-tts-mcp
 uv sync
 ```
 
 Verify the installation:
 
 ```bash
-langlearn-polly --help
+langlearn-tts --help
 ```
 
 ### AWS Configuration
@@ -89,7 +89,7 @@ sudo apt install ffmpeg
 ### Automatic (recommended)
 
 ```bash
-langlearn-polly install
+langlearn-tts install
 ```
 
 This registers the MCP server with Claude Desktop. Options:
@@ -106,9 +106,9 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "langlearn-polly": {
+    "langlearn-tts": {
       "command": "/absolute/path/to/uvx",
-      "args": ["langlearn-polly-server"],
+      "args": ["langlearn-tts-server"],
       "env": {
         "POLLY_OUTPUT_DIR": "/absolute/path/to/output/directory"
       }
@@ -126,7 +126,7 @@ Restart Claude Desktop after editing the config.
 ## Troubleshooting
 
 ```bash
-langlearn-polly doctor
+langlearn-tts doctor
 ```
 
 Checks Python version, ffmpeg, AWS credentials, Polly access, `uvx`, Claude Desktop config, and output directory. Required checks must pass (exit code 1 on failure); optional checks show `○` markers.
@@ -157,23 +157,23 @@ The engine (neural, standard, generative, long-form) is selected automatically �
 
 ```bash
 # Single synthesis
-langlearn-polly synthesize "Guten Morgen" --voice daniel -o morning.mp3
+langlearn-tts synthesize "Guten Morgen" --voice daniel -o morning.mp3
 
 # Custom speech rate (percentage, default 90)
-langlearn-polly synthesize "Привет" --voice tatyana --rate 70 -o privet.mp3
+langlearn-tts synthesize "Привет" --voice tatyana --rate 70 -o privet.mp3
 
 # Pair: English + German stitched with a pause
-langlearn-polly synthesize-pair "good morning" "Guten Morgen" \
+langlearn-tts synthesize-pair "good morning" "Guten Morgen" \
   --voice1 joanna --voice2 daniel -o pair.mp3
 
 # Batch from JSON file (["hello", "world", "good morning"])
-langlearn-polly synthesize-batch words.json -d output/
+langlearn-tts synthesize-batch words.json -d output/
 
 # Batch merged into single file
-langlearn-polly synthesize-batch words.json -d output/ --merge --pause 800
+langlearn-tts synthesize-batch words.json -d output/ --merge --pause 800
 
 # Pair batch from JSON file ([["strong", "stark"], ["house", "Haus"]])
-langlearn-polly synthesize-pair-batch pairs.json -d output/
+langlearn-tts synthesize-pair-batch pairs.json -d output/
 ```
 
 ## MCP Tools

@@ -1,4 +1,4 @@
-"""Tests for langlearn_polly.core."""
+"""Tests for langlearn_tts.core."""
 
 from __future__ import annotations
 
@@ -7,8 +7,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from langlearn_polly.core import PollyClient, stitch_audio
-from langlearn_polly.types import (
+from langlearn_tts.core import PollyClient, stitch_audio
+from langlearn_tts.types import (
     MergeStrategy,
     SynthesisRequest,
 )

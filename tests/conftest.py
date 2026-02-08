@@ -1,4 +1,4 @@
-"""Shared test fixtures for langlearn-polly."""
+"""Shared test fixtures for langlearn-tts."""
 
 from __future__ import annotations
 
@@ -10,8 +10,8 @@ from unittest.mock import MagicMock
 import pytest
 from pydub import AudioSegment
 
-from langlearn_polly.core import PollyClient
-from langlearn_polly.types import VoiceConfig
+from langlearn_tts.core import PollyClient
+from langlearn_tts.types import VoiceConfig
 
 # Test voice configs — constructed directly, no API call needed.
 JOANNA = VoiceConfig(voice_id="Joanna", language_code="en-US", engine="neural")

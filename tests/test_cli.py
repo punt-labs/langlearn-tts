@@ -1,4 +1,4 @@
-"""Tests for langlearn_polly.cli."""
+"""Tests for langlearn_tts.cli."""
 
 from __future__ import annotations
 
@@ -8,8 +8,8 @@ from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner, Result
 
-from langlearn_polly.cli import main
-from langlearn_polly.types import MergeStrategy, SynthesisResult
+from langlearn_tts.cli import main
+from langlearn_tts.types import MergeStrategy, SynthesisResult
 
 
 def _mock_synthesize_result(path: Path, text: str = "hello") -> SynthesisResult:
@@ -21,7 +21,7 @@ def _mock_synthesize_result(path: Path, text: str = "hello") -> SynthesisResult:
 
 
 class TestSynthesizeCommand:
-    @patch("langlearn_polly.cli.PollyClient")
+    @patch("langlearn_tts.cli.PollyClient")
     def test_synthesize_basic(self, mock_cls: MagicMock, tmp_path: Path) -> None:
         out = tmp_path / "test.mp3"
         mock_instance = mock_cls.return_value
@@ -34,7 +34,7 @@ class TestSynthesizeCommand:
         assert str(out) in result.output
         mock_instance.synthesize.assert_called_once()
 
-    @patch("langlearn_polly.cli.PollyClient")
+    @patch("langlearn_tts.cli.PollyClient")
     def test_synthesize_custom_voice(self, mock_cls: MagicMock, tmp_path: Path) -> None:
         out = tmp_path / "test.mp3"
         mock_instance = mock_cls.return_value
@@ -51,7 +51,7 @@ class TestSynthesizeCommand:
         request = call_args[0][0]
         assert request.voice.voice_id == "Hans"
 
-    @patch("langlearn_polly.cli.PollyClient")
+    @patch("langlearn_tts.cli.PollyClient")
     def test_synthesize_custom_rate(self, mock_cls: MagicMock, tmp_path: Path) -> None:
         out = tmp_path / "test.mp3"
         mock_instance = mock_cls.return_value
@@ -78,7 +78,7 @@ class TestSynthesizeCommand:
 
 
 class TestSynthesizeBatchCommand:
-    @patch("langlearn_polly.cli.PollyClient")
+    @patch("langlearn_tts.cli.PollyClient")
     def test_batch_basic(self, mock_cls: MagicMock, tmp_path: Path) -> None:
         input_file = tmp_path / "input.json"
         input_file.write_text(json.dumps(["hello", "world"]))
@@ -100,7 +100,7 @@ class TestSynthesizeBatchCommand:
         assert result.exit_code == 0
         mock_instance.synthesize_batch.assert_called_once()
 
-    @patch("langlearn_polly.cli.PollyClient")
+    @patch("langlearn_tts.cli.PollyClient")
     def test_batch_with_merge(self, mock_cls: MagicMock, tmp_path: Path) -> None:
         input_file = tmp_path / "input.json"
         input_file.write_text(json.dumps(["hello", "world"]))
@@ -130,7 +130,7 @@ class TestSynthesizeBatchCommand:
 
 
 class TestSynthesizePairCommand:
-    @patch("langlearn_polly.cli.PollyClient")
+    @patch("langlearn_tts.cli.PollyClient")
     def test_pair_basic(self, mock_cls: MagicMock, tmp_path: Path) -> None:
         out = tmp_path / "pair.mp3"
         mock_instance = mock_cls.return_value
@@ -159,7 +159,7 @@ class TestSynthesizePairCommand:
         assert result.exit_code == 0
         assert str(out) in result.output
 
-    @patch("langlearn_polly.cli.PollyClient")
+    @patch("langlearn_tts.cli.PollyClient")
     def test_pair_custom_pause(self, mock_cls: MagicMock, tmp_path: Path) -> None:
         out = tmp_path / "pair.mp3"
         mock_instance = mock_cls.return_value
@@ -190,7 +190,7 @@ class TestSynthesizePairCommand:
 
 
 class TestSynthesizePairBatchCommand:
-    @patch("langlearn_polly.cli.PollyClient")
+    @patch("langlearn_tts.cli.PollyClient")
     def test_pair_batch_basic(self, mock_cls: MagicMock, tmp_path: Path) -> None:
         input_file = tmp_path / "pairs.json"
         input_file.write_text(json.dumps([["strong", "stark"], ["house", "Haus"]]))
@@ -231,7 +231,7 @@ class TestMainGroup:
         runner = CliRunner()
         result = runner.invoke(main, ["--help"])
         assert result.exit_code == 0
-        assert "langlearn-polly" in result.output
+        assert "langlearn-tts" in result.output
 
     def test_synthesize_help(self) -> None:
         runner = CliRunner()
@@ -303,7 +303,7 @@ class TestDoctorCommand:
             config_path.parent.mkdir(parents=True, exist_ok=True)
             config_path.write_text(json.dumps(config_data or {}))
 
-        _cli = "langlearn_polly.cli"
+        _cli = "langlearn_tts.cli"
         runner = CliRunner()
         with (
             patch(f"{_cli}.shutil.which", side_effect=which_side_effect),
@@ -352,7 +352,7 @@ class TestDoctorCommand:
 
     def test_server_registered(self, tmp_path: Path) -> None:
         config_data: dict[str, object] = {
-            "mcpServers": {"langlearn-polly": {"command": "uvx"}},
+            "mcpServers": {"langlearn-tts": {"command": "uvx"}},
         }
         result = self._run_doctor(
             tmp_path, config_exists=True, config_data=config_data
@@ -377,7 +377,7 @@ class TestDoctorCommand:
 # ---------------------------------------------------------------------------
 
 
-_CLI = "langlearn_polly.cli"
+_CLI = "langlearn_tts.cli"
 _UVX = "/usr/local/bin/uvx"
 
 
@@ -403,9 +403,9 @@ class TestInstallCommand:
         assert config_path.exists()
 
         data = json.loads(config_path.read_text())
-        server = data["mcpServers"]["langlearn-polly"]
+        server = data["mcpServers"]["langlearn-tts"]
         assert server["command"] == _UVX
-        assert server["args"] == ["langlearn-polly-server"]
+        assert server["args"] == ["langlearn-tts-server"]
         assert server["env"]["POLLY_OUTPUT_DIR"] == str(audio_dir)
 
     def test_preserves_other_servers(self, tmp_path: Path) -> None:
@@ -434,14 +434,14 @@ class TestInstallCommand:
         assert result.exit_code == 0
         data = json.loads(config_path.read_text())
         assert "other-server" in data["mcpServers"]
-        assert "langlearn-polly" in data["mcpServers"]
+        assert "langlearn-tts" in data["mcpServers"]
 
     def test_overwrites_existing_entry(self, tmp_path: Path) -> None:
         config_path = tmp_path / "Claude" / "claude_desktop_config.json"
         config_path.parent.mkdir(parents=True)
         existing = {
             "mcpServers": {
-                "langlearn-polly": {"command": "old", "args": ["old"]},
+                "langlearn-tts": {"command": "old", "args": ["old"]},
             }
         }
         config_path.write_text(json.dumps(existing))
@@ -462,7 +462,7 @@ class TestInstallCommand:
         assert result.exit_code == 0
         assert "Updated existing" in result.output
         data = json.loads(config_path.read_text())
-        server = data["mcpServers"]["langlearn-polly"]
+        server = data["mcpServers"]["langlearn-tts"]
         assert server["command"] == _UVX
 
     def test_fails_when_uvx_not_found(self, tmp_path: Path) -> None:
@@ -505,7 +505,7 @@ class TestInstallCommand:
 
         assert result.exit_code == 0
         data = json.loads(config_path.read_text())
-        server = data["mcpServers"]["langlearn-polly"]
+        server = data["mcpServers"]["langlearn-tts"]
         assert server["command"] == "/custom/bin/uvx"
 
     def test_creates_output_directory(self, tmp_path: Path) -> None:

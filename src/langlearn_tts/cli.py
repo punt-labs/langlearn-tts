@@ -1,4 +1,4 @@
-"""Click CLI for langlearn-polly."""
+"""Click CLI for langlearn-tts."""
 
 from __future__ import annotations
 
@@ -12,8 +12,8 @@ from typing import Any, cast
 
 import click
 
-from langlearn_polly.core import PollyClient
-from langlearn_polly.types import (
+from langlearn_tts.core import PollyClient
+from langlearn_tts.types import (
     MergeStrategy,
     SynthesisRequest,
     SynthesisResult,
@@ -44,7 +44,7 @@ def _print_results(results: list[SynthesisResult]) -> None:
 @click.group()
 @click.option("--verbose", "-v", is_flag=True, help="Enable debug logging.")
 def main(verbose: bool) -> None:
-    """langlearn-polly: AWS Polly TTS for language learning."""
+    """langlearn-tts: AWS Polly TTS for language learning."""
     _configure_logging(verbose)
 
 
@@ -320,7 +320,7 @@ def _default_output_dir() -> Path:
 
 @main.command()
 def doctor() -> None:
-    """Check system health for langlearn-polly."""
+    """Check system health for langlearn-tts."""
     passed = 0
     failed = 0
     lines: list[str] = []
@@ -386,7 +386,7 @@ def doctor() -> None:
         try:
             data = json.loads(config_path.read_text(encoding="utf-8"))
             servers = data.get("mcpServers", {})
-            if "langlearn-polly" in servers:
+            if "langlearn-tts" in servers:
                 _check(
                     _PASS,
                     "MCP server: registered",
@@ -395,7 +395,7 @@ def doctor() -> None:
             else:
                 _check(
                     _OPTIONAL,
-                    "MCP server: not registered (run 'langlearn-polly install')",
+                    "MCP server: not registered (run 'langlearn-tts install')",
                     required=False,
                 )
         except (json.JSONDecodeError, OSError):
@@ -408,7 +408,7 @@ def doctor() -> None:
         _check(_OPTIONAL, "Claude Desktop config: not found", required=False)
         _check(
             _OPTIONAL,
-            "MCP server: not registered (run 'langlearn-polly install')",
+            "MCP server: not registered (run 'langlearn-tts install')",
             required=False,
         )
 
@@ -488,11 +488,11 @@ def install(output_dir: Path | None, uvx_path: str | None) -> None:
     if "mcpServers" not in data:
         data["mcpServers"] = {}
 
-    overwriting = "langlearn-polly" in data["mcpServers"]
+    overwriting = "langlearn-tts" in data["mcpServers"]
 
-    data["mcpServers"]["langlearn-polly"] = {
+    data["mcpServers"]["langlearn-tts"] = {
         "command": uvx,
-        "args": ["langlearn-polly-server"],
+        "args": ["langlearn-tts-server"],
         "env": {
             "POLLY_OUTPUT_DIR": str(audio_dir),
         },
@@ -503,9 +503,9 @@ def install(output_dir: Path | None, uvx_path: str | None) -> None:
     )
 
     if overwriting:
-        click.echo("Updated existing langlearn-polly entry.")
+        click.echo("Updated existing langlearn-tts entry.")
     else:
-        click.echo("Registered langlearn-polly MCP server.")
+        click.echo("Registered langlearn-tts MCP server.")
 
     click.echo(f"Config: {config_path}")
     click.echo(f"Output: {audio_dir}")

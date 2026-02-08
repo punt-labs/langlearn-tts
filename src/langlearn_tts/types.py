@@ -1,4 +1,4 @@
-"""Domain types for langlearn-polly."""
+"""Domain types for langlearn-tts."""
 
 from __future__ import annotations
 
