@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import json
 import logging
+import platform
+import shutil
 import sys
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 import click
 
@@ -290,3 +292,221 @@ def synthesize_pair_batch(
     client = PollyClient()
     results = client.synthesize_pair_batch(pairs, out_dir, strategy, pause)
     _print_results(results)
+
+
+# ---------------------------------------------------------------------------
+# doctor
+# ---------------------------------------------------------------------------
+
+_PASS = "✓"
+_FAIL = "✗"
+_OPTIONAL = "○"
+
+
+def _claude_desktop_config_path() -> Path:
+    """Return the Claude Desktop config file path (macOS only)."""
+    return (
+        Path.home()
+        / "Library"
+        / "Application Support"
+        / "Claude"
+        / "claude_desktop_config.json"
+    )
+
+
+def _default_output_dir() -> Path:
+    return Path.home() / "Claude-Audio"
+
+
+@main.command()
+def doctor() -> None:
+    """Check system health for langlearn-polly."""
+    passed = 0
+    failed = 0
+    lines: list[str] = []
+
+    def _check(
+        symbol: str, message: str, *, required: bool = True
+    ) -> None:
+        nonlocal passed, failed
+        lines.append(f"{symbol} {message}")
+        if symbol == _PASS:
+            passed += 1
+        elif symbol == _FAIL and required:
+            failed += 1
+
+    # Python version
+    v = sys.version_info
+    if v >= (3, 13):
+        _check(_PASS, f"Python {v.major}.{v.minor}.{v.micro}")
+    else:
+        _check(_FAIL, f"Python {v.major}.{v.minor}.{v.micro} (requires 3.13+)")
+
+    # ffmpeg
+    ffmpeg = shutil.which("ffmpeg")
+    if ffmpeg:
+        _check(_PASS, f"ffmpeg: {ffmpeg}")
+    else:
+        _check(_FAIL, "ffmpeg: not found")
+
+    # AWS credentials
+    try:
+        import boto3
+
+        sts: Any = boto3.client("sts")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        identity: Any = sts.get_caller_identity()  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        account: str = identity["Account"]  # pyright: ignore[reportUnknownVariableType]
+        _check(_PASS, f"AWS credentials (account: {account})")
+    except Exception:
+        _check(_FAIL, "AWS credentials: not configured or invalid")
+
+    # AWS Polly access
+    try:
+        import boto3 as _boto3
+
+        polly: Any = _boto3.client("polly")  # pyright: ignore[reportUnknownMemberType]
+        polly.describe_voices(MaxResults=1)
+        _check(_PASS, "AWS Polly access")
+    except Exception:
+        _check(_FAIL, "AWS Polly access: denied or unavailable")
+
+    # uvx (optional)
+    uvx = shutil.which("uvx")
+    if uvx:
+        _check(_PASS, f"uvx: {uvx}", required=False)
+    else:
+        _check(_OPTIONAL, "uvx: not found (needed for MCP server)", required=False)
+
+    # Claude Desktop config (optional)
+    config_path = _claude_desktop_config_path()
+    if config_path.exists():
+        _check(_PASS, f"Claude Desktop config: {config_path}", required=False)
+
+        # MCP server registered (optional)
+        try:
+            data = json.loads(config_path.read_text(encoding="utf-8"))
+            servers = data.get("mcpServers", {})
+            if "langlearn-polly" in servers:
+                _check(
+                    _PASS,
+                    "MCP server: registered",
+                    required=False,
+                )
+            else:
+                _check(
+                    _OPTIONAL,
+                    "MCP server: not registered (run 'langlearn-polly install')",
+                    required=False,
+                )
+        except (json.JSONDecodeError, OSError):
+            _check(
+                _OPTIONAL,
+                "MCP server: could not read config",
+                required=False,
+            )
+    else:
+        _check(_OPTIONAL, "Claude Desktop config: not found", required=False)
+        _check(
+            _OPTIONAL,
+            "MCP server: not registered (run 'langlearn-polly install')",
+            required=False,
+        )
+
+    # Output directory
+    out_dir = _default_output_dir()
+    try:
+        out_dir.mkdir(parents=True, exist_ok=True)
+        test_file = out_dir / ".doctor_test"
+        test_file.write_text("ok")
+        test_file.unlink()
+        _check(_PASS, f"Output directory: {out_dir}")
+    except OSError as e:
+        _check(_FAIL, f"Output directory: {out_dir} ({e})")
+
+    # Print report
+    click.echo("=" * 40)
+    for line in lines:
+        click.echo(line)
+    click.echo("=" * 40)
+    click.echo(f"{passed} passed, {failed} failed")
+
+    if failed > 0:
+        raise SystemExit(1)
+
+
+# ---------------------------------------------------------------------------
+# install
+# ---------------------------------------------------------------------------
+
+
+@main.command()
+@click.option(
+    "--output-dir",
+    default=None,
+    type=click.Path(path_type=Path),
+    help="Output directory for synthesized audio. Default: ~/Claude-Audio",
+)
+@click.option(
+    "--uvx-path",
+    default=None,
+    help="Path to uvx binary. Default: auto-detect via shutil.which.",
+)
+def install(output_dir: Path | None, uvx_path: str | None) -> None:
+    """Register the MCP server with Claude Desktop."""
+    if platform.system() != "Darwin":
+        click.echo(
+            "Warning: Claude Desktop config path is only known for macOS. "
+            "You may need to configure manually on this platform.",
+            err=True,
+        )
+
+    # Resolve uvx
+    uvx = uvx_path or shutil.which("uvx")
+    if not uvx:
+        raise click.ClickException(
+            "uvx not found. Install uv (https://docs.astral.sh/uv/) first."
+        )
+
+    # Resolve output directory
+    audio_dir = output_dir or _default_output_dir()
+    audio_dir.mkdir(parents=True, exist_ok=True)
+
+    # Read or create config
+    config_path = _claude_desktop_config_path()
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if config_path.exists():
+        try:
+            data = json.loads(config_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as e:
+            raise click.ClickException(
+                f"Could not read {config_path}: {e}"
+            ) from e
+    else:
+        data = {}
+
+    if "mcpServers" not in data:
+        data["mcpServers"] = {}
+
+    overwriting = "langlearn-polly" in data["mcpServers"]
+
+    data["mcpServers"]["langlearn-polly"] = {
+        "command": uvx,
+        "args": ["langlearn-polly-server"],
+        "env": {
+            "POLLY_OUTPUT_DIR": str(audio_dir),
+        },
+    }
+
+    config_path.write_text(
+        json.dumps(data, indent=2) + "\n", encoding="utf-8"
+    )
+
+    if overwriting:
+        click.echo("Updated existing langlearn-polly entry.")
+    else:
+        click.echo("Registered langlearn-polly MCP server.")
+
+    click.echo(f"Config: {config_path}")
+    click.echo(f"Output: {audio_dir}")
+    click.echo("Restart Claude Desktop to activate.")

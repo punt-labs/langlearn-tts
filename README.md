@@ -21,6 +21,18 @@ AWS Polly text-to-speech for language learning. Provides both an MCP server (for
 
 ## Installation
 
+### From PyPI (recommended)
+
+```bash
+# Using uv
+uv tool install langlearn-polly
+
+# Or using pip
+pip install langlearn-polly
+```
+
+### From source (development)
+
 ```bash
 git clone https://github.com/jmf-pobox/langlearn-polly-mcp.git
 cd langlearn-polly-mcp
@@ -30,7 +42,7 @@ uv sync
 Verify the installation:
 
 ```bash
-uv run langlearn-polly --help
+langlearn-polly --help
 ```
 
 ### AWS Configuration
@@ -74,21 +86,29 @@ sudo apt install ffmpeg
 
 ## Claude Desktop Setup
 
+### Automatic (recommended)
+
+```bash
+langlearn-polly install
+```
+
+This registers the MCP server with Claude Desktop. Options:
+
+- `--output-dir PATH` — custom audio output directory (default: `~/Claude-Audio`)
+- `--uvx-path PATH` — override the `uvx` binary path
+
+Restart Claude Desktop after running `install`.
+
+### Manual
+
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "langlearn-polly": {
-      "command": "/absolute/path/to/uv",
-      "args": [
-        "run",
-        "--directory",
-        "/absolute/path/to/langlearn-polly-mcp",
-        "python",
-        "-m",
-        "langlearn_polly.server"
-      ],
+      "command": "/absolute/path/to/uvx",
+      "args": ["langlearn-polly-server"],
       "env": {
         "POLLY_OUTPUT_DIR": "/absolute/path/to/output/directory"
       }
@@ -97,11 +117,19 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 }
 ```
 
-**Important:** Claude Desktop does not inherit your shell PATH. All paths must be absolute. Find your `uv` path with `which uv`.
+Claude Desktop does not inherit your shell PATH. All paths must be absolute. Find your `uvx` path with `which uvx`.
 
 The `POLLY_OUTPUT_DIR` environment variable sets the default output directory. If unset, files are saved to `~/Claude-Audio/`.
 
 Restart Claude Desktop after editing the config.
+
+## Troubleshooting
+
+```bash
+langlearn-polly doctor
+```
+
+Checks Python version, ffmpeg, AWS credentials, Polly access, `uvx`, Claude Desktop config, and output directory. Required checks must pass (exit code 1 on failure); optional checks show `○` markers.
 
 ## Voices
 
