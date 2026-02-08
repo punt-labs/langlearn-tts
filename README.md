@@ -2,6 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/langlearn-tts)](https://pypi.org/project/langlearn-tts/)
 [![GitHub](https://img.shields.io/github/v/release/jmf-pobox/langlearn-tts-mcp)](https://github.com/jmf-pobox/langlearn-tts-mcp)
+[![Tests](https://github.com/jmf-pobox/langlearn-tts-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/jmf-pobox/langlearn-tts-mcp/actions/workflows/ci.yml)
 
 Text-to-speech toolkit for language learning. Provides both an MCP server (for Claude Desktop) and a CLI with identical functionality.
 
