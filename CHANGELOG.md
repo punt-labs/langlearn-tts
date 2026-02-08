@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-02-08
+
+### Fixed
+- `install` command now uses `uvx --from langlearn-tts langlearn-tts-server` so Claude Desktop can resolve the package from PyPI
+
 ### Changed
 - Renamed package from `langlearn-polly` to `langlearn-tts` to support multiple TTS providers
 - CLI command renamed from `langlearn-polly` to `langlearn-tts`

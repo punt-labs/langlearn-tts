@@ -110,7 +110,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
   "mcpServers": {
     "langlearn-tts": {
       "command": "/absolute/path/to/uvx",
-      "args": ["langlearn-tts-server"],
+      "args": ["--from", "langlearn-tts", "langlearn-tts-server"],
       "env": {
         "POLLY_OUTPUT_DIR": "/absolute/path/to/output/directory"
       }

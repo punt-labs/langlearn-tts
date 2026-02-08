@@ -492,7 +492,7 @@ def install(output_dir: Path | None, uvx_path: str | None) -> None:
 
     data["mcpServers"]["langlearn-tts"] = {
         "command": uvx,
-        "args": ["langlearn-tts-server"],
+        "args": ["--from", "langlearn-tts", "langlearn-tts-server"],
         "env": {
             "POLLY_OUTPUT_DIR": str(audio_dir),
         },

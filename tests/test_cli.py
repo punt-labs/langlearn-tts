@@ -405,7 +405,7 @@ class TestInstallCommand:
         data = json.loads(config_path.read_text())
         server = data["mcpServers"]["langlearn-tts"]
         assert server["command"] == _UVX
-        assert server["args"] == ["langlearn-tts-server"]
+        assert server["args"] == ["--from", "langlearn-tts", "langlearn-tts-server"]
         assert server["env"]["POLLY_OUTPUT_DIR"] == str(audio_dir)
 
     def test_preserves_other_servers(self, tmp_path: Path) -> None:
