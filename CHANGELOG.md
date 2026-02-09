@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-02-09
+
 ### Added
 - ElevenLabs TTS provider (`providers/elevenlabs.py`) with 5,000+ voices, 70+ languages, default model `eleven_v3`
 - Voice settings: `--stability`, `--similarity`, `--style`, `--speaker-boost` CLI flags and MCP tool params (ElevenLabs only)
