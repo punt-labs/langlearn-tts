@@ -36,16 +36,15 @@ PROVIDER_REGISTRY["openai"] = _register_openai
 
 
 def auto_detect_provider() -> str:
-    """Detect the best available provider from environment.
+    """Detect the provider from environment.
 
     Checks LANGLEARN_TTS_PROVIDER env var first.
-    Falls back to 'openai' if OPENAI_API_KEY is set, else 'polly'.
+    Defaults to 'polly' — dedicated per-language neural voices produce
+    more native-sounding pronunciation than multilingual models.
     """
     env = os.environ.get("LANGLEARN_TTS_PROVIDER")
     if env:
         return env.lower()
-    if os.environ.get("OPENAI_API_KEY"):
-        return "openai"
     return "polly"
 
 
