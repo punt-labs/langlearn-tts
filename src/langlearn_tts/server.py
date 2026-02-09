@@ -49,7 +49,7 @@ def _default_output_dir() -> Path:
     env_dir = os.environ.get("LANGLEARN_TTS_OUTPUT_DIR")
     if env_dir:
         return Path(env_dir)
-    return Path.home() / "Claude-Audio"
+    return Path.home() / "langlearn-audio"
 
 
 def _resolve_output_dir(output_dir: str | None) -> Path:
@@ -117,7 +117,7 @@ def synthesize(
         output_path: Full path for the output file. If not provided,
             a file is auto-generated in output_dir.
         output_dir: Directory for output. Defaults to LANGLEARN_TTS_OUTPUT_DIR
-            env var or ~/Claude-Audio/.
+            env var or ~/langlearn-audio/.
         stability: ElevenLabs voice stability (0.0-1.0). Ignored by
             other providers. Defaults to provider default.
         similarity: ElevenLabs voice similarity boost (0.0-1.0). Ignored
@@ -186,7 +186,7 @@ def synthesize_batch(
         auto_play: Open the file(s) in the default audio player after
             synthesis. Defaults to true.
         output_dir: Directory for output files. Defaults to
-            LANGLEARN_TTS_OUTPUT_DIR env var or ~/Claude-Audio/.
+            LANGLEARN_TTS_OUTPUT_DIR env var or ~/langlearn-audio/.
         stability: ElevenLabs voice stability (0.0-1.0).
         similarity: ElevenLabs voice similarity boost (0.0-1.0).
         style: ElevenLabs voice style/expressiveness (0.0-1.0).
@@ -259,7 +259,7 @@ def synthesize_pair(
         auto_play: Play the audio after synthesis. Defaults to true.
         output_path: Full path for the output file.
         output_dir: Directory for output. Defaults to
-            LANGLEARN_TTS_OUTPUT_DIR env var or ~/Claude-Audio/.
+            LANGLEARN_TTS_OUTPUT_DIR env var or ~/langlearn-audio/.
         stability: ElevenLabs voice stability (0.0-1.0).
         similarity: ElevenLabs voice similarity boost (0.0-1.0).
         style: ElevenLabs voice style/expressiveness (0.0-1.0).
@@ -339,7 +339,7 @@ def synthesize_pair_batch(
             files per pair. Defaults to false.
         auto_play: Play the audio after synthesis. Defaults to true.
         output_dir: Directory for output files. Defaults to
-            LANGLEARN_TTS_OUTPUT_DIR env var or ~/Claude-Audio/.
+            LANGLEARN_TTS_OUTPUT_DIR env var or ~/langlearn-audio/.
         stability: ElevenLabs voice stability (0.0-1.0).
         similarity: ElevenLabs voice similarity boost (0.0-1.0).
         style: ElevenLabs voice style/expressiveness (0.0-1.0).

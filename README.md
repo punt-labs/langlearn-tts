@@ -128,7 +128,7 @@ This registers the MCP server with Claude Desktop. Auto-detects ElevenLabs when 
 Options:
 
 - `--provider NAME` — provider (`elevenlabs`, `polly`, or `openai`). Default: auto-detect
-- `--output-dir PATH` — custom audio output directory (default: `~/Claude-Audio`)
+- `--output-dir PATH` — custom audio output directory (default: `~/langlearn-audio`)
 - `--uvx-path PATH` — override the `uvx` binary path
 
 Restart Claude Desktop after running `install`.
@@ -158,7 +158,7 @@ Claude Desktop does not inherit your shell environment. All paths must be absolu
 | `LANGLEARN_TTS_PROVIDER` | No | `elevenlabs`, `polly` (default when no API key), or `openai` |
 | `ELEVENLABS_API_KEY` | For ElevenLabs | Your literal API key |
 | `OPENAI_API_KEY` | For OpenAI | Your literal API key |
-| `LANGLEARN_TTS_OUTPUT_DIR` | No | Output directory (default: `~/Claude-Audio`) |
+| `LANGLEARN_TTS_OUTPUT_DIR` | No | Output directory (default: `~/langlearn-audio`) |
 | `LANGLEARN_TTS_MODEL` | No | Model name. ElevenLabs: `eleven_v3` (default). OpenAI: `tts-1`, `tts-1-hd` |
 
 For Polly, AWS credentials are read from `~/.aws/credentials`. For ElevenLabs or OpenAI, add the respective API key and provider to the env dict. Claude Desktop does not support env var references — all values must be literal.

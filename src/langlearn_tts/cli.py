@@ -483,7 +483,7 @@ def _claude_desktop_config_path() -> Path:
 
 
 def _default_output_dir() -> Path:
-    return Path.home() / "Claude-Audio"
+    return Path.home() / "langlearn-audio"
 
 
 @main.command()
@@ -638,7 +638,7 @@ def _build_install_env(provider: str, audio_dir: Path) -> dict[str, str]:
     "--output-dir",
     default=None,
     type=click.Path(path_type=Path),
-    help="Output directory for synthesized audio. Default: ~/Claude-Audio",
+    help="Output directory for synthesized audio. Default: ~/langlearn-audio",
 )
 @click.option(
     "--uvx-path",
