@@ -78,7 +78,7 @@ class TestSynthesize:
     def test_synthesize_with_speed(
         self, provider: OpenAIProvider, tmp_path: Path
     ) -> None:
-        """rate=80 maps to speed=0.8, accepted by the API."""
+        """Synthesis succeeds when using rate=80."""
         request = SynthesisRequest(text="Testing speed.", voice="nova", rate=80)
         out = tmp_path / "speed.mp3"
 
