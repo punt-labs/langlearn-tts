@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- ElevenLabs TTS provider (`providers/elevenlabs.py`) with 5,000+ voices, 70+ languages, default model `eleven_v3`
+- Voice settings: `--stability`, `--similarity`, `--style`, `--speaker-boost` CLI flags and MCP tool params (ElevenLabs only)
+- Auto-detection prefers ElevenLabs when `ELEVENLABS_API_KEY` is set
+- `install` command supports `--provider elevenlabs` and writes `ELEVENLABS_API_KEY` to config
+- `split_text()` public function in `core.py` for provider-agnostic text chunking
+
+### Changed
+- Text chunking (`split_text`, `_split_at_words`) moved from `providers/openai.py` to `core.py` for shared use across providers
+- `SynthesisRequest` gains optional `stability`, `similarity`, `style`, `speaker_boost` fields (ignored by Polly and OpenAI)
+
 ## [0.3.2] - 2026-02-08
 
 ### Changed

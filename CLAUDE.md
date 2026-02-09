@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-TTS MCP server and CLI for language learning. Supports AWS Polly and OpenAI TTS; future provider (ElevenLabs) tracked in beads.
+TTS MCP server and CLI for language learning. Supports ElevenLabs (premium), AWS Polly, and OpenAI TTS.
 
 - **Package**: `langlearn-tts`
 - **CLI**: `langlearn-tts`
@@ -49,14 +49,15 @@ Module structure under `src/langlearn_tts/`:
 | Module | Responsibility |
 |--------|---------------|
 | `types.py` | Domain types: `TTSProvider` protocol, `HealthCheck`, `SynthesisRequest`, `SynthesisResult`, `MergeStrategy` |
-| `core.py` | `TTSClient` — provider-agnostic orchestration: batching, pair stitching, audio merge |
-| `cli.py` | Click CLI — `--provider` flag, synthesize, batch, pair, pair-batch, doctor, install |
+| `core.py` | `TTSClient` — provider-agnostic orchestration: batching, pair stitching, audio merge, `split_text()` |
+| `cli.py` | Click CLI — `--provider` flag, voice settings flags, synthesize, batch, pair, pair-batch, doctor, install |
 | `server.py` | FastMCP server — exposes same operations as MCP tools |
-| `providers/__init__.py` | Provider registry, `get_provider()`, auto-detection |
+| `providers/__init__.py` | Provider registry, `get_provider()`, auto-detection (ElevenLabs > Polly) |
 | `providers/polly.py` | `PollyProvider` — AWS Polly synthesis, voice resolution, health checks. Only file with boto3 |
 | `providers/openai.py` | `OpenAIProvider` — OpenAI TTS synthesis, static voices, auto-chunking >4096 chars. Only file with openai |
+| `providers/elevenlabs.py` | `ElevenLabsProvider` — ElevenLabs synthesis, voice settings, voice resolution, health checks. Only file with elevenlabs |
 
-Tests mirror source: `test_types.py`, `test_core.py`, `test_cli.py`, `test_polly.py`, `test_openai_provider.py` plus `conftest.py` for shared fixtures.
+Tests mirror source: `test_types.py`, `test_core.py`, `test_cli.py`, `test_polly.py`, `test_openai_provider.py`, `test_elevenlabs_provider.py` plus `conftest.py` for shared fixtures.
 
 ## Python Coding Standards
 
@@ -110,7 +111,7 @@ Tests mirror source: `test_types.py`, `test_core.py`, `test_cli.py`, `test_polly
 
 | Metric | Value |
 |--------|-------|
-| Unit tests | 122 |
+| Unit tests | 147 |
 | All pass | Required |
 
 ## Issue Tracking with Beads
@@ -227,9 +228,9 @@ boto3-stubs types `boto3.client("polly")` correctly for mypy but pyright sees pa
 cast("PollyClientType", boto3.client("polly"))  # type: ignore[redundant-cast]  # pyright: ignore[reportUnknownMemberType]
 ```
 
-### pydub has no type stubs
+### pydub and elevenlabs have no type stubs
 
-Use `Any` annotations and pyright inline ignores. This is the one acceptable `Any` usage.
+Use `Any` annotations and pyright inline ignores. These are the acceptable `Any` usages. Both have `[[tool.mypy.overrides]]` with `ignore_missing_imports = true`.
 
 ## Standards
 

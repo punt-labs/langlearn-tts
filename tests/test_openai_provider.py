@@ -7,22 +7,22 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from langlearn_tts.providers.openai import (
-    OpenAIProvider,
+from langlearn_tts.core import (
     _split_at_words,  # pyright: ignore[reportPrivateUsage]
-    _split_text,  # pyright: ignore[reportPrivateUsage]
+    split_text,
 )
+from langlearn_tts.providers.openai import OpenAIProvider
 from langlearn_tts.types import SynthesisRequest
 
 
 class TestSplitText:
     def test_short_text_no_split(self) -> None:
-        result = _split_text("Hello world.", max_chars=4096)
+        result = split_text("Hello world.", max_chars=4096)
         assert result == ["Hello world."]
 
     def test_exact_limit_no_split(self) -> None:
         text = "a" * 4096
-        result = _split_text(text, max_chars=4096)
+        result = split_text(text, max_chars=4096)
         assert result == [text]
 
     def test_sentence_boundary_split(self) -> None:
@@ -30,7 +30,7 @@ class TestSplitText:
         s1 = "A" * 50 + "."
         s2 = "B" * 50 + "."
         text = f"{s1} {s2}"
-        result = _split_text(text, max_chars=60)
+        result = split_text(text, max_chars=60)
         assert len(result) == 2
         assert result[0] == s1
         assert result[1] == s2
@@ -38,7 +38,7 @@ class TestSplitText:
     def test_multiple_sentence_accumulation(self) -> None:
         # Three short sentences: first two fit together, third forces new chunk.
         text = "One. Two. Three."
-        result = _split_text(text, max_chars=10)
+        result = split_text(text, max_chars=10)
         assert len(result) >= 2
         # All original text is preserved across chunks.
         assert "".join(result).replace(" ", "") == text.replace(" ", "")
@@ -47,18 +47,18 @@ class TestSplitText:
         # A single sentence exceeding the limit — no sentence breaks available.
         words = ["word"] * 20
         text = " ".join(words)  # 99 chars
-        result = _split_text(text, max_chars=30)
+        result = split_text(text, max_chars=30)
         assert len(result) > 1
         for chunk in result:
             assert len(chunk) <= 30
 
     def test_empty_string(self) -> None:
-        result = _split_text("", max_chars=4096)
+        result = split_text("", max_chars=4096)
         assert result == [""]
 
     def test_exclamation_and_question_splits(self) -> None:
         text = "Stop! Why? Because."
-        result = _split_text(text, max_chars=8)
+        result = split_text(text, max_chars=8)
         assert len(result) >= 2
         # Verify punctuation is preserved.
         combined = " ".join(result)
@@ -67,7 +67,7 @@ class TestSplitText:
 
     def test_oversized_word_gets_character_split(self) -> None:
         text = "a" * 100
-        result = _split_text(text, max_chars=30)
+        result = split_text(text, max_chars=30)
         assert len(result) == 4  # 30+30+30+10
         for chunk in result:
             assert len(chunk) <= 30
@@ -76,13 +76,13 @@ class TestSplitText:
     def test_trailing_punctuation_whitespace_no_empty_chunks(self) -> None:
         # re.split() can yield empty strings at boundaries; verify none leak through.
         text = "Hello. World. "
-        result = _split_text(text, max_chars=8)
+        result = split_text(text, max_chars=8)
         for chunk in result:
             assert chunk  # no empty strings
 
     def test_all_chunks_within_limit(self) -> None:
         text = "short " + "x" * 50 + " words here"
-        result = _split_text(text, max_chars=20)
+        result = split_text(text, max_chars=20)
         for chunk in result:
             assert len(chunk) <= 20
 

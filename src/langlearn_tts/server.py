@@ -28,6 +28,22 @@ logger = logging.getLogger(__name__)
 mcp = FastMCP("langlearn-tts")
 
 
+def _validate_voice_settings(
+    stability: float | None,
+    similarity: float | None,
+    style: float | None,
+) -> None:
+    """Validate ElevenLabs voice settings are in 0.0-1.0 range."""
+    for name, value in [
+        ("stability", stability),
+        ("similarity", similarity),
+        ("style", style),
+    ]:
+        if value is not None and not 0.0 <= value <= 1.0:
+            msg = f"{name} must be between 0.0 and 1.0, got {value}"
+            raise ValueError(msg)
+
+
 def _default_output_dir() -> Path:
     """Resolve the default output directory from environment or fallback."""
     env_dir = os.environ.get("LANGLEARN_TTS_OUTPUT_DIR")
@@ -76,6 +92,10 @@ def synthesize(
     auto_play: bool = True,
     output_path: str | None = None,
     output_dir: str | None = None,
+    stability: float | None = None,
+    similarity: float | None = None,
+    style: float | None = None,
+    speaker_boost: bool | None = None,
 ) -> str:
     """Synthesize text to an MP3 audio file.
 
@@ -91,13 +111,30 @@ def synthesize(
             a file is auto-generated in output_dir.
         output_dir: Directory for output. Defaults to LANGLEARN_TTS_OUTPUT_DIR
             env var or ~/Claude-Audio/.
+        stability: ElevenLabs voice stability (0.0-1.0). Ignored by
+            other providers. Defaults to provider default.
+        similarity: ElevenLabs voice similarity boost (0.0-1.0). Ignored
+            by other providers. Defaults to provider default.
+        style: ElevenLabs voice style/expressiveness (0.0-1.0). Ignored
+            by other providers. Defaults to provider default.
+        speaker_boost: ElevenLabs speaker boost toggle. Ignored by other
+            providers. Defaults to provider default.
 
     Returns:
         JSON string with file_path, text, and voice fields.
     """
+    _validate_voice_settings(stability, similarity, style)
     provider = get_provider()
     provider.resolve_voice(voice)
-    request = SynthesisRequest(text=text, voice=voice, rate=rate)
+    request = SynthesisRequest(
+        text=text,
+        voice=voice,
+        rate=rate,
+        stability=stability,
+        similarity=similarity,
+        style=style,
+        speaker_boost=speaker_boost,
+    )
 
     dir_path = _resolve_output_dir(output_dir)
     path = _resolve_output_path(
@@ -122,6 +159,10 @@ def synthesize_batch(
     pause_ms: int = 500,
     auto_play: bool = True,
     output_dir: str | None = None,
+    stability: float | None = None,
+    similarity: float | None = None,
+    style: float | None = None,
+    speaker_boost: bool | None = None,
 ) -> str:
     """Synthesize multiple texts to MP3 files.
 
@@ -137,14 +178,30 @@ def synthesize_batch(
             synthesis. Defaults to true.
         output_dir: Directory for output files. Defaults to
             LANGLEARN_TTS_OUTPUT_DIR env var or ~/Claude-Audio/.
+        stability: ElevenLabs voice stability (0.0-1.0).
+        similarity: ElevenLabs voice similarity boost (0.0-1.0).
+        style: ElevenLabs voice style/expressiveness (0.0-1.0).
+        speaker_boost: ElevenLabs speaker boost toggle.
 
     Returns:
         JSON string with list of results, each containing file_path,
         text, and voice fields.
     """
+    _validate_voice_settings(stability, similarity, style)
     provider = get_provider()
     provider.resolve_voice(voice)
-    requests = [SynthesisRequest(text=t, voice=voice, rate=rate) for t in texts]
+    requests = [
+        SynthesisRequest(
+            text=t,
+            voice=voice,
+            rate=rate,
+            stability=stability,
+            similarity=similarity,
+            style=style,
+            speaker_boost=speaker_boost,
+        )
+        for t in texts
+    ]
     strategy = (
         MergeStrategy.ONE_FILE_PER_BATCH if merge else MergeStrategy.ONE_FILE_PER_INPUT
     )
@@ -169,6 +226,10 @@ def synthesize_pair(
     auto_play: bool = True,
     output_path: str | None = None,
     output_dir: str | None = None,
+    stability: float | None = None,
+    similarity: float | None = None,
+    style: float | None = None,
+    speaker_boost: bool | None = None,
 ) -> str:
     """Synthesize a pair of texts and stitch them into one MP3.
 
@@ -187,15 +248,36 @@ def synthesize_pair(
         output_path: Full path for the output file.
         output_dir: Directory for output. Defaults to
             LANGLEARN_TTS_OUTPUT_DIR env var or ~/Claude-Audio/.
+        stability: ElevenLabs voice stability (0.0-1.0).
+        similarity: ElevenLabs voice similarity boost (0.0-1.0).
+        style: ElevenLabs voice style/expressiveness (0.0-1.0).
+        speaker_boost: ElevenLabs speaker boost toggle.
 
     Returns:
         JSON string with file_path, text, and voice fields.
     """
+    _validate_voice_settings(stability, similarity, style)
     provider = get_provider()
     provider.resolve_voice(voice1)
     provider.resolve_voice(voice2)
-    req1 = SynthesisRequest(text=text1, voice=voice1, rate=rate)
-    req2 = SynthesisRequest(text=text2, voice=voice2, rate=rate)
+    req1 = SynthesisRequest(
+        text=text1,
+        voice=voice1,
+        rate=rate,
+        stability=stability,
+        similarity=similarity,
+        style=style,
+        speaker_boost=speaker_boost,
+    )
+    req2 = SynthesisRequest(
+        text=text2,
+        voice=voice2,
+        rate=rate,
+        stability=stability,
+        similarity=similarity,
+        style=style,
+        speaker_boost=speaker_boost,
+    )
 
     dir_path = _resolve_output_dir(output_dir)
     path = _resolve_output_path(
@@ -221,6 +303,10 @@ def synthesize_pair_batch(
     merge: bool = False,
     auto_play: bool = True,
     output_dir: str | None = None,
+    stability: float | None = None,
+    similarity: float | None = None,
+    style: float | None = None,
+    speaker_boost: bool | None = None,
 ) -> str:
     """Synthesize multiple text pairs and stitch each into MP3 files.
 
@@ -239,18 +325,39 @@ def synthesize_pair_batch(
         auto_play: Play the audio after synthesis. Defaults to true.
         output_dir: Directory for output files. Defaults to
             LANGLEARN_TTS_OUTPUT_DIR env var or ~/Claude-Audio/.
+        stability: ElevenLabs voice stability (0.0-1.0).
+        similarity: ElevenLabs voice similarity boost (0.0-1.0).
+        style: ElevenLabs voice style/expressiveness (0.0-1.0).
+        speaker_boost: ElevenLabs speaker boost toggle.
 
     Returns:
         JSON string with list of results.
     """
+    _validate_voice_settings(stability, similarity, style)
     provider = get_provider()
     provider.resolve_voice(voice1)
     provider.resolve_voice(voice2)
 
     pair_requests: list[tuple[SynthesisRequest, SynthesisRequest]] = [
         (
-            SynthesisRequest(text=p[0], voice=voice1, rate=rate),
-            SynthesisRequest(text=p[1], voice=voice2, rate=rate),
+            SynthesisRequest(
+                text=p[0],
+                voice=voice1,
+                rate=rate,
+                stability=stability,
+                similarity=similarity,
+                style=style,
+                speaker_boost=speaker_boost,
+            ),
+            SynthesisRequest(
+                text=p[1],
+                voice=voice2,
+                rate=rate,
+                stability=stability,
+                similarity=similarity,
+                style=style,
+                speaker_boost=speaker_boost,
+            ),
         )
         for p in pairs
     ]

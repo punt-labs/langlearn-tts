@@ -9,7 +9,7 @@ Generate audio flashcards and vocabulary drills from text. Ask Claude to synthes
 
 The pair mode is the core workflow: give it an English word and its translation, and it produces a single MP3 — `[English audio] [pause] [target language audio]` — ready for Anki, spaced repetition, or passive listening.
 
-Available as both a **Claude Desktop MCP server** (ask Claude to generate audio in conversation) and a **CLI** with identical functionality. Supports **AWS Polly** (recommended — best pronunciation) and **OpenAI TTS** (easier setup) today; **ElevenLabs** (highest quality) is planned.
+Available as both a **Claude Desktop MCP server** (ask Claude to generate audio in conversation) and a **CLI** with identical functionality. Supports **ElevenLabs** (highest quality, 70+ languages), **AWS Polly** (best per-language pronunciation, 93 voices), and **OpenAI TTS** (easiest setup, 9 voices).
 
 ## Features
 
@@ -19,8 +19,9 @@ Available as both a **Claude Desktop MCP server** (ask Claude to generate audio 
 - **Pair batch** — batch-process vocabulary lists as stitched pairs
 - **Auto-play** — MCP tools play audio immediately after synthesis
 - **Configurable speech rate** — default 90% for learner-friendly pacing
-- **Two providers** — AWS Polly (93 voices, 41 languages) or OpenAI TTS (9 voices, 57 languages)
-- **Provider selection** — defaults to Polly; set `LANGLEARN_TTS_PROVIDER=openai` or use `--provider openai` for OpenAI
+- **Three providers** — ElevenLabs (5,000+ voices, 70+ languages), AWS Polly (93 voices, 41 languages), or OpenAI TTS (9 voices, 57 languages)
+- **Voice settings** — ElevenLabs stability, similarity, style, and speaker boost controls
+- **Provider selection** — auto-detects ElevenLabs when `ELEVENLABS_API_KEY` is set; falls back to Polly; use `--provider` to override
 
 ## Quick Start
 
@@ -63,11 +64,21 @@ winget install ffmpeg
 
 ### 4. Configure a TTS provider
 
-Pick one provider. Polly is the default — its dedicated per-language neural voices produce more native-sounding pronunciation than OpenAI's multilingual model. Use `--provider openai` or set `LANGLEARN_TTS_PROVIDER=openai` if you prefer OpenAI.
+Pick one provider. When `ELEVENLABS_API_KEY` is set, ElevenLabs is auto-detected as the default. Otherwise, Polly is the default.
 
-**Option A — AWS Polly (recommended, best pronunciation):**
+**Option A — ElevenLabs (premium, highest quality):**
 
-93 dedicated per-language neural voices, 41 languages. Each voice is trained for a specific language, producing more natural pronunciation for language learning. Requires an AWS account with `polly:SynthesizeSpeech` and `polly:DescribeVoices` permissions.
+5,000+ voices, 70+ languages. The most expressive and natural-sounding TTS available. Supports voice settings (stability, similarity, style, speaker boost) for fine-tuning output. Default model: `eleven_v3`.
+
+```bash
+export ELEVENLABS_API_KEY=sk_...
+```
+
+Free tier: 10K chars/month. Paid plans start at $5/month.
+
+**Option B — AWS Polly (recommended, best pronunciation):**
+
+93 dedicated per-language neural voices, 41 languages. Each voice is trained for a specific language, producing natural pronunciation for language learning. Requires an AWS account with `polly:SynthesizeSpeech` and `polly:DescribeVoices` permissions.
 
 Install the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html), then:
 
@@ -77,7 +88,7 @@ aws configure
 
 Enter your Access Key ID, Secret Access Key, and region (e.g., `us-east-1`). Alternatively, set `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_DEFAULT_REGION` environment variables.
 
-**Option B — OpenAI TTS (easier setup):**
+**Option C — OpenAI TTS (easiest setup):**
 
 9 multilingual voices, 57 languages. Simpler to configure (one API key), but uses a single multilingual model for all languages. Pronunciation quality varies by language.
 
@@ -112,11 +123,11 @@ uv run langlearn-tts --help
 langlearn-tts install
 ```
 
-This registers the MCP server with Claude Desktop. Defaults to Polly. Use `--provider openai` for OpenAI (writes your `OPENAI_API_KEY` into the config).
+This registers the MCP server with Claude Desktop. Auto-detects ElevenLabs when `ELEVENLABS_API_KEY` is set, otherwise defaults to Polly. Use `--provider` to override.
 
 Options:
 
-- `--provider NAME` — provider (`polly` or `openai`). Default: `polly`
+- `--provider NAME` — provider (`elevenlabs`, `polly`, or `openai`). Default: auto-detect
 - `--output-dir PATH` — custom audio output directory (default: `~/Claude-Audio`)
 - `--uvx-path PATH` — override the `uvx` binary path
 
@@ -144,12 +155,13 @@ Claude Desktop does not inherit your shell environment. All paths must be absolu
 
 | Env var | Required | Description |
 |---------|----------|-------------|
-| `LANGLEARN_TTS_PROVIDER` | No | `polly` (default) or `openai` |
-| `OPENAI_API_KEY` | For OpenAI | Your literal API key (Claude Desktop does not support env var references) |
+| `LANGLEARN_TTS_PROVIDER` | No | `elevenlabs`, `polly` (default when no API key), or `openai` |
+| `ELEVENLABS_API_KEY` | For ElevenLabs | Your literal API key |
+| `OPENAI_API_KEY` | For OpenAI | Your literal API key |
 | `LANGLEARN_TTS_OUTPUT_DIR` | No | Output directory (default: `~/Claude-Audio`) |
-| `LANGLEARN_TTS_MODEL` | No | OpenAI model (`tts-1`, `tts-1-hd`). Default: `tts-1` |
+| `LANGLEARN_TTS_MODEL` | No | Model name. ElevenLabs: `eleven_v3` (default). OpenAI: `tts-1`, `tts-1-hd` |
 
-For Polly (default), AWS credentials are read from `~/.aws/credentials`. For OpenAI, add `LANGLEARN_TTS_PROVIDER: "openai"` and `OPENAI_API_KEY` to the env dict.
+For Polly, AWS credentials are read from `~/.aws/credentials`. For ElevenLabs or OpenAI, add the respective API key and provider to the env dict. Claude Desktop does not support env var references — all values must be literal.
 
 Restart Claude Desktop after editing the config.
 
@@ -201,7 +213,30 @@ Checks Python version, active provider, ffmpeg, provider-specific credentials, `
 
 ## Voices
 
-### AWS Polly (default)
+### ElevenLabs (premium)
+
+5,000+ voices. Any voice works with any language. Voice names are case-insensitive. You can also pass a voice ID directly (the 20-character alphanumeric string from the ElevenLabs dashboard).
+
+Popular voices for language learning:
+
+| Voice | Description |
+|-------|-------------|
+| Rachel | Calm, clear, American English |
+| Drew | Warm, conversational |
+| Clyde | Deep, authoritative |
+| Domi | Expressive, young |
+| Bella | Soft, gentle |
+
+Voice settings (ElevenLabs only):
+
+| Flag | Range | Description |
+|------|-------|-------------|
+| `--stability` | 0.0-1.0 | Higher = more consistent, lower = more expressive |
+| `--similarity` | 0.0-1.0 | Higher = closer to original voice, lower = more variation |
+| `--style` | 0.0-1.0 | Higher = more expressive/dramatic |
+| `--speaker-boost` | flag | Enhances voice clarity at the cost of generation speed |
+
+### AWS Polly
 
 Any voice from the [AWS Polly voice list](https://docs.aws.amazon.com/polly/latest/dg/voicelist.html) is supported. Voice names are case-insensitive. Each voice is a dedicated neural model trained for a specific language, producing the most native-sounding pronunciation. The tool queries the Polly API on first use and caches the result.
 
@@ -250,6 +285,10 @@ langlearn-tts synthesize "Guten Morgen" --voice daniel -o morning.mp3
 # Custom speech rate (percentage, default 90)
 langlearn-tts synthesize "Привет" --voice tatyana --rate 70 -o privet.mp3
 
+# ElevenLabs with voice settings
+langlearn-tts synthesize "Guten Morgen" --voice Rachel \
+  --stability 0.5 --similarity 0.7 --style 0.3 --speaker-boost
+
 # Pair: English + German stitched with a pause
 langlearn-tts synthesize-pair "good morning" "Guten Morgen" \
   --voice1 joanna --voice2 daniel -o pair.mp3
@@ -280,12 +319,6 @@ All four tools are available in Claude Desktop once the server is configured:
 | `synthesize_pair_batch` | Multiple pairs, optionally merged |
 
 Each tool accepts `auto_play` (default: true) to play audio immediately after synthesis.
-
-## Roadmap
-
-### ElevenLabs Backend
-
-Highest voice quality. 29+ languages, 5,000+ voices, voice cloning. Setup: `ELEVENLABS_API_KEY` env var. Free tier: 10K chars/month.
 
 ## Development
 

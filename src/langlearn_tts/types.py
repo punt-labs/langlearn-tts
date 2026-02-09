@@ -46,6 +46,14 @@ class SynthesisRequest:
     voice: str
     rate: int = 90
     """Speech rate as a percentage (e.g. 90 = 90% speed)."""
+    stability: float | None = None
+    """ElevenLabs voice stability (0.0-1.0). None = provider default."""
+    similarity: float | None = None
+    """ElevenLabs voice similarity boost (0.0-1.0). None = provider default."""
+    style: float | None = None
+    """ElevenLabs voice style/expressiveness (0.0-1.0). None = provider default."""
+    speaker_boost: bool | None = None
+    """ElevenLabs speaker boost toggle. None = provider default."""
 
 
 @dataclass(frozen=True)

@@ -12,6 +12,7 @@ import pytest
 from pydub import AudioSegment
 
 from langlearn_tts.core import TTSClient
+from langlearn_tts.providers.elevenlabs import ElevenLabsProvider
 from langlearn_tts.providers.openai import OpenAIProvider
 from langlearn_tts.providers.polly import PollyProvider, VoiceConfig
 
@@ -130,3 +131,68 @@ def mock_openai_client() -> MagicMock:
 def openai_provider(mock_openai_client: MagicMock) -> OpenAIProvider:
     """Create an OpenAIProvider with a mocked OpenAI client."""
     return OpenAIProvider(client=mock_openai_client)
+
+
+def _make_elevenlabs_convert_response() -> list[bytes]:
+    """Create a mock ElevenLabs text_to_speech.convert() byte iterator."""
+    return [_get_valid_mp3_bytes()]
+
+
+@pytest.fixture
+def mock_elevenlabs_client() -> MagicMock:
+    """Create a mock ElevenLabs client that returns valid MP3 bytes."""
+    client = MagicMock()
+    client.text_to_speech.convert.side_effect = (
+        lambda **kwargs: _make_elevenlabs_convert_response()  # pyright: ignore[reportUnknownLambdaType]
+    )
+
+    # Mock voices.get_all for voice resolution.
+    voice_rachel = MagicMock()
+    voice_rachel.name = "Rachel"
+    voice_rachel.voice_id = "21m00Tcm4TlvDq8ikWAM"
+
+    voice_drew = MagicMock()
+    voice_drew.name = "Drew"
+    voice_drew.voice_id = "29vD33N1CtxCmqQRPOHJ"
+
+    voices_response = MagicMock()
+    voices_response.voices = [voice_rachel, voice_drew]
+    client.voices.get_all.return_value = voices_response
+
+    # Mock subscription for health checks.
+    subscription = MagicMock()
+    subscription.tier = "free"
+    subscription.character_count = 500
+    subscription.character_limit = 10000
+    client.user.subscription.get.return_value = subscription
+
+    return client
+
+
+@pytest.fixture(autouse=True)
+def _populate_elevenlabs_voice_cache() -> Iterator[None]:  # pyright: ignore[reportUnusedFunction]
+    """Pre-populate the ElevenLabs voice cache so resolve_voice() never hits the API."""
+    import langlearn_tts.providers.elevenlabs as elevenlabs
+
+    saved_voices = dict(elevenlabs.VOICES)
+    saved_loaded = elevenlabs._voices_loaded  # pyright: ignore[reportPrivateUsage]
+
+    elevenlabs.VOICES.update(
+        {
+            "rachel": "21m00Tcm4TlvDq8ikWAM",
+            "drew": "29vD33N1CtxCmqQRPOHJ",
+        }
+    )
+    elevenlabs._voices_loaded = True  # pyright: ignore[reportPrivateUsage]
+
+    yield
+
+    elevenlabs.VOICES.clear()
+    elevenlabs.VOICES.update(saved_voices)
+    elevenlabs._voices_loaded = saved_loaded  # pyright: ignore[reportPrivateUsage]
+
+
+@pytest.fixture
+def elevenlabs_provider(mock_elevenlabs_client: MagicMock) -> ElevenLabsProvider:
+    """Create an ElevenLabsProvider with a mocked client."""
+    return ElevenLabsProvider(client=mock_elevenlabs_client)

@@ -8,6 +8,7 @@ import os
 import platform
 import shutil
 import sys
+from collections.abc import Callable
 from pathlib import Path
 from typing import cast
 
@@ -50,6 +51,40 @@ def _get_provider(ctx: click.Context) -> TTSProvider:
     """Retrieve the TTSProvider from the Click context."""
     obj = cast("dict[str, TTSProvider]", ctx.ensure_object(dict))  # pyright: ignore[reportUnknownMemberType]
     return obj["provider"]
+
+
+def _voice_settings_options[F: Callable[..., object]](fn: F) -> F:
+    """Shared ElevenLabs voice-settings options for synthesis commands."""
+    for decorator in reversed(
+        [
+            click.option(
+                "--stability",
+                default=None,
+                type=click.FloatRange(0.0, 1.0),
+                help="ElevenLabs voice stability (0.0-1.0).",
+            ),
+            click.option(
+                "--similarity",
+                default=None,
+                type=click.FloatRange(0.0, 1.0),
+                help="ElevenLabs voice similarity boost (0.0-1.0).",
+            ),
+            click.option(
+                "--style",
+                default=None,
+                type=click.FloatRange(0.0, 1.0),
+                help="ElevenLabs voice style/expressiveness (0.0-1.0).",
+            ),
+            click.option(
+                "--speaker-boost",
+                is_flag=True,
+                default=False,
+                help="Enable ElevenLabs speaker boost.",
+            ),
+        ]
+    ):
+        fn = decorator(fn)  # pyright: ignore[reportAssignmentType]
+    return fn
 
 
 @click.group()
@@ -99,14 +134,31 @@ def main(
     type=click.Path(path_type=Path),
     help="Output file path. Defaults to auto-generated name in pwd.",
 )
+@_voice_settings_options
 @click.pass_context
 def synthesize(
-    ctx: click.Context, text: str, voice: str, rate: int, output: Path | None
+    ctx: click.Context,
+    text: str,
+    voice: str,
+    rate: int,
+    output: Path | None,
+    stability: float | None,
+    similarity: float | None,
+    style: float | None,
+    speaker_boost: bool,
 ) -> None:
     """Synthesize a single text to an MP3 file."""
     provider = _get_provider(ctx)
     provider.resolve_voice(voice)
-    request = SynthesisRequest(text=text, voice=voice, rate=rate)
+    request = SynthesisRequest(
+        text=text,
+        voice=voice,
+        rate=rate,
+        stability=stability,
+        similarity=similarity,
+        style=style,
+        speaker_boost=speaker_boost if speaker_boost else None,
+    )
 
     if output is None:
         output = Path.cwd() / f"{voice}_{text[:20].replace(' ', '_')}.mp3"
@@ -150,6 +202,7 @@ def synthesize(
     type=int,
     help="Pause between segments in ms (used with --merge).",
 )
+@_voice_settings_options
 @click.argument("input_file", type=click.Path(exists=True, path_type=Path))
 @click.pass_context
 def synthesize_batch(
@@ -159,6 +212,10 @@ def synthesize_batch(
     output_dir: Path | None,
     merge: bool,
     pause: int,
+    stability: float | None,
+    similarity: float | None,
+    style: float | None,
+    speaker_boost: bool,
     input_file: Path,
 ) -> None:
     """Synthesize a batch of texts from a JSON file.
@@ -180,7 +237,19 @@ def synthesize_batch(
             )
 
     texts = cast("list[str]", raw)
-    requests = [SynthesisRequest(text=t, voice=voice, rate=rate) for t in texts]
+    boost = speaker_boost if speaker_boost else None
+    requests = [
+        SynthesisRequest(
+            text=t,
+            voice=voice,
+            rate=rate,
+            stability=stability,
+            similarity=similarity,
+            style=style,
+            speaker_boost=boost,
+        )
+        for t in texts
+    ]
     strategy = (
         MergeStrategy.ONE_FILE_PER_BATCH if merge else MergeStrategy.ONE_FILE_PER_INPUT
     )
@@ -227,6 +296,7 @@ def synthesize_batch(
     type=click.Path(path_type=Path),
     help="Output file path.",
 )
+@_voice_settings_options
 @click.pass_context
 def synthesize_pair(
     ctx: click.Context,
@@ -237,6 +307,10 @@ def synthesize_pair(
     rate: int,
     pause: int,
     output: Path | None,
+    stability: float | None,
+    similarity: float | None,
+    style: float | None,
+    speaker_boost: bool,
 ) -> None:
     """Synthesize a pair of texts and stitch them with a pause.
 
@@ -245,8 +319,25 @@ def synthesize_pair(
     provider = _get_provider(ctx)
     provider.resolve_voice(voice1)
     provider.resolve_voice(voice2)
-    req1 = SynthesisRequest(text=text1, voice=voice1, rate=rate)
-    req2 = SynthesisRequest(text=text2, voice=voice2, rate=rate)
+    boost = speaker_boost if speaker_boost else None
+    req1 = SynthesisRequest(
+        text=text1,
+        voice=voice1,
+        rate=rate,
+        stability=stability,
+        similarity=similarity,
+        style=style,
+        speaker_boost=boost,
+    )
+    req2 = SynthesisRequest(
+        text=text2,
+        voice=voice2,
+        rate=rate,
+        stability=stability,
+        similarity=similarity,
+        style=style,
+        speaker_boost=boost,
+    )
 
     if output is None:
         output = Path.cwd() / f"pair_{text1[:10]}_{text2[:10]}.mp3"
@@ -296,6 +387,7 @@ def synthesize_pair(
     default=False,
     help="Merge all pair outputs into a single file.",
 )
+@_voice_settings_options
 @click.argument("input_file", type=click.Path(exists=True, path_type=Path))
 @click.pass_context
 def synthesize_pair_batch(
@@ -306,6 +398,10 @@ def synthesize_pair_batch(
     pause: int,
     output_dir: Path | None,
     merge: bool,
+    stability: float | None,
+    similarity: float | None,
+    style: float | None,
+    speaker_boost: bool,
     input_file: Path,
 ) -> None:
     """Synthesize a batch of text pairs from a JSON file.
@@ -332,10 +428,27 @@ def synthesize_pair_batch(
             raise click.BadParameter(f"Element {i} must contain strings, got {item!r}.")
 
     raw_pairs = cast("list[list[str]]", raw)
+    boost = speaker_boost if speaker_boost else None
     pairs: list[tuple[SynthesisRequest, SynthesisRequest]] = [
         (
-            SynthesisRequest(text=p[0], voice=voice1, rate=rate),
-            SynthesisRequest(text=p[1], voice=voice2, rate=rate),
+            SynthesisRequest(
+                text=p[0],
+                voice=voice1,
+                rate=rate,
+                stability=stability,
+                similarity=similarity,
+                style=style,
+                speaker_boost=boost,
+            ),
+            SynthesisRequest(
+                text=p[1],
+                voice=voice2,
+                rate=rate,
+                stability=stability,
+                similarity=similarity,
+                style=style,
+                speaker_boost=boost,
+            ),
         )
         for p in raw_pairs
     ]
@@ -503,7 +616,15 @@ def _build_install_env(provider: str, audio_dir: Path) -> dict[str, str]:
         "LANGLEARN_TTS_PROVIDER": provider,
         "LANGLEARN_TTS_OUTPUT_DIR": str(audio_dir),
     }
-    if provider == "openai":
+    if provider == "elevenlabs":
+        key = os.environ.get("ELEVENLABS_API_KEY")
+        if not key:
+            raise click.ClickException(
+                "ELEVENLABS_API_KEY is not set."
+                " Export it or use --provider polly/openai."
+            )
+        env["ELEVENLABS_API_KEY"] = key
+    elif provider == "openai":
         key = os.environ.get("OPENAI_API_KEY")
         if not key:
             raise click.ClickException(
@@ -529,7 +650,7 @@ def _build_install_env(provider: str, audio_dir: Path) -> dict[str, str]:
     "--provider",
     "install_provider",
     default=None,
-    help="TTS provider (polly, openai). Default: auto-detect.",
+    help="TTS provider (elevenlabs, polly, openai). Default: auto-detect.",
 )
 def install(
     output_dir: Path | None, uvx_path: str | None, install_provider: str | None

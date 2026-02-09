@@ -96,6 +96,42 @@ class TestSynthesizeCommand:
         request = call_args[0][0]
         assert request.rate == 100
 
+    @patch(f"{_CLI}.TTSClient")
+    @patch(f"{_CLI}.get_provider")
+    def test_synthesize_voice_settings(
+        self, mock_get_provider: MagicMock, mock_client_cls: MagicMock, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "test.mp3"
+        mock_get_provider.return_value = _make_mock_provider()
+        mock_instance = mock_client_cls.return_value
+        mock_instance.synthesize.return_value = _mock_synthesize_result(out)
+
+        runner = CliRunner()
+        result = runner.invoke(
+            main,
+            [
+                "synthesize",
+                "hello",
+                "-o",
+                str(out),
+                "--stability",
+                "0.5",
+                "--similarity",
+                "0.7",
+                "--style",
+                "0.3",
+                "--speaker-boost",
+            ],
+        )
+
+        assert result.exit_code == 0
+        call_args = mock_instance.synthesize.call_args
+        request = call_args[0][0]
+        assert request.stability == 0.5
+        assert request.similarity == 0.7
+        assert request.style == 0.3
+        assert request.speaker_boost is True
+
     @patch(f"{_CLI}.get_provider")
     def test_synthesize_invalid_voice(self, mock_get_provider: MagicMock) -> None:
         provider = _make_mock_provider()
@@ -734,3 +770,88 @@ class TestInstallCommand:
 
         assert result.exit_code != 0
         assert "OPENAI_API_KEY" in result.output
+
+    @patch(f"{_CLI}.get_provider")
+    def test_install_elevenlabs_with_key(
+        self, mock_get_provider: MagicMock, tmp_path: Path
+    ) -> None:
+        """--provider elevenlabs with ELEVENLABS_API_KEY set writes key to config."""
+        config_path = tmp_path / "Claude" / "claude_desktop_config.json"
+        audio_dir = tmp_path / "audio"
+
+        runner = CliRunner()
+        with (
+            patch(f"{_CLI}.shutil.which", return_value=_UVX),
+            patch(f"{_CLI}._claude_desktop_config_path", return_value=config_path),
+            patch.dict(os.environ, {"ELEVENLABS_API_KEY": "sk_test_key"}, clear=False),
+        ):
+            result = runner.invoke(
+                main,
+                [
+                    "install",
+                    "--output-dir",
+                    str(audio_dir),
+                    "--provider",
+                    "elevenlabs",
+                ],
+            )
+
+        assert result.exit_code == 0
+        assert "Provider: elevenlabs" in result.output
+
+        data = json.loads(config_path.read_text())
+        env = data["mcpServers"]["langlearn-tts"]["env"]
+        assert env["LANGLEARN_TTS_PROVIDER"] == "elevenlabs"
+        assert env["ELEVENLABS_API_KEY"] == "sk_test_key"
+
+    @patch(f"{_CLI}.get_provider")
+    def test_install_elevenlabs_without_key_fails(
+        self, mock_get_provider: MagicMock, tmp_path: Path
+    ) -> None:
+        config_path = tmp_path / "Claude" / "claude_desktop_config.json"
+        audio_dir = tmp_path / "audio"
+
+        runner = CliRunner()
+        with (
+            patch(f"{_CLI}.shutil.which", return_value=_UVX),
+            patch(f"{_CLI}._claude_desktop_config_path", return_value=config_path),
+            patch.dict(os.environ, {}, clear=False),
+        ):
+            os.environ.pop("ELEVENLABS_API_KEY", None)
+            result = runner.invoke(
+                main,
+                [
+                    "install",
+                    "--output-dir",
+                    str(audio_dir),
+                    "--provider",
+                    "elevenlabs",
+                ],
+            )
+
+        assert result.exit_code != 0
+        assert "ELEVENLABS_API_KEY" in result.output
+
+    @patch(f"{_CLI}.get_provider")
+    def test_install_defaults_elevenlabs_when_key_set(
+        self, mock_get_provider: MagicMock, tmp_path: Path
+    ) -> None:
+        """ELEVENLABS_API_KEY in env auto-selects elevenlabs."""
+        config_path = tmp_path / "Claude" / "claude_desktop_config.json"
+        audio_dir = tmp_path / "audio"
+
+        runner = CliRunner()
+        with (
+            patch(f"{_CLI}.shutil.which", return_value=_UVX),
+            patch(f"{_CLI}._claude_desktop_config_path", return_value=config_path),
+            patch.dict(os.environ, {"ELEVENLABS_API_KEY": "sk_test_key"}, clear=False),
+        ):
+            result = runner.invoke(main, ["install", "--output-dir", str(audio_dir)])
+
+        assert result.exit_code == 0
+        assert "Provider: elevenlabs" in result.output
+
+        data = json.loads(config_path.read_text())
+        env = data["mcpServers"]["langlearn-tts"]["env"]
+        assert env["LANGLEARN_TTS_PROVIDER"] == "elevenlabs"
+        assert env["ELEVENLABS_API_KEY"] == "sk_test_key"

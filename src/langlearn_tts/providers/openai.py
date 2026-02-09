@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import logging
 import os
-import re
 import tempfile
 from pathlib import Path
 from typing import Any
 
 import openai
 
+from langlearn_tts.core import split_text
 from langlearn_tts.types import HealthCheck, SynthesisRequest, SynthesisResult
 
 logger = logging.getLogger(__name__)
@@ -32,90 +32,6 @@ VOICES: dict[str, str] = {
     "sage": "sage",
     "shimmer": "shimmer",
 }
-
-# Sentence-ending punctuation followed by a space.
-_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
-
-
-def _split_text(text: str, max_chars: int = _MAX_CHARS) -> list[str]:
-    """Split text into chunks that fit within the character limit.
-
-    Every returned chunk is guaranteed ``<= max_chars``.
-
-    Strategy:
-    1. If the text fits, return it as-is.
-    2. Split at sentence boundaries (after . ! ? followed by whitespace).
-    3. Accumulate sentences into chunks up to max_chars.
-    4. If a single sentence exceeds max_chars, split at word boundaries.
-
-    Note: whitespace between sentences is normalized to a single space
-    when two sentences are accumulated into the same chunk. This is
-    intentional — TTS engines treat all whitespace identically.
-    """
-    if len(text) <= max_chars:
-        return [text]
-
-    sentences = _SENTENCE_SPLIT_RE.split(text)
-    chunks: list[str] = []
-    current = ""
-
-    for sentence in sentences:
-        if not sentence:
-            continue
-
-        # If a single sentence exceeds the limit, split at word boundaries.
-        if len(sentence) > max_chars:
-            # Flush current buffer first.
-            if current:
-                chunks.append(current)
-                current = ""
-            chunks.extend(_split_at_words(sentence, max_chars))
-            continue
-
-        candidate = f"{current} {sentence}" if current else sentence
-        if len(candidate) <= max_chars:
-            current = candidate
-        else:
-            chunks.append(current)
-            current = sentence
-
-    if current:
-        chunks.append(current)
-
-    return chunks
-
-
-def _split_at_words(text: str, max_chars: int) -> list[str]:
-    """Split text at word boundaries to fit within max_chars.
-
-    Words exceeding max_chars are split into fixed-size character chunks
-    so every returned piece is guaranteed ``<= max_chars``.
-    """
-    words = text.split()
-    chunks: list[str] = []
-    current = ""
-
-    for word in words:
-        if len(word) > max_chars:
-            if current:
-                chunks.append(current)
-                current = ""
-            for i in range(0, len(word), max_chars):
-                chunks.append(word[i : i + max_chars])
-            continue
-
-        candidate = f"{current} {word}" if current else word
-        if len(candidate) <= max_chars:
-            current = candidate
-        else:
-            if current:
-                chunks.append(current)
-            current = word
-
-    if current:
-        chunks.append(current)
-
-    return chunks
 
 
 class OpenAIProvider:
@@ -258,7 +174,7 @@ class OpenAIProvider:
         """Split text into chunks, synthesize each, then stitch."""
         from langlearn_tts.core import stitch_audio
 
-        chunks = _split_text(request.text)
+        chunks = split_text(request.text, _MAX_CHARS)
         logger.debug("Chunked %d chars into %d parts", len(request.text), len(chunks))
 
         with tempfile.TemporaryDirectory() as tmp:

@@ -31,18 +31,30 @@ def _register_openai(**kwargs: str | None) -> TTSProvider:
     return OpenAIProvider(model=model)
 
 
+def _register_elevenlabs(**kwargs: str | None) -> TTSProvider:
+    from langlearn_tts.providers.elevenlabs import ElevenLabsProvider
+
+    model = kwargs.get("model")
+    return ElevenLabsProvider(model=model)
+
+
 PROVIDER_REGISTRY["polly"] = _register_polly
 PROVIDER_REGISTRY["openai"] = _register_openai
+PROVIDER_REGISTRY["elevenlabs"] = _register_elevenlabs
 
 
 def auto_detect_provider() -> str:
     """Detect the provider from environment.
 
-    Checks LANGLEARN_TTS_PROVIDER env var first, otherwise defaults to 'polly'.
+    Checks LANGLEARN_TTS_PROVIDER env var first.
+    Falls back to elevenlabs if ELEVENLABS_API_KEY is set.
+    Otherwise defaults to polly.
     """
     env = os.environ.get("LANGLEARN_TTS_PROVIDER")
     if env:
         return env.lower()
+    if os.environ.get("ELEVENLABS_API_KEY"):
+        return "elevenlabs"
     return "polly"
 
 
