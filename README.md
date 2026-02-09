@@ -48,7 +48,7 @@ This installs the `langlearn-tts` CLI and `langlearn-tts-server` MCP server glob
 Required for audio stitching (pairs, merged batches). Single synthesis works without it.
 
 ```bash
-# macOS
+# macOS (requires Homebrew — install from https://brew.sh if needed)
 brew install ffmpeg
 
 # Ubuntu/Debian
