@@ -115,27 +115,39 @@ uv sync --all-extras
 uv run langlearn-tts --help
 ```
 
-## Claude Desktop Setup
+## MCP Server Setup
 
-### Automatic (recommended)
+langlearn-tts is an MCP server that works with any MCP-compatible client. The server command is the same for all clients:
+
+```
+uvx --from langlearn-tts langlearn-tts-server
+```
+
+Find your `uvx` path with `which uvx`. All paths in MCP config must be absolute.
+
+### Environment variables
+
+| Env var | Required | Description |
+|---------|----------|-------------|
+| `LANGLEARN_TTS_PROVIDER` | No | `elevenlabs`, `polly` (default when no API key), or `openai` |
+| `ELEVENLABS_API_KEY` | For ElevenLabs | Your API key |
+| `OPENAI_API_KEY` | For OpenAI | Your API key |
+| `LANGLEARN_TTS_OUTPUT_DIR` | No | Output directory (default: `~/langlearn-audio`) |
+| `LANGLEARN_TTS_MODEL` | No | Model name. ElevenLabs: `eleven_v3` (default). OpenAI: `tts-1`, `tts-1-hd` |
+
+For Polly, AWS credentials are read from `~/.aws/credentials`.
+
+### Claude Desktop
+
+**Automatic:**
 
 ```bash
 langlearn-tts install
 ```
 
-This registers the MCP server with Claude Desktop. Auto-detects ElevenLabs when `ELEVENLABS_API_KEY` is set, otherwise defaults to Polly. Use `--provider` to override.
+Options: `--provider NAME`, `--output-dir PATH`, `--uvx-path PATH`. Restart Claude Desktop after running.
 
-Options:
-
-- `--provider NAME` — provider (`elevenlabs`, `polly`, or `openai`). Default: auto-detect
-- `--output-dir PATH` — custom audio output directory (default: `~/langlearn-audio`)
-- `--uvx-path PATH` — override the `uvx` binary path
-
-Restart Claude Desktop after running `install`.
-
-### Manual
-
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+**Manual** — add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
 {
@@ -151,19 +163,47 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 }
 ```
 
-Claude Desktop does not inherit your shell environment. All paths must be absolute, and API keys (like `OPENAI_API_KEY`) must be literal values in this file (env var references are not supported). Find your `uvx` path with `which uvx`.
+Claude Desktop does not inherit your shell environment. API keys must be literal values (env var references are not supported). Restart after editing.
 
-| Env var | Required | Description |
-|---------|----------|-------------|
-| `LANGLEARN_TTS_PROVIDER` | No | `elevenlabs`, `polly` (default when no API key), or `openai` |
-| `ELEVENLABS_API_KEY` | For ElevenLabs | Your literal API key |
-| `OPENAI_API_KEY` | For OpenAI | Your literal API key |
-| `LANGLEARN_TTS_OUTPUT_DIR` | No | Output directory (default: `~/langlearn-audio`) |
-| `LANGLEARN_TTS_MODEL` | No | Model name. ElevenLabs: `eleven_v3` (default). OpenAI: `tts-1`, `tts-1-hd` |
+### Cursor
 
-For Polly, AWS credentials are read from `~/.aws/credentials`. For ElevenLabs or OpenAI, add the respective API key and provider to the env dict. Claude Desktop does not support env var references — all values must be literal.
+Add to `~/.cursor/mcp.json`:
 
-Restart Claude Desktop after editing the config.
+```json
+{
+  "mcpServers": {
+    "langlearn-tts": {
+      "command": "/absolute/path/to/uvx",
+      "args": ["--from", "langlearn-tts", "langlearn-tts-server"],
+      "env": {
+        "LANGLEARN_TTS_OUTPUT_DIR": "/absolute/path/to/output/directory"
+      }
+    }
+  }
+}
+```
+
+### Windsurf
+
+Add to `~/.windsurf/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "langlearn-tts": {
+      "command": "/absolute/path/to/uvx",
+      "args": ["--from", "langlearn-tts", "langlearn-tts-server"],
+      "env": {
+        "LANGLEARN_TTS_OUTPUT_DIR": "/absolute/path/to/output/directory"
+      }
+    }
+  }
+}
+```
+
+### Other MCP clients
+
+Any client that supports MCP over stdio can use langlearn-tts. Configure it as a subprocess with the command and args shown above, passing API keys and settings as environment variables.
 
 ## AI Tutor Prompts
 
