@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-02-09
+
+### Changed
+- All 28 tutor prompts are now provider-agnostic — removed hardcoded Polly voice names, server auto-selects voices
+- Tutor prompts add level-calibrated target language interaction: classroom L2 routines (beginner), circumlocution and rephrasing (intermediate), L2 immersion with English redirect (advanced)
+
 ## [0.4.2] - 2026-02-09
 
 ### Added
