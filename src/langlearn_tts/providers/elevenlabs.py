@@ -56,6 +56,18 @@ def _load_voices_from_api(client: Any) -> None:  # pyright: ignore[reportExplici
     logger.debug("Loaded %d voices from ElevenLabs API", len(VOICES))
 
 
+def _extract_api_error_message(exc: ApiError) -> str:
+    """Extract a human-readable message from an ElevenLabs ApiError."""
+    body: Any = exc.body  # pyright: ignore[reportUnknownMemberType]
+    if isinstance(body, dict):
+        detail: Any = body.get("detail", {})  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        if isinstance(detail, dict):
+            msg: Any = detail.get("message", "")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+            if isinstance(msg, str) and msg:
+                return msg
+    return f"HTTP {exc.status_code}"
+
+
 class ElevenLabsProvider:
     """ElevenLabs TTS provider.
 
@@ -148,7 +160,15 @@ class ElevenLabsProvider:
                     ),
                 )
             )
-        except (ApiError, OSError) as exc:
+        except ApiError as exc:
+            msg = _extract_api_error_message(exc)
+            checks.append(
+                HealthCheck(
+                    passed=False,
+                    message=f"ElevenLabs subscription: {msg}",
+                )
+            )
+        except OSError as exc:
             checks.append(
                 HealthCheck(
                     passed=False,

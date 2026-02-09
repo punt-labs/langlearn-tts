@@ -496,8 +496,9 @@ class TestInstallCommand:
             ),
             patch.dict(os.environ, {}, clear=False),
         ):
-            # Ensure OPENAI_API_KEY is not set so polly is auto-detected
+            # Ensure no API keys are set so polly is auto-detected
             os.environ.pop("OPENAI_API_KEY", None)
+            os.environ.pop("ELEVENLABS_API_KEY", None)
             result = runner.invoke(
                 main,
                 ["install", "--output-dir", str(audio_dir)],
@@ -662,6 +663,7 @@ class TestInstallCommand:
             patch(f"{_CLI}._claude_desktop_config_path", return_value=config_path),
             patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test-key"}, clear=False),
         ):
+            os.environ.pop("ELEVENLABS_API_KEY", None)
             result = runner.invoke(main, ["install", "--output-dir", str(audio_dir)])
 
         assert result.exit_code == 0
@@ -713,6 +715,7 @@ class TestInstallCommand:
             patch.dict(os.environ, {}, clear=False),
         ):
             os.environ.pop("OPENAI_API_KEY", None)
+            os.environ.pop("ELEVENLABS_API_KEY", None)
             result = runner.invoke(main, ["install", "--output-dir", str(audio_dir)])
 
         assert result.exit_code == 0

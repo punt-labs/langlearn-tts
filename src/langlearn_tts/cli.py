@@ -94,13 +94,13 @@ def _voice_settings_options[F: Callable[..., object]](fn: F) -> F:
     "provider_name",
     default=None,
     envvar="LANGLEARN_TTS_PROVIDER",
-    help="TTS provider (e.g. polly, openai). Default: auto-detect.",
+    help="TTS provider (elevenlabs, polly, openai). Default: auto-detect.",
 )
 @click.option(
     "--model",
     default=None,
     envvar="LANGLEARN_TTS_MODEL",
-    help="Model name (e.g. tts-1, tts-1-hd). Provider-specific.",
+    help="Model name (e.g. eleven_v3, tts-1, tts-1-hd). Provider-specific.",
 )
 @click.pass_context
 def main(
