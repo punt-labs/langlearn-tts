@@ -493,18 +493,21 @@ def _detect_install_provider(provider_name: str | None) -> str:
 
 
 def _build_install_env(provider: str, audio_dir: Path) -> dict[str, str]:
-    """Build the env dict for the MCP server config entry."""
+    """Build the env dict for the MCP server config entry.
+
+    Uses ${VAR} references instead of literal secrets so the config
+    file inherits values from the user's shell environment at runtime.
+    """
     env: dict[str, str] = {
         "LANGLEARN_TTS_PROVIDER": provider,
         "LANGLEARN_TTS_OUTPUT_DIR": str(audio_dir),
     }
     if provider == "openai":
-        key = os.environ.get("OPENAI_API_KEY")
-        if not key:
+        if not os.environ.get("OPENAI_API_KEY"):
             raise click.ClickException(
                 "OPENAI_API_KEY is not set. Export it or use --provider polly."
             )
-        env["OPENAI_API_KEY"] = key
+        env["OPENAI_API_KEY"] = "${OPENAI_API_KEY}"
     return env
 
 

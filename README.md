@@ -132,7 +132,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
       "args": ["--from", "langlearn-tts", "langlearn-tts-server"],
       "env": {
         "LANGLEARN_TTS_PROVIDER": "openai",
-        "OPENAI_API_KEY": "sk-...",
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}",
         "LANGLEARN_TTS_OUTPUT_DIR": "/absolute/path/to/output/directory"
       }
     }

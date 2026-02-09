@@ -633,7 +633,7 @@ class TestInstallCommand:
         data = json.loads(config_path.read_text())
         env = data["mcpServers"]["langlearn-tts"]["env"]
         assert env["LANGLEARN_TTS_PROVIDER"] == "openai"
-        assert env["OPENAI_API_KEY"] == "sk-test-key"
+        assert env["OPENAI_API_KEY"] == "${OPENAI_API_KEY}"
 
     @patch(f"{_CLI}.get_provider")
     def test_install_defaults_polly(
