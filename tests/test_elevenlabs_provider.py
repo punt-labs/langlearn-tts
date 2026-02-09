@@ -16,6 +16,9 @@ class TestElevenLabsProviderName:
     def test_name(self, elevenlabs_provider: ElevenLabsProvider) -> None:
         assert elevenlabs_provider.name == "elevenlabs"
 
+    def test_default_voice(self, elevenlabs_provider: ElevenLabsProvider) -> None:
+        assert elevenlabs_provider.default_voice == "rachel"
+
 
 class TestElevenLabsProviderResolveVoice:
     def test_resolve_cached_voice(
@@ -51,6 +54,33 @@ class TestElevenLabsProviderResolveVoice:
             result = provider.resolve_voice("rachel")
             assert result == "rachel"
             mock_elevenlabs_client.voices.get_all.assert_called_once()
+        finally:
+            elevenlabs.VOICES.clear()
+            elevenlabs.VOICES.update(saved_voices)
+            elevenlabs._voices_loaded = saved_loaded  # pyright: ignore[reportPrivateUsage]
+
+    def test_resolve_short_name_from_api_with_descriptions(
+        self, mock_elevenlabs_client: MagicMock
+    ) -> None:
+        """API returns 'Rachel - calm, gentle'; lookup of 'rachel' works."""
+        import langlearn_tts.providers.elevenlabs as elevenlabs
+
+        saved_voices = dict(elevenlabs.VOICES)
+        saved_loaded = elevenlabs._voices_loaded  # pyright: ignore[reportPrivateUsage]
+
+        elevenlabs.VOICES.clear()
+        elevenlabs._voices_loaded = False  # pyright: ignore[reportPrivateUsage]
+
+        try:
+            provider = ElevenLabsProvider(client=mock_elevenlabs_client)
+            # Should resolve "rachel" even though API returned
+            # "Rachel - calm, gentle".
+            result = provider.resolve_voice("rachel")
+            assert result == "rachel"
+
+            # Full name with description should also work.
+            result2 = provider.resolve_voice("Rachel - calm, gentle")
+            assert result2 == "rachel - calm, gentle"
         finally:
             elevenlabs.VOICES.clear()
             elevenlabs.VOICES.update(saved_voices)

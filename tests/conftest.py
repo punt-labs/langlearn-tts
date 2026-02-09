@@ -147,12 +147,13 @@ def mock_elevenlabs_client() -> MagicMock:
     )
 
     # Mock voices.get_all for voice resolution.
+    # Real API returns names with descriptions (e.g. "Rachel - calm, gentle").
     voice_rachel = MagicMock()
-    voice_rachel.name = "Rachel"
+    voice_rachel.name = "Rachel - calm, gentle"
     voice_rachel.voice_id = "21m00Tcm4TlvDq8ikWAM"
 
     voice_drew = MagicMock()
-    voice_drew.name = "Drew"
+    voice_drew.name = "Drew - eloquent, calm"
     voice_drew.voice_id = "29vD33N1CtxCmqQRPOHJ"
 
     voices_response = MagicMock()

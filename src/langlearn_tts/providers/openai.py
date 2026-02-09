@@ -54,6 +54,10 @@ class OpenAIProvider:
     def name(self) -> str:
         return "openai"
 
+    @property
+    def default_voice(self) -> str:
+        return "nova"
+
     def synthesize(
         self, request: SynthesisRequest, output_path: Path
     ) -> SynthesisResult:

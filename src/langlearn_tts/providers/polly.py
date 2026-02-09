@@ -115,6 +115,10 @@ class PollyProvider:
     def name(self) -> str:
         return "polly"
 
+    @property
+    def default_voice(self) -> str:
+        return "joanna"
+
     def synthesize(
         self, request: SynthesisRequest, output_path: Path
     ) -> SynthesisResult:

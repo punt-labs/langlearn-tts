@@ -48,12 +48,20 @@ def _load_voices_from_api(client: Any) -> None:  # pyright: ignore[reportExplici
 
     response: Any = client.voices.get_all()  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
     for voice in response.voices:  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-        key: str = voice.name.lower()  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-        if key not in VOICES:
-            VOICES[key] = voice.voice_id  # pyright: ignore[reportUnknownMemberType]
+        full_name: str = voice.name.lower()  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        vid: str = voice.voice_id  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+
+        # Store full name (e.g. "adam - dominant, firm").
+        if full_name not in VOICES:
+            VOICES[full_name] = vid
+
+        # Also store short name (before " - ") for convenient lookup.
+        short_name = full_name.split(" - ", 1)[0]
+        if short_name != full_name and short_name not in VOICES:
+            VOICES[short_name] = vid
 
     _voices_loaded = True
-    logger.debug("Loaded %d voices from ElevenLabs API", len(VOICES))
+    logger.debug("Loaded %d voice entries from ElevenLabs API", len(VOICES))
 
 
 def _extract_api_error_message(exc: ApiError) -> str:
@@ -92,6 +100,10 @@ class ElevenLabsProvider:
     @property
     def name(self) -> str:
         return "elevenlabs"
+
+    @property
+    def default_voice(self) -> str:
+        return "rachel"
 
     def synthesize(
         self, request: SynthesisRequest, output_path: Path
@@ -195,10 +207,12 @@ class ElevenLabsProvider:
         if key in VOICES:
             return VOICES[key]
 
-        sample = sorted(VOICES)[:10]
+        # Show only short names (without descriptions) in the hint.
+        short_names = sorted(k for k in VOICES if " - " not in k)
+        sample = short_names[:10]
         hint = ", ".join(sample)
-        if len(VOICES) > 10:
-            hint += f" ... ({len(VOICES)} total)"
+        if len(short_names) > 10:
+            hint += f" ... ({len(short_names)} total)"
         raise ValueError(f"Unknown voice '{name}'. Available: {hint}")
 
     def _build_voice_settings(self, request: SynthesisRequest) -> Any | None:  # pyright: ignore[reportExplicitAny]

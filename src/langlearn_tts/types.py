@@ -82,6 +82,11 @@ class TTSProvider(Protocol):
         """Short identifier for this provider (e.g. 'polly')."""
         ...
 
+    @property
+    def default_voice(self) -> str:
+        """Default voice name for this provider."""
+        ...
+
     def synthesize(
         self, request: SynthesisRequest, output_path: Path
     ) -> SynthesisResult:

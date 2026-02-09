@@ -87,7 +87,7 @@ def _play_audio(path: Path) -> None:
 @mcp.tool()
 def synthesize(
     text: str,
-    voice: str = "joanna",
+    voice: str | None = None,
     rate: int = 90,
     auto_play: bool = True,
     output_path: str | None = None,
@@ -101,8 +101,9 @@ def synthesize(
 
     Args:
         text: The text to convert to speech.
-        voice: Voice name (e.g. joanna, daniel, lucia, takumi).
-            Defaults to joanna.
+        voice: Voice name. Provider-specific (e.g. rachel for ElevenLabs,
+            joanna for Polly, nova for OpenAI). Defaults to provider's
+            default voice.
         rate: Speech rate as percentage (90 = 90% speed, good for
             language learners). Defaults to 90.
         auto_play: Open the file in the default audio player after
@@ -125,6 +126,7 @@ def synthesize(
     """
     _validate_voice_settings(stability, similarity, style)
     provider = get_provider()
+    voice = voice or provider.default_voice
     provider.resolve_voice(voice)
     request = SynthesisRequest(
         text=text,
@@ -153,7 +155,7 @@ def synthesize(
 @mcp.tool()
 def synthesize_batch(
     texts: list[str],
-    voice: str = "joanna",
+    voice: str | None = None,
     rate: int = 90,
     merge: bool = False,
     pause_ms: int = 500,
@@ -168,7 +170,7 @@ def synthesize_batch(
 
     Args:
         texts: List of texts to synthesize.
-        voice: Voice name for all texts. Defaults to joanna.
+        voice: Voice name for all texts. Defaults to provider's default.
         rate: Speech rate as percentage. Defaults to 90.
         merge: If true, produce one merged file instead of separate
             files per text. Defaults to false.
@@ -189,6 +191,7 @@ def synthesize_batch(
     """
     _validate_voice_settings(stability, similarity, style)
     provider = get_provider()
+    voice = voice or provider.default_voice
     provider.resolve_voice(voice)
     requests = [
         SynthesisRequest(
@@ -219,8 +222,8 @@ def synthesize_batch(
 def synthesize_pair(
     text1: str,
     text2: str,
-    voice1: str = "joanna",
-    voice2: str = "hans",
+    voice1: str | None = None,
+    voice2: str | None = None,
     rate: int = 90,
     pause_ms: int = 500,
     auto_play: bool = True,
@@ -239,8 +242,8 @@ def synthesize_pair(
     Args:
         text1: First text (typically English).
         text2: Second text (typically target language).
-        voice1: Voice for text1. Defaults to joanna (English).
-        voice2: Voice for text2. Defaults to hans (German).
+        voice1: Voice for text1. Defaults to provider's default voice.
+        voice2: Voice for text2. Defaults to provider's default voice.
         rate: Speech rate as percentage. Defaults to 90.
         pause_ms: Pause between the two texts in milliseconds.
             Defaults to 500.
@@ -258,6 +261,8 @@ def synthesize_pair(
     """
     _validate_voice_settings(stability, similarity, style)
     provider = get_provider()
+    voice1 = voice1 or provider.default_voice
+    voice2 = voice2 or provider.default_voice
     provider.resolve_voice(voice1)
     provider.resolve_voice(voice2)
     req1 = SynthesisRequest(
@@ -296,8 +301,8 @@ def synthesize_pair(
 @mcp.tool()
 def synthesize_pair_batch(
     pairs: list[list[str]],
-    voice1: str = "joanna",
-    voice2: str = "hans",
+    voice1: str | None = None,
+    voice2: str | None = None,
     rate: int = 90,
     pause_ms: int = 500,
     merge: bool = False,
@@ -315,8 +320,8 @@ def synthesize_pair_batch(
 
     Args:
         pairs: List of [text1, text2] pairs.
-        voice1: Voice for all first texts. Defaults to joanna.
-        voice2: Voice for all second texts. Defaults to hans.
+        voice1: Voice for all first texts. Defaults to provider's default.
+        voice2: Voice for all second texts. Defaults to provider's default.
         rate: Speech rate as percentage. Defaults to 90.
         pause_ms: Pause between pair segments in milliseconds.
             Defaults to 500.
@@ -335,6 +340,8 @@ def synthesize_pair_batch(
     """
     _validate_voice_settings(stability, similarity, style)
     provider = get_provider()
+    voice1 = voice1 or provider.default_voice
+    voice2 = voice2 or provider.default_voice
     provider.resolve_voice(voice1)
     provider.resolve_voice(voice2)
 
