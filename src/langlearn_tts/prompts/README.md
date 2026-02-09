@@ -97,6 +97,6 @@ Prompts are calibrated by level using established second-language acquisition pr
 These prompts are starting points. Adjust:
 
 - **Student background** — change native language, prior language experience, interests
-- **Voice selection** — swap Polly voice names to match instructor gender/accent preference
+- **Voice selection** — the server auto-selects voices, but you can override with provider-specific voice names if needed
 - **Pace** — change the speech rate (default 90%) up or down
 - **Focus areas** — add specific goals (business vocabulary, exam prep, travel, etc.)
