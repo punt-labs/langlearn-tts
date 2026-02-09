@@ -9,7 +9,7 @@ Generate audio flashcards and vocabulary drills from text. Ask Claude to synthes
 
 The pair mode is the core workflow: give it an English word and its translation, and it produces a single MP3 — `[English audio] [pause] [target language audio]` — ready for Anki, spaced repetition, or passive listening.
 
-Available as both a **Claude Desktop MCP server** (ask Claude to generate audio in conversation) and a **CLI** with identical functionality. Supports **AWS Polly** and **OpenAI TTS** today; **ElevenLabs** is planned.
+Available as both a **Claude Desktop MCP server** (ask Claude to generate audio in conversation) and a **CLI** with identical functionality. Supports **AWS Polly** (recommended — best pronunciation) and **OpenAI TTS** (easier setup) today; **ElevenLabs** (highest quality) is planned.
 
 ## Features
 
@@ -20,7 +20,7 @@ Available as both a **Claude Desktop MCP server** (ask Claude to generate audio 
 - **Auto-play** — MCP tools play audio immediately after synthesis
 - **Configurable speech rate** — default 90% for learner-friendly pacing
 - **Two providers** — AWS Polly (93 voices, 41 languages) or OpenAI TTS (9 voices, 57 languages)
-- **Auto-detection** — defaults to OpenAI when `OPENAI_API_KEY` is set, otherwise Polly
+- **Provider selection** — defaults to Polly; set `LANGLEARN_TTS_PROVIDER=openai` or use `--provider openai` for OpenAI
 
 ## Quick Start
 
@@ -63,19 +63,11 @@ winget install ffmpeg
 
 ### 4. Configure a TTS provider
 
-Pick one provider. The tool auto-detects which to use: if `OPENAI_API_KEY` is set, it uses OpenAI; otherwise it uses Polly. You can override with `--provider polly` or `--provider openai`.
+Pick one provider. Polly is the default — its dedicated per-language neural voices produce more native-sounding pronunciation than OpenAI's multilingual model. Use `--provider openai` or set `LANGLEARN_TTS_PROVIDER=openai` if you prefer OpenAI.
 
-**Option A — OpenAI TTS (simplest):**
+**Option A — AWS Polly (recommended, best pronunciation):**
 
-```bash
-export OPENAI_API_KEY=sk-...
-```
-
-9 built-in voices, 57 languages. Pricing: $15/1M characters (tts-1) or $30/1M (tts-1-hd).
-
-**Option B — AWS Polly:**
-
-Requires an AWS account with `polly:SynthesizeSpeech` and `polly:DescribeVoices` permissions.
+93 dedicated per-language neural voices, 41 languages. Each voice is trained for a specific language, producing more natural pronunciation for language learning. Requires an AWS account with `polly:SynthesizeSpeech` and `polly:DescribeVoices` permissions.
 
 Install the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html), then:
 
@@ -84,6 +76,16 @@ aws configure
 ```
 
 Enter your Access Key ID, Secret Access Key, and region (e.g., `us-east-1`). Alternatively, set `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_DEFAULT_REGION` environment variables.
+
+**Option B — OpenAI TTS (easier setup):**
+
+9 multilingual voices, 57 languages. Simpler to configure (one API key), but uses a single multilingual model for all languages. Pronunciation quality varies by language.
+
+```bash
+export OPENAI_API_KEY=sk-...
+```
+
+Pricing: $15/1M characters (tts-1) or $30/1M (tts-1-hd).
 
 ### 5. Verify
 
@@ -110,11 +112,11 @@ uv run langlearn-tts --help
 langlearn-tts install
 ```
 
-This registers the MCP server with Claude Desktop. It auto-detects your provider and writes the necessary env vars (including `OPENAI_API_KEY` for OpenAI) into the config.
+This registers the MCP server with Claude Desktop. Defaults to Polly. Use `--provider openai` for OpenAI (writes your `OPENAI_API_KEY` into the config).
 
 Options:
 
-- `--provider NAME` — force a provider (`polly` or `openai`) instead of auto-detecting
+- `--provider NAME` — provider (`polly` or `openai`). Default: `polly`
 - `--output-dir PATH` — custom audio output directory (default: `~/Claude-Audio`)
 - `--uvx-path PATH` — override the `uvx` binary path
 
@@ -131,8 +133,6 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
       "command": "/absolute/path/to/uvx",
       "args": ["--from", "langlearn-tts", "langlearn-tts-server"],
       "env": {
-        "LANGLEARN_TTS_PROVIDER": "openai",
-        "OPENAI_API_KEY": "sk-...",
         "LANGLEARN_TTS_OUTPUT_DIR": "/absolute/path/to/output/directory"
       }
     }
@@ -140,16 +140,16 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 }
 ```
 
-Claude Desktop does not inherit your shell environment. All paths must be absolute and API keys must be literal values in the config. Find your `uvx` path with `which uvx`.
+Claude Desktop does not inherit your shell environment. All paths must be absolute, and API keys (like `OPENAI_API_KEY`) must be literal values in this file (env var references are not supported). Find your `uvx` path with `which uvx`.
 
 | Env var | Required | Description |
 |---------|----------|-------------|
-| `LANGLEARN_TTS_PROVIDER` | No | `openai` or `polly`. Auto-detects if omitted. |
+| `LANGLEARN_TTS_PROVIDER` | No | `polly` (default) or `openai` |
 | `OPENAI_API_KEY` | For OpenAI | Your literal API key (Claude Desktop does not support env var references) |
 | `LANGLEARN_TTS_OUTPUT_DIR` | No | Output directory (default: `~/Claude-Audio`) |
 | `LANGLEARN_TTS_MODEL` | No | OpenAI model (`tts-1`, `tts-1-hd`). Default: `tts-1` |
 
-For Polly, omit `OPENAI_API_KEY` and set `LANGLEARN_TTS_PROVIDER` to `polly`. AWS credentials are read from `~/.aws/credentials`.
+For Polly (default), AWS credentials are read from `~/.aws/credentials`. For OpenAI, add `LANGLEARN_TTS_PROVIDER: "openai"` and `OPENAI_API_KEY` to the env dict.
 
 Restart Claude Desktop after editing the config.
 
@@ -201,27 +201,9 @@ Checks Python version, active provider, ffmpeg, provider-specific credentials, `
 
 ## Voices
 
-### OpenAI TTS
+### AWS Polly (default)
 
-9 built-in voices. Voice names are case-insensitive.
-
-| Voice | Description |
-|-------|-------------|
-| alloy | Neutral, balanced |
-| ash | Warm, conversational |
-| coral | Clear, expressive |
-| echo | Smooth, authoritative |
-| fable | Warm, British-accented |
-| onyx | Deep, resonant |
-| nova | Friendly, upbeat |
-| sage | Calm, measured |
-| shimmer | Light, gentle |
-
-Select the model with `--model tts-1` (faster, cheaper) or `--model tts-1-hd` (higher quality).
-
-### AWS Polly
-
-Any voice from the [AWS Polly voice list](https://docs.aws.amazon.com/polly/latest/dg/voicelist.html) is supported. Voice names are case-insensitive. The tool queries the Polly API on first use and caches the result.
+Any voice from the [AWS Polly voice list](https://docs.aws.amazon.com/polly/latest/dg/voicelist.html) is supported. Voice names are case-insensitive. Each voice is a dedicated neural model trained for a specific language, producing the most native-sounding pronunciation. The tool queries the Polly API on first use and caches the result.
 
 Common voices for language learning:
 
@@ -240,6 +222,24 @@ Common voices for language learning:
 | zhiyu | Chinese (Mandarin) | neural |
 
 The engine (neural, standard, generative, long-form) is selected automatically — neural preferred when available.
+
+### OpenAI TTS
+
+9 multilingual voices. Any voice works with any language — the model infers the language from the text. Voice names are case-insensitive. Pronunciation quality varies by language; major languages tend to be solid, less-resourced languages can be inconsistent.
+
+| Voice | Description |
+|-------|-------------|
+| alloy | Neutral, balanced |
+| ash | Warm, conversational |
+| coral | Clear, expressive |
+| echo | Smooth, authoritative |
+| fable | Warm, British-accented |
+| onyx | Deep, resonant |
+| nova | Friendly, upbeat |
+| sage | Calm, measured |
+| shimmer | Light, gentle |
+
+Select the model with `--model tts-1` (faster, cheaper) or `--model tts-1-hd` (higher quality).
 
 ## CLI Usage
 
