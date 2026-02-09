@@ -3,141 +3,31 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
-from unittest.mock import MagicMock, patch
 
 import pytest
 
 from langlearn_tts.types import (
+    HealthCheck,
     MergeStrategy,
     SynthesisRequest,
     SynthesisResult,
-    VoiceConfig,
-    _best_engine,  # pyright: ignore[reportPrivateUsage]
     generate_filename,
-    resolve_voice,
 )
 
 
-def _make_describe_voices_response(
-    voices: list[dict[str, Any]],
-) -> dict[str, Any]:
-    """Create a mock describe_voices response."""
-    return {"Voices": voices}
+class TestHealthCheck:
+    def test_defaults_to_required(self) -> None:
+        check = HealthCheck(passed=True, message="ok")
+        assert check.required is True
 
+    def test_optional_check(self) -> None:
+        check = HealthCheck(passed=False, message="fail", required=False)
+        assert check.required is False
 
-def _voice_entry(
-    voice_id: str,
-    language: str,
-    engines: list[str],
-) -> dict[str, Any]:
-    return {
-        "Id": voice_id,
-        "LanguageCode": language,
-        "SupportedEngines": engines,
-    }
-
-
-class TestVoiceConfig:
-    def test_voice_config_is_frozen(self) -> None:
-        cfg = VoiceConfig(voice_id="Joanna", language_code="en-US", engine="neural")
+    def test_frozen(self) -> None:
+        check = HealthCheck(passed=True, message="ok")
         with pytest.raises(AttributeError):
-            cfg.voice_id = "Matthew"  # type: ignore[misc]
-
-
-class TestBestEngine:
-    def test_prefers_neural(self) -> None:
-        assert _best_engine(["standard", "neural"]) == "neural"
-
-    def test_prefers_neural_over_generative(self) -> None:
-        assert _best_engine(["generative", "neural", "standard"]) == "neural"
-
-    def test_falls_back_to_generative(self) -> None:
-        assert _best_engine(["generative", "long-form"]) == "generative"
-
-    def test_standard_only(self) -> None:
-        assert _best_engine(["standard"]) == "standard"
-
-
-class TestResolveVoice:
-    @patch("langlearn_tts.types.boto3")
-    def test_resolve_from_api(self, mock_boto3: MagicMock) -> None:
-        import langlearn_tts.types as t
-
-        t.VOICES.clear()
-        t._voices_loaded = False  # pyright: ignore[reportPrivateUsage]
-
-        mock_client = MagicMock()
-        mock_boto3.client.return_value = mock_client
-        mock_client.describe_voices.return_value = _make_describe_voices_response(
-            [_voice_entry("Joanna", "en-US", ["neural", "standard"])]
-        )
-
-        cfg = resolve_voice("joanna")
-
-        assert cfg.voice_id == "Joanna"
-        assert cfg.language_code == "en-US"
-        assert cfg.engine == "neural"
-
-    @patch("langlearn_tts.types.boto3")
-    def test_resolve_case_insensitive(self, mock_boto3: MagicMock) -> None:
-        import langlearn_tts.types as t
-
-        t.VOICES.clear()
-        t._voices_loaded = False  # pyright: ignore[reportPrivateUsage]
-
-        mock_client = MagicMock()
-        mock_boto3.client.return_value = mock_client
-        mock_client.describe_voices.return_value = _make_describe_voices_response(
-            [_voice_entry("Hans", "de-DE", ["standard"])]
-        )
-
-        cfg = resolve_voice("HANS")
-        assert cfg.voice_id == "Hans"
-
-    @patch("langlearn_tts.types.boto3")
-    def test_resolve_unknown_voice_raises(self, mock_boto3: MagicMock) -> None:
-        import langlearn_tts.types as t
-
-        t.VOICES.clear()
-        t._voices_loaded = False  # pyright: ignore[reportPrivateUsage]
-
-        mock_client = MagicMock()
-        mock_boto3.client.return_value = mock_client
-        mock_client.describe_voices.return_value = _make_describe_voices_response([])
-
-        with pytest.raises(ValueError, match="Unknown voice 'nonexistent'"):
-            resolve_voice("nonexistent")
-
-    @patch("langlearn_tts.types.boto3")
-    def test_caches_api_results(self, mock_boto3: MagicMock) -> None:
-        import langlearn_tts.types as t
-
-        t.VOICES.clear()
-        t._voices_loaded = False  # pyright: ignore[reportPrivateUsage]
-
-        mock_client = MagicMock()
-        mock_boto3.client.return_value = mock_client
-        mock_client.describe_voices.return_value = _make_describe_voices_response(
-            [_voice_entry("Lucia", "es-ES", ["neural", "standard"])]
-        )
-
-        resolve_voice("lucia")
-        resolve_voice("lucia")
-
-        mock_client.describe_voices.assert_called_once()
-
-    def test_uses_cached_voice(self) -> None:
-        import langlearn_tts.types as t
-
-        t.VOICES["joanna"] = VoiceConfig(
-            voice_id="Joanna", language_code="en-US", engine="neural"
-        )
-        try:
-            cfg = resolve_voice("joanna")
-            assert cfg.voice_id == "Joanna"
-        finally:
-            del t.VOICES["joanna"]
+            check.passed = False  # type: ignore[misc]
 
 
 class TestMergeStrategy:
@@ -150,20 +40,21 @@ class TestMergeStrategy:
 
 class TestSynthesisRequest:
     def test_default_rate(self) -> None:
-        cfg = VoiceConfig(voice_id="Joanna", language_code="en-US", engine="neural")
-        req = SynthesisRequest(text="hello", voice=cfg)
+        req = SynthesisRequest(text="hello", voice="joanna")
         assert req.rate == 90
 
     def test_custom_rate(self) -> None:
-        cfg = VoiceConfig(voice_id="Joanna", language_code="en-US", engine="neural")
-        req = SynthesisRequest(text="hello", voice=cfg, rate=100)
+        req = SynthesisRequest(text="hello", voice="joanna", rate=100)
         assert req.rate == 100
 
     def test_frozen(self) -> None:
-        cfg = VoiceConfig(voice_id="Joanna", language_code="en-US", engine="neural")
-        req = SynthesisRequest(text="hello", voice=cfg)
+        req = SynthesisRequest(text="hello", voice="joanna")
         with pytest.raises(AttributeError):
             req.text = "world"  # type: ignore[misc]
+
+    def test_voice_is_string(self) -> None:
+        req = SynthesisRequest(text="hello", voice="hans")
+        assert req.voice == "hans"
 
 
 class TestSynthesisResult:

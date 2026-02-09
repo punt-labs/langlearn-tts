@@ -7,23 +7,21 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from langlearn_tts.core import PollyClient, stitch_audio
+from langlearn_tts.core import TTSClient, stitch_audio
 from langlearn_tts.types import (
     MergeStrategy,
     SynthesisRequest,
 )
-from tests.conftest import HANS, JOANNA, SEOYEON, TATYANA
 
 
-class TestPollyClientSynthesize:
+class TestTTSClientSynthesize:
     def test_synthesize_creates_file(
-        self, polly_client: PollyClient, tmp_output_dir: Path
+        self, tts_client: TTSClient, tmp_output_dir: Path
     ) -> None:
-        voice = JOANNA
-        request = SynthesisRequest(text="hello", voice=voice, rate=75)
+        request = SynthesisRequest(text="hello", voice="joanna", rate=75)
         out = tmp_output_dir / "test.mp3"
 
-        result = polly_client.synthesize(request, out)
+        result = tts_client.synthesize(request, out)
 
         assert result.file_path == out
         assert out.exists()
@@ -32,14 +30,13 @@ class TestPollyClientSynthesize:
     def test_synthesize_uses_ssml(
         self,
         mock_boto_client: MagicMock,
-        polly_client: PollyClient,
+        tts_client: TTSClient,
         tmp_output_dir: Path,
     ) -> None:
-        voice = HANS
-        request = SynthesisRequest(text="Hallo", voice=voice, rate=60)
+        request = SynthesisRequest(text="Hallo", voice="hans", rate=60)
         out = tmp_output_dir / "hallo.mp3"
 
-        polly_client.synthesize(request, out)
+        tts_client.synthesize(request, out)
 
         call_kwargs = mock_boto_client.synthesize_speech.call_args.kwargs
         assert call_kwargs["TextType"] == "ssml"
@@ -49,14 +46,13 @@ class TestPollyClientSynthesize:
     def test_synthesize_passes_voice_params(
         self,
         mock_boto_client: MagicMock,
-        polly_client: PollyClient,
+        tts_client: TTSClient,
         tmp_output_dir: Path,
     ) -> None:
-        voice = TATYANA
-        request = SynthesisRequest(text="Привет", voice=voice)
+        request = SynthesisRequest(text="Привет", voice="tatyana")
         out = tmp_output_dir / "privet.mp3"
 
-        polly_client.synthesize(request, out)
+        tts_client.synthesize(request, out)
 
         call_kwargs = mock_boto_client.synthesize_speech.call_args.kwargs
         assert call_kwargs["VoiceId"] == "Tatyana"
@@ -64,46 +60,43 @@ class TestPollyClientSynthesize:
         assert call_kwargs["Engine"] == "standard"
 
     def test_synthesize_creates_parent_dirs(
-        self, polly_client: PollyClient, tmp_path: Path
+        self, tts_client: TTSClient, tmp_path: Path
     ) -> None:
-        voice = JOANNA
-        request = SynthesisRequest(text="hello", voice=voice)
+        request = SynthesisRequest(text="hello", voice="joanna")
         out = tmp_path / "nested" / "dir" / "test.mp3"
 
-        result = polly_client.synthesize(request, out)
+        result = tts_client.synthesize(request, out)
 
         assert result.file_path.exists()
 
     def test_synthesize_result_metadata(
-        self, polly_client: PollyClient, tmp_output_dir: Path
+        self, tts_client: TTSClient, tmp_output_dir: Path
     ) -> None:
-        voice = SEOYEON
-        request = SynthesisRequest(text="안녕하세요", voice=voice)
+        request = SynthesisRequest(text="안녕하세요", voice="seoyeon")
         out = tmp_output_dir / "korean.mp3"
 
-        result = polly_client.synthesize(request, out)
+        result = tts_client.synthesize(request, out)
 
         assert result.text == "안녕하세요"
         assert result.voice_name == "Seoyeon"
 
 
-class TestPollyClientSynthesizeBatch:
+class TestTTSClientSynthesizeBatch:
     def test_empty_batch_returns_empty(
-        self, polly_client: PollyClient, tmp_output_dir: Path
+        self, tts_client: TTSClient, tmp_output_dir: Path
     ) -> None:
-        results = polly_client.synthesize_batch([], tmp_output_dir)
+        results = tts_client.synthesize_batch([], tmp_output_dir)
         assert results == []
 
     def test_batch_separate_creates_files(
-        self, polly_client: PollyClient, tmp_output_dir: Path
+        self, tts_client: TTSClient, tmp_output_dir: Path
     ) -> None:
-        voice = JOANNA
         requests = [
-            SynthesisRequest(text="hello", voice=voice),
-            SynthesisRequest(text="world", voice=voice),
+            SynthesisRequest(text="hello", voice="joanna"),
+            SynthesisRequest(text="world", voice="joanna"),
         ]
 
-        results = polly_client.synthesize_batch(
+        results = tts_client.synthesize_batch(
             requests, tmp_output_dir, MergeStrategy.ONE_FILE_PER_INPUT
         )
 
@@ -112,15 +105,14 @@ class TestPollyClientSynthesizeBatch:
             assert r.file_path.exists()
 
     def test_batch_separate_distinct_files(
-        self, polly_client: PollyClient, tmp_output_dir: Path
+        self, tts_client: TTSClient, tmp_output_dir: Path
     ) -> None:
-        voice = JOANNA
         requests = [
-            SynthesisRequest(text="hello", voice=voice),
-            SynthesisRequest(text="world", voice=voice),
+            SynthesisRequest(text="hello", voice="joanna"),
+            SynthesisRequest(text="world", voice="joanna"),
         ]
 
-        results = polly_client.synthesize_batch(
+        results = tts_client.synthesize_batch(
             requests, tmp_output_dir, MergeStrategy.ONE_FILE_PER_INPUT
         )
 
@@ -128,15 +120,14 @@ class TestPollyClientSynthesizeBatch:
         assert len(paths) == 2
 
     def test_batch_merged_creates_single_file(
-        self, polly_client: PollyClient, tmp_output_dir: Path
+        self, tts_client: TTSClient, tmp_output_dir: Path
     ) -> None:
-        voice = JOANNA
         requests = [
-            SynthesisRequest(text="hello", voice=voice),
-            SynthesisRequest(text="world", voice=voice),
+            SynthesisRequest(text="hello", voice="joanna"),
+            SynthesisRequest(text="world", voice="joanna"),
         ]
 
-        results = polly_client.synthesize_batch(
+        results = tts_client.synthesize_batch(
             requests, tmp_output_dir, MergeStrategy.ONE_FILE_PER_BATCH, 300
         )
 
@@ -144,15 +135,14 @@ class TestPollyClientSynthesizeBatch:
         assert results[0].file_path.exists()
 
     def test_batch_merged_text_contains_all(
-        self, polly_client: PollyClient, tmp_output_dir: Path
+        self, tts_client: TTSClient, tmp_output_dir: Path
     ) -> None:
-        voice = JOANNA
         requests = [
-            SynthesisRequest(text="hello", voice=voice),
-            SynthesisRequest(text="world", voice=voice),
+            SynthesisRequest(text="hello", voice="joanna"),
+            SynthesisRequest(text="world", voice="joanna"),
         ]
 
-        results = polly_client.synthesize_batch(
+        results = tts_client.synthesize_batch(
             requests, tmp_output_dir, MergeStrategy.ONE_FILE_PER_BATCH
         )
 
@@ -160,76 +150,68 @@ class TestPollyClientSynthesizeBatch:
         assert "world" in results[0].text
 
 
-class TestPollyClientSynthesizePair:
+class TestTTSClientSynthesizePair:
     def test_pair_creates_file(
-        self, polly_client: PollyClient, tmp_output_dir: Path
+        self, tts_client: TTSClient, tmp_output_dir: Path
     ) -> None:
-        v_en = JOANNA
-        v_de = HANS
-        req1 = SynthesisRequest(text="strong", voice=v_en)
-        req2 = SynthesisRequest(text="stark", voice=v_de)
+        req1 = SynthesisRequest(text="strong", voice="joanna")
+        req2 = SynthesisRequest(text="stark", voice="hans")
         out = tmp_output_dir / "pair.mp3"
 
-        result = polly_client.synthesize_pair("strong", req1, "stark", req2, out, 500)
+        result = tts_client.synthesize_pair("strong", req1, "stark", req2, out, 500)
 
         assert result.file_path == out
         assert result.file_path.exists()
 
     def test_pair_result_contains_both_texts(
-        self, polly_client: PollyClient, tmp_output_dir: Path
+        self, tts_client: TTSClient, tmp_output_dir: Path
     ) -> None:
-        v_en = JOANNA
-        v_de = HANS
-        req1 = SynthesisRequest(text="strong", voice=v_en)
-        req2 = SynthesisRequest(text="stark", voice=v_de)
+        req1 = SynthesisRequest(text="strong", voice="joanna")
+        req2 = SynthesisRequest(text="stark", voice="hans")
         out = tmp_output_dir / "pair.mp3"
 
-        result = polly_client.synthesize_pair("strong", req1, "stark", req2, out)
+        result = tts_client.synthesize_pair("strong", req1, "stark", req2, out)
 
         assert "strong" in result.text
         assert "stark" in result.text
 
-    def test_pair_calls_polly_twice(
+    def test_pair_calls_provider_twice(
         self,
         mock_boto_client: MagicMock,
-        polly_client: PollyClient,
+        tts_client: TTSClient,
         tmp_output_dir: Path,
     ) -> None:
-        v_en = JOANNA
-        v_de = HANS
-        req1 = SynthesisRequest(text="strong", voice=v_en)
-        req2 = SynthesisRequest(text="stark", voice=v_de)
+        req1 = SynthesisRequest(text="strong", voice="joanna")
+        req2 = SynthesisRequest(text="stark", voice="hans")
         out = tmp_output_dir / "pair.mp3"
 
-        polly_client.synthesize_pair("strong", req1, "stark", req2, out)
+        tts_client.synthesize_pair("strong", req1, "stark", req2, out)
 
         assert mock_boto_client.synthesize_speech.call_count == 2
 
 
-class TestPollyClientSynthesizePairBatch:
+class TestTTSClientSynthesizePairBatch:
     def test_empty_batch_returns_empty(
-        self, polly_client: PollyClient, tmp_output_dir: Path
+        self, tts_client: TTSClient, tmp_output_dir: Path
     ) -> None:
-        results = polly_client.synthesize_pair_batch([], tmp_output_dir)
+        results = tts_client.synthesize_pair_batch([], tmp_output_dir)
         assert results == []
 
     def test_pair_batch_separate(
-        self, polly_client: PollyClient, tmp_output_dir: Path
+        self, tts_client: TTSClient, tmp_output_dir: Path
     ) -> None:
-        v_en = JOANNA
-        v_de = HANS
         pairs = [
             (
-                SynthesisRequest(text="strong", voice=v_en),
-                SynthesisRequest(text="stark", voice=v_de),
+                SynthesisRequest(text="strong", voice="joanna"),
+                SynthesisRequest(text="stark", voice="hans"),
             ),
             (
-                SynthesisRequest(text="house", voice=v_en),
-                SynthesisRequest(text="Haus", voice=v_de),
+                SynthesisRequest(text="house", voice="joanna"),
+                SynthesisRequest(text="Haus", voice="hans"),
             ),
         ]
 
-        results = polly_client.synthesize_pair_batch(
+        results = tts_client.synthesize_pair_batch(
             pairs, tmp_output_dir, MergeStrategy.ONE_FILE_PER_INPUT, 500
         )
 
@@ -238,22 +220,20 @@ class TestPollyClientSynthesizePairBatch:
             assert r.file_path.exists()
 
     def test_pair_batch_merged(
-        self, polly_client: PollyClient, tmp_output_dir: Path
+        self, tts_client: TTSClient, tmp_output_dir: Path
     ) -> None:
-        v_en = JOANNA
-        v_de = HANS
         pairs = [
             (
-                SynthesisRequest(text="strong", voice=v_en),
-                SynthesisRequest(text="stark", voice=v_de),
+                SynthesisRequest(text="strong", voice="joanna"),
+                SynthesisRequest(text="stark", voice="hans"),
             ),
             (
-                SynthesisRequest(text="house", voice=v_en),
-                SynthesisRequest(text="Haus", voice=v_de),
+                SynthesisRequest(text="house", voice="joanna"),
+                SynthesisRequest(text="Haus", voice="hans"),
             ),
         ]
 
-        results = polly_client.synthesize_pair_batch(
+        results = tts_client.synthesize_pair_batch(
             pairs, tmp_output_dir, MergeStrategy.ONE_FILE_PER_BATCH, 500
         )
 

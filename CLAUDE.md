@@ -44,16 +44,18 @@ uvx twine check dist/*
 
 ## Architecture
 
-Flat module structure under `src/langlearn_tts/`:
+Module structure under `src/langlearn_tts/`:
 
 | Module | Responsibility |
 |--------|---------------|
-| `types.py` | Domain types: `VoiceConfig`, `SynthesisRequest`, `SynthesisResult`, `MergeStrategy`, voice resolution |
-| `core.py` | `PollyClient` — synthesis, batching, pair stitching, audio merge |
-| `cli.py` | Click CLI — synthesize, batch, pair, pair-batch, doctor, install |
+| `types.py` | Domain types: `TTSProvider` protocol, `HealthCheck`, `SynthesisRequest`, `SynthesisResult`, `MergeStrategy` |
+| `core.py` | `TTSClient` — provider-agnostic orchestration: batching, pair stitching, audio merge |
+| `cli.py` | Click CLI — `--provider` flag, synthesize, batch, pair, pair-batch, doctor, install |
 | `server.py` | FastMCP server — exposes same operations as MCP tools |
+| `providers/__init__.py` | Provider registry, `get_provider()`, auto-detection |
+| `providers/polly.py` | `PollyProvider` — AWS Polly synthesis, voice resolution, health checks. Only file with boto3 |
 
-Tests mirror source: `test_types.py`, `test_core.py`, `test_cli.py` plus `conftest.py` for shared fixtures.
+Tests mirror source: `test_types.py`, `test_core.py`, `test_cli.py`, `test_polly.py` plus `conftest.py` for shared fixtures.
 
 ## Python Coding Standards
 
@@ -107,7 +109,7 @@ Tests mirror source: `test_types.py`, `test_core.py`, `test_cli.py` plus `confte
 
 | Metric | Value |
 |--------|-------|
-| Unit tests | 69 |
+| Unit tests | 82 |
 | All pass | Required |
 
 ## Issue Tracking with Beads
@@ -216,7 +218,7 @@ Work is NOT complete until `git push` succeeds.
 
 ## Known Type Checker Workarounds
 
-### mypy vs pyright on boto3
+### mypy vs pyright on boto3 (in providers/polly.py)
 
 boto3-stubs types `boto3.client("polly")` correctly for mypy but pyright sees partially unknown overloads. Solution:
 

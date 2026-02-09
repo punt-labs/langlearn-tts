@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `TTSProvider` protocol and `HealthCheck` dataclass in `types.py`
+- `providers` package with `PollyProvider`, `get_provider()`, and provider registry
+- `--provider` CLI flag and `LANGLEARN_TTS_PROVIDER` env var for provider selection
+- `TTSClient` generic orchestrator in `core.py` (replaces `PollyClient`)
+
+### Changed
+- `SynthesisRequest.voice` is now `str` (voice name) instead of `VoiceConfig`
+- All boto3 usage isolated to `providers/polly.py` — core, CLI, and server are provider-agnostic
+- `doctor` command delegates provider-specific checks to `provider.check_health()`
+
+### Removed
+- `PollyClient` class from `core.py` (replaced by `TTSClient`)
+- `VoiceConfig`, `resolve_voice()`, and voice cache from `types.py` (moved to `providers/polly.py`)
+
 ## [0.1.2] - 2026-02-08
 
 ### Changed

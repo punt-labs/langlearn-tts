@@ -10,11 +10,11 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
-from langlearn_tts.core import PollyClient
+from langlearn_tts.core import TTSClient
+from langlearn_tts.providers import get_provider
 from langlearn_tts.types import (
     MergeStrategy,
     SynthesisRequest,
-    resolve_voice,
 )
 
 # MCP stdio servers must not write to stdout.
@@ -77,12 +77,12 @@ def synthesize(
     output_path: str | None = None,
     output_dir: str | None = None,
 ) -> str:
-    """Synthesize text to an MP3 audio file using AWS Polly.
+    """Synthesize text to an MP3 audio file.
 
     Args:
         text: The text to convert to speech.
-        voice: Any AWS Polly voice name (e.g. joanna, daniel,
-            lucia, takumi). Defaults to joanna.
+        voice: Voice name (e.g. joanna, daniel, lucia, takumi).
+            Defaults to joanna.
         rate: Speech rate as percentage (90 = 90% speed, good for
             language learners). Defaults to 90.
         auto_play: Open the file in the default audio player after
@@ -95,8 +95,9 @@ def synthesize(
     Returns:
         JSON string with file_path, text, and voice fields.
     """
-    voice_cfg = resolve_voice(voice)
-    request = SynthesisRequest(text=text, voice=voice_cfg, rate=rate)
+    provider = get_provider()
+    provider.resolve_voice(voice)
+    request = SynthesisRequest(text=text, voice=voice, rate=rate)
 
     dir_path = _resolve_output_dir(output_dir)
     path = _resolve_output_path(
@@ -105,7 +106,7 @@ def synthesize(
         f"{voice}_{text[:20].replace(' ', '_')}.mp3",
     )
 
-    client = PollyClient()
+    client = TTSClient(provider)
     result = client.synthesize(request, path)
     if auto_play:
         _play_audio(result.file_path)
@@ -122,7 +123,7 @@ def synthesize_batch(
     auto_play: bool = True,
     output_dir: str | None = None,
 ) -> str:
-    """Synthesize multiple texts to MP3 files using AWS Polly.
+    """Synthesize multiple texts to MP3 files.
 
     Args:
         texts: List of texts to synthesize.
@@ -141,14 +142,15 @@ def synthesize_batch(
         JSON string with list of results, each containing file_path,
         text, and voice fields.
     """
-    voice_cfg = resolve_voice(voice)
-    requests = [SynthesisRequest(text=t, voice=voice_cfg, rate=rate) for t in texts]
+    provider = get_provider()
+    provider.resolve_voice(voice)
+    requests = [SynthesisRequest(text=t, voice=voice, rate=rate) for t in texts]
     strategy = (
         MergeStrategy.ONE_FILE_PER_BATCH if merge else MergeStrategy.ONE_FILE_PER_INPUT
     )
     dir_path = _resolve_output_dir(output_dir)
 
-    client = PollyClient()
+    client = TTSClient(provider)
     results = client.synthesize_batch(requests, dir_path, strategy, pause_ms)
     if auto_play:
         for r in results:
@@ -189,10 +191,11 @@ def synthesize_pair(
     Returns:
         JSON string with file_path, text, and voice fields.
     """
-    v1 = resolve_voice(voice1)
-    v2 = resolve_voice(voice2)
-    req1 = SynthesisRequest(text=text1, voice=v1, rate=rate)
-    req2 = SynthesisRequest(text=text2, voice=v2, rate=rate)
+    provider = get_provider()
+    provider.resolve_voice(voice1)
+    provider.resolve_voice(voice2)
+    req1 = SynthesisRequest(text=text1, voice=voice1, rate=rate)
+    req2 = SynthesisRequest(text=text2, voice=voice2, rate=rate)
 
     dir_path = _resolve_output_dir(output_dir)
     path = _resolve_output_path(
@@ -201,7 +204,7 @@ def synthesize_pair(
         f"pair_{text1[:10]}_{text2[:10]}.mp3",
     )
 
-    client = PollyClient()
+    client = TTSClient(provider)
     result = client.synthesize_pair(text1, req1, text2, req2, path, pause_ms)
     if auto_play:
         _play_audio(result.file_path)
@@ -240,13 +243,14 @@ def synthesize_pair_batch(
     Returns:
         JSON string with list of results.
     """
-    v1 = resolve_voice(voice1)
-    v2 = resolve_voice(voice2)
+    provider = get_provider()
+    provider.resolve_voice(voice1)
+    provider.resolve_voice(voice2)
 
     pair_requests: list[tuple[SynthesisRequest, SynthesisRequest]] = [
         (
-            SynthesisRequest(text=p[0], voice=v1, rate=rate),
-            SynthesisRequest(text=p[1], voice=v2, rate=rate),
+            SynthesisRequest(text=p[0], voice=voice1, rate=rate),
+            SynthesisRequest(text=p[1], voice=voice2, rate=rate),
         )
         for p in pairs
     ]
@@ -256,7 +260,7 @@ def synthesize_pair_batch(
     )
     dir_path = _resolve_output_dir(output_dir)
 
-    client = PollyClient()
+    client = TTSClient(provider)
     results = client.synthesize_pair_batch(pair_requests, dir_path, strategy, pause_ms)
     if auto_play:
         for r in results:

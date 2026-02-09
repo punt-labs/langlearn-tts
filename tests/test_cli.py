@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner, Result
 
 from langlearn_tts.cli import main
-from langlearn_tts.types import MergeStrategy, SynthesisResult
+from langlearn_tts.types import HealthCheck, MergeStrategy, SynthesisResult
 
 
 def _mock_synthesize_result(path: Path, text: str = "hello") -> SynthesisResult:
@@ -20,11 +20,30 @@ def _mock_synthesize_result(path: Path, text: str = "hello") -> SynthesisResult:
     )
 
 
+def _make_mock_provider() -> MagicMock:
+    """Create a mock TTSProvider."""
+    provider = MagicMock()
+    provider.name = "polly"
+    provider.resolve_voice.side_effect = lambda name: name.capitalize()  # pyright: ignore[reportUnknownLambdaType,reportUnknownMemberType]
+    provider.check_health.return_value = [
+        HealthCheck(passed=True, message="AWS credentials (account: 123456789012)"),
+        HealthCheck(passed=True, message="AWS Polly access"),
+    ]
+    return provider
+
+
+_CLI = "langlearn_tts.cli"
+
+
 class TestSynthesizeCommand:
-    @patch("langlearn_tts.cli.PollyClient")
-    def test_synthesize_basic(self, mock_cls: MagicMock, tmp_path: Path) -> None:
+    @patch(f"{_CLI}.TTSClient")
+    @patch(f"{_CLI}.get_provider")
+    def test_synthesize_basic(
+        self, mock_get_provider: MagicMock, mock_client_cls: MagicMock, tmp_path: Path
+    ) -> None:
         out = tmp_path / "test.mp3"
-        mock_instance = mock_cls.return_value
+        mock_get_provider.return_value = _make_mock_provider()
+        mock_instance = mock_client_cls.return_value
         mock_instance.synthesize.return_value = _mock_synthesize_result(out)
 
         runner = CliRunner()
@@ -34,10 +53,14 @@ class TestSynthesizeCommand:
         assert str(out) in result.output
         mock_instance.synthesize.assert_called_once()
 
-    @patch("langlearn_tts.cli.PollyClient")
-    def test_synthesize_custom_voice(self, mock_cls: MagicMock, tmp_path: Path) -> None:
+    @patch(f"{_CLI}.TTSClient")
+    @patch(f"{_CLI}.get_provider")
+    def test_synthesize_custom_voice(
+        self, mock_get_provider: MagicMock, mock_client_cls: MagicMock, tmp_path: Path
+    ) -> None:
         out = tmp_path / "test.mp3"
-        mock_instance = mock_cls.return_value
+        mock_get_provider.return_value = _make_mock_provider()
+        mock_instance = mock_client_cls.return_value
         mock_instance.synthesize.return_value = _mock_synthesize_result(out)
 
         runner = CliRunner()
@@ -49,12 +72,16 @@ class TestSynthesizeCommand:
         assert result.exit_code == 0
         call_args = mock_instance.synthesize.call_args
         request = call_args[0][0]
-        assert request.voice.voice_id == "Hans"
+        assert request.voice == "hans"
 
-    @patch("langlearn_tts.cli.PollyClient")
-    def test_synthesize_custom_rate(self, mock_cls: MagicMock, tmp_path: Path) -> None:
+    @patch(f"{_CLI}.TTSClient")
+    @patch(f"{_CLI}.get_provider")
+    def test_synthesize_custom_rate(
+        self, mock_get_provider: MagicMock, mock_client_cls: MagicMock, tmp_path: Path
+    ) -> None:
         out = tmp_path / "test.mp3"
-        mock_instance = mock_cls.return_value
+        mock_get_provider.return_value = _make_mock_provider()
+        mock_instance = mock_client_cls.return_value
         mock_instance.synthesize.return_value = _mock_synthesize_result(out)
 
         runner = CliRunner()
@@ -68,7 +95,12 @@ class TestSynthesizeCommand:
         request = call_args[0][0]
         assert request.rate == 100
 
-    def test_synthesize_invalid_voice(self) -> None:
+    @patch(f"{_CLI}.get_provider")
+    def test_synthesize_invalid_voice(self, mock_get_provider: MagicMock) -> None:
+        provider = _make_mock_provider()
+        provider.resolve_voice.side_effect = ValueError("Unknown voice 'nonexistent'")
+        mock_get_provider.return_value = provider
+
         runner = CliRunner()
         result = runner.invoke(
             main,
@@ -78,14 +110,18 @@ class TestSynthesizeCommand:
 
 
 class TestSynthesizeBatchCommand:
-    @patch("langlearn_tts.cli.PollyClient")
-    def test_batch_basic(self, mock_cls: MagicMock, tmp_path: Path) -> None:
+    @patch(f"{_CLI}.TTSClient")
+    @patch(f"{_CLI}.get_provider")
+    def test_batch_basic(
+        self, mock_get_provider: MagicMock, mock_client_cls: MagicMock, tmp_path: Path
+    ) -> None:
         input_file = tmp_path / "input.json"
         input_file.write_text(json.dumps(["hello", "world"]))
         out_dir = tmp_path / "out"
         out_dir.mkdir()
 
-        mock_instance = mock_cls.return_value
+        mock_get_provider.return_value = _make_mock_provider()
+        mock_instance = mock_client_cls.return_value
         mock_instance.synthesize_batch.return_value = [
             _mock_synthesize_result(out_dir / "a.mp3", "hello"),
             _mock_synthesize_result(out_dir / "b.mp3", "world"),
@@ -100,14 +136,18 @@ class TestSynthesizeBatchCommand:
         assert result.exit_code == 0
         mock_instance.synthesize_batch.assert_called_once()
 
-    @patch("langlearn_tts.cli.PollyClient")
-    def test_batch_with_merge(self, mock_cls: MagicMock, tmp_path: Path) -> None:
+    @patch(f"{_CLI}.TTSClient")
+    @patch(f"{_CLI}.get_provider")
+    def test_batch_with_merge(
+        self, mock_get_provider: MagicMock, mock_client_cls: MagicMock, tmp_path: Path
+    ) -> None:
         input_file = tmp_path / "input.json"
         input_file.write_text(json.dumps(["hello", "world"]))
         out_dir = tmp_path / "out"
         out_dir.mkdir()
 
-        mock_instance = mock_cls.return_value
+        mock_get_provider.return_value = _make_mock_provider()
+        mock_instance = mock_client_cls.return_value
         mock_instance.synthesize_batch.return_value = [
             _mock_synthesize_result(out_dir / "merged.mp3", "hello | world"),
         ]
@@ -130,14 +170,18 @@ class TestSynthesizeBatchCommand:
 
 
 class TestSynthesizePairCommand:
-    @patch("langlearn_tts.cli.PollyClient")
-    def test_pair_basic(self, mock_cls: MagicMock, tmp_path: Path) -> None:
+    @patch(f"{_CLI}.TTSClient")
+    @patch(f"{_CLI}.get_provider")
+    def test_pair_basic(
+        self, mock_get_provider: MagicMock, mock_client_cls: MagicMock, tmp_path: Path
+    ) -> None:
         out = tmp_path / "pair.mp3"
-        mock_instance = mock_cls.return_value
+        mock_get_provider.return_value = _make_mock_provider()
+        mock_instance = mock_client_cls.return_value
         mock_instance.synthesize_pair.return_value = SynthesisResult(
             file_path=out,
             text="strong | stark",
-            voice_name="Joanna+Hans",
+            voice_name="joanna+hans",
         )
 
         runner = CliRunner()
@@ -159,14 +203,18 @@ class TestSynthesizePairCommand:
         assert result.exit_code == 0
         assert str(out) in result.output
 
-    @patch("langlearn_tts.cli.PollyClient")
-    def test_pair_custom_pause(self, mock_cls: MagicMock, tmp_path: Path) -> None:
+    @patch(f"{_CLI}.TTSClient")
+    @patch(f"{_CLI}.get_provider")
+    def test_pair_custom_pause(
+        self, mock_get_provider: MagicMock, mock_client_cls: MagicMock, tmp_path: Path
+    ) -> None:
         out = tmp_path / "pair.mp3"
-        mock_instance = mock_cls.return_value
+        mock_get_provider.return_value = _make_mock_provider()
+        mock_instance = mock_client_cls.return_value
         mock_instance.synthesize_pair.return_value = SynthesisResult(
             file_path=out,
             text="strong | stark",
-            voice_name="Joanna+Hans",
+            voice_name="joanna+hans",
         )
 
         runner = CliRunner()
@@ -190,24 +238,28 @@ class TestSynthesizePairCommand:
 
 
 class TestSynthesizePairBatchCommand:
-    @patch("langlearn_tts.cli.PollyClient")
-    def test_pair_batch_basic(self, mock_cls: MagicMock, tmp_path: Path) -> None:
+    @patch(f"{_CLI}.TTSClient")
+    @patch(f"{_CLI}.get_provider")
+    def test_pair_batch_basic(
+        self, mock_get_provider: MagicMock, mock_client_cls: MagicMock, tmp_path: Path
+    ) -> None:
         input_file = tmp_path / "pairs.json"
         input_file.write_text(json.dumps([["strong", "stark"], ["house", "Haus"]]))
         out_dir = tmp_path / "out"
         out_dir.mkdir()
 
-        mock_instance = mock_cls.return_value
+        mock_get_provider.return_value = _make_mock_provider()
+        mock_instance = mock_client_cls.return_value
         mock_instance.synthesize_pair_batch.return_value = [
             SynthesisResult(
                 file_path=out_dir / "a.mp3",
                 text="strong | stark",
-                voice_name="Joanna+Hans",
+                voice_name="joanna+hans",
             ),
             SynthesisResult(
                 file_path=out_dir / "b.mp3",
                 text="house | Haus",
-                voice_name="Joanna+Hans",
+                voice_name="joanna+hans",
             ),
         ]
 
@@ -227,22 +279,44 @@ class TestSynthesizePairBatchCommand:
 
 
 class TestMainGroup:
-    def test_help(self) -> None:
+    @patch(f"{_CLI}.get_provider")
+    def test_help(self, mock_get_provider: MagicMock) -> None:
         runner = CliRunner()
         result = runner.invoke(main, ["--help"])
         assert result.exit_code == 0
         assert "langlearn-tts" in result.output
 
-    def test_synthesize_help(self) -> None:
+    @patch(f"{_CLI}.get_provider")
+    def test_synthesize_help(self, mock_get_provider: MagicMock) -> None:
         runner = CliRunner()
         result = runner.invoke(main, ["synthesize", "--help"])
         assert result.exit_code == 0
         assert "voice" in result.output.lower()
 
-    def test_verbose_flag(self) -> None:
+    @patch(f"{_CLI}.get_provider")
+    def test_verbose_flag(self, mock_get_provider: MagicMock) -> None:
         runner = CliRunner()
         result = runner.invoke(main, ["-v", "--help"])
         assert result.exit_code == 0
+
+    @patch(f"{_CLI}.TTSClient")
+    @patch(f"{_CLI}.get_provider")
+    def test_provider_flag(
+        self, mock_get_provider: MagicMock, mock_client_cls: MagicMock, tmp_path: Path
+    ) -> None:
+        out = tmp_path / "test.mp3"
+        mock_get_provider.return_value = _make_mock_provider()
+        mock_client_cls.return_value.synthesize.return_value = _mock_synthesize_result(
+            out
+        )
+
+        runner = CliRunner()
+        result = runner.invoke(
+            main,
+            ["--provider", "polly", "synthesize", "hello", "-o", str(out)],
+        )
+        assert result.exit_code == 0
+        mock_get_provider.assert_called_once_with("polly")
 
 
 # ---------------------------------------------------------------------------
@@ -250,51 +324,21 @@ class TestMainGroup:
 # ---------------------------------------------------------------------------
 
 
-def _mock_boto3_clients(sts_ok: bool = True, polly_ok: bool = True) -> MagicMock:
-    """Return a mock for boto3.client that handles 'sts' and 'polly'."""
-    from botocore.exceptions import ClientError, NoCredentialsError
-
-    mock_sts = MagicMock()
-    if sts_ok:
-        mock_sts.get_caller_identity.return_value = {"Account": "123456789012"}
-    else:
-        mock_sts.get_caller_identity.side_effect = NoCredentialsError()
-
-    mock_polly = MagicMock()
-    if polly_ok:
-        mock_polly.describe_voices.return_value = {"Voices": []}
-    else:
-        mock_polly.describe_voices.side_effect = ClientError(
-            {"Error": {"Code": "AccessDeniedException", "Message": "access denied"}},
-            "DescribeVoices",
-        )
-
-    def client_factory(service: str, **_kwargs: object) -> MagicMock:
-        if service == "sts":
-            return mock_sts
-        if service == "polly":
-            return mock_polly
-        return MagicMock()
-
-    mock_boto = MagicMock()
-    mock_boto.client.side_effect = client_factory
-    return mock_boto
-
-
 class TestDoctorCommand:
     def _run_doctor(
         self,
         tmp_path: Path,
         *,
-        sts_ok: bool = True,
-        polly_ok: bool = True,
+        health_checks: list[HealthCheck] | None = None,
         ffmpeg_found: bool = True,
         uvx_found: bool = True,
         config_exists: bool = False,
         config_data: dict[str, object] | None = None,
     ) -> Result:
         """Invoke doctor with controlled mocks."""
-        mock_boto = _mock_boto3_clients(sts_ok=sts_ok, polly_ok=polly_ok)
+        provider = _make_mock_provider()
+        if health_checks is not None:
+            provider.check_health.return_value = health_checks
 
         def which_side_effect(name: str) -> str | None:
             if name == "ffmpeg" and ffmpeg_found:
@@ -308,13 +352,12 @@ class TestDoctorCommand:
             config_path.parent.mkdir(parents=True, exist_ok=True)
             config_path.write_text(json.dumps(config_data or {}))
 
-        _cli = "langlearn_tts.cli"
         runner = CliRunner()
         with (
-            patch(f"{_cli}.shutil.which", side_effect=which_side_effect),
-            patch(f"{_cli}.boto3", mock_boto),
-            patch(f"{_cli}._claude_desktop_config_path", return_value=config_path),
-            patch(f"{_cli}._default_output_dir", return_value=tmp_path / "audio"),
+            patch(f"{_CLI}.shutil.which", side_effect=which_side_effect),
+            patch(f"{_CLI}.get_provider", return_value=provider),
+            patch(f"{_CLI}._claude_desktop_config_path", return_value=config_path),
+            patch(f"{_CLI}._default_output_dir", return_value=tmp_path / "audio"),
         ):
             result = runner.invoke(main, ["doctor"])
 
@@ -335,12 +378,30 @@ class TestDoctorCommand:
         assert "✗ ffmpeg" in result.output
 
     def test_aws_credentials_fail(self, tmp_path: Path) -> None:
-        result = self._run_doctor(tmp_path, sts_ok=False)
+        result = self._run_doctor(
+            tmp_path,
+            health_checks=[
+                HealthCheck(
+                    passed=False,
+                    message="AWS credentials: not configured (run `aws configure`)",
+                ),
+                HealthCheck(passed=True, message="AWS Polly access"),
+            ],
+        )
         assert result.exit_code == 1
         assert "✗ AWS credentials" in result.output
 
     def test_polly_access_fail(self, tmp_path: Path) -> None:
-        result = self._run_doctor(tmp_path, polly_ok=False)
+        result = self._run_doctor(
+            tmp_path,
+            health_checks=[
+                HealthCheck(
+                    passed=True,
+                    message="AWS credentials (account: 123456789012)",
+                ),
+                HealthCheck(passed=False, message="AWS Polly access: access denied"),
+            ],
+        )
         assert result.exit_code == 1
         assert "✗ AWS Polly" in result.output
 
@@ -377,13 +438,14 @@ class TestDoctorCommand:
 # install tests
 # ---------------------------------------------------------------------------
 
-
-_CLI = "langlearn_tts.cli"
 _UVX = "/usr/local/bin/uvx"
 
 
 class TestInstallCommand:
-    def test_creates_config_from_scratch(self, tmp_path: Path) -> None:
+    @patch(f"{_CLI}.get_provider")
+    def test_creates_config_from_scratch(
+        self, mock_get_provider: MagicMock, tmp_path: Path
+    ) -> None:
         config_path = tmp_path / "Claude" / "claude_desktop_config.json"
         audio_dir = tmp_path / "audio"
 
@@ -409,7 +471,10 @@ class TestInstallCommand:
         assert server["args"] == ["--from", "langlearn-tts", "langlearn-tts-server"]
         assert server["env"]["LANGLEARN_TTS_OUTPUT_DIR"] == str(audio_dir)
 
-    def test_preserves_other_servers(self, tmp_path: Path) -> None:
+    @patch(f"{_CLI}.get_provider")
+    def test_preserves_other_servers(
+        self, mock_get_provider: MagicMock, tmp_path: Path
+    ) -> None:
         config_path = tmp_path / "Claude" / "claude_desktop_config.json"
         config_path.parent.mkdir(parents=True)
         existing: dict[str, object] = {
@@ -437,7 +502,10 @@ class TestInstallCommand:
         assert "other-server" in data["mcpServers"]
         assert "langlearn-tts" in data["mcpServers"]
 
-    def test_overwrites_existing_entry(self, tmp_path: Path) -> None:
+    @patch(f"{_CLI}.get_provider")
+    def test_overwrites_existing_entry(
+        self, mock_get_provider: MagicMock, tmp_path: Path
+    ) -> None:
         config_path = tmp_path / "Claude" / "claude_desktop_config.json"
         config_path.parent.mkdir(parents=True)
         existing = {
@@ -466,7 +534,10 @@ class TestInstallCommand:
         server = data["mcpServers"]["langlearn-tts"]
         assert server["command"] == _UVX
 
-    def test_fails_when_uvx_not_found(self, tmp_path: Path) -> None:
+    @patch(f"{_CLI}.get_provider")
+    def test_fails_when_uvx_not_found(
+        self, mock_get_provider: MagicMock, tmp_path: Path
+    ) -> None:
         config_path = tmp_path / "Claude" / "claude_desktop_config.json"
 
         runner = CliRunner()
@@ -485,7 +556,10 @@ class TestInstallCommand:
         assert result.exit_code != 0
         assert "uvx not found" in result.output
 
-    def test_custom_uvx_path(self, tmp_path: Path) -> None:
+    @patch(f"{_CLI}.get_provider")
+    def test_custom_uvx_path(
+        self, mock_get_provider: MagicMock, tmp_path: Path
+    ) -> None:
         config_path = tmp_path / "Claude" / "claude_desktop_config.json"
 
         runner = CliRunner()
@@ -509,7 +583,10 @@ class TestInstallCommand:
         server = data["mcpServers"]["langlearn-tts"]
         assert server["command"] == "/custom/bin/uvx"
 
-    def test_creates_output_directory(self, tmp_path: Path) -> None:
+    @patch(f"{_CLI}.get_provider")
+    def test_creates_output_directory(
+        self, mock_get_provider: MagicMock, tmp_path: Path
+    ) -> None:
         config_path = tmp_path / "Claude" / "claude_desktop_config.json"
         audio_dir = tmp_path / "nested" / "audio"
 

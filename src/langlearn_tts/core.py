@@ -1,92 +1,42 @@
-"""Core synthesis and audio stitching logic using AWS Polly."""
+"""Core synthesis orchestration — batching, pair stitching, merging."""
 
 from __future__ import annotations
 
 import logging
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any
 
-import boto3
 from pydub import AudioSegment
 
 from langlearn_tts.types import (
     MergeStrategy,
     SynthesisRequest,
     SynthesisResult,
+    TTSProvider,
     generate_filename,
 )
 
-if TYPE_CHECKING:
-    from mypy_boto3_polly.client import PollyClient as PollyClientType
-
 logger = logging.getLogger(__name__)
 
-__all__ = ["PollyClient", "stitch_audio"]
+__all__ = ["TTSClient", "stitch_audio"]
 
 
-class PollyClient:
-    """Wraps the boto3 Polly client for text-to-speech synthesis.
+class TTSClient:
+    """Provider-agnostic orchestrator for TTS operations.
 
-    Accepts an optional pre-configured boto3 Polly client for
-    dependency injection in tests.
+    Delegates individual synthesis calls to the given TTSProvider and
+    handles batching, pair stitching, and merging.
     """
 
-    def __init__(self, boto_client: PollyClientType | None = None) -> None:
-        if TYPE_CHECKING:
-            self._client: PollyClientType
-        if boto_client is not None:
-            self._client = boto_client
-        else:
-            self._client = cast("PollyClientType", boto3.client("polly"))  # type: ignore[redundant-cast]  # pyright: ignore[reportUnknownMemberType]
+    def __init__(self, provider: TTSProvider) -> None:
+        self._provider = provider
 
     def synthesize(
         self, request: SynthesisRequest, output_path: Path
     ) -> SynthesisResult:
-        """Synthesize text to an MP3 file using AWS Polly.
-
-        Args:
-            request: The synthesis parameters.
-            output_path: Where to write the MP3 file.
-
-        Returns:
-            A SynthesisResult with the file path and metadata.
-
-        Raises:
-            botocore.exceptions.ClientError: On AWS API errors.
-            botocore.exceptions.NoCredentialsError: If AWS credentials
-                are missing.
-            OSError: If the file cannot be written.
-        """
-        ssml_text = (
-            f'<speak><prosody rate="{request.rate}%">{request.text}</prosody></speak>'
-        )
-        logger.debug(
-            "Synthesizing: voice=%s, text=%r",
-            request.voice.voice_id,
-            request.text,
-        )
-
-        response = self._client.synthesize_speech(
-            Text=ssml_text,
-            TextType="ssml",
-            VoiceId=request.voice.voice_id,
-            LanguageCode=request.voice.language_code,
-            OutputFormat="mp3",
-            Engine=request.voice.engine,
-            SampleRate="22050",
-        )
-
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, "wb") as f:
-            f.write(response["AudioStream"].read())
-
-        logger.info("Wrote %s", output_path)
-        return SynthesisResult(
-            file_path=output_path,
-            text=request.text,
-            voice_name=request.voice.voice_id,
-        )
+        """Synthesize a single text to an audio file."""
+        return self._provider.synthesize(request, output_path)
 
     def synthesize_batch(
         self,
@@ -130,32 +80,21 @@ class PollyClient:
         """Synthesize two texts and stitch them with a pause.
 
         Produces a single MP3: [text_1 audio] [pause] [text_2 audio].
-
-        Args:
-            text_1: First text (typically English).
-            voice_1: Synthesis request for the first text.
-            text_2: Second text (typically L2).
-            voice_2: Synthesis request for the second text.
-            output_path: Where to write the stitched MP3.
-            pause_ms: Pause between the two segments in milliseconds.
-
-        Returns:
-            SynthesisResult for the stitched file.
         """
         with tempfile.TemporaryDirectory() as tmp:
             tmp_dir = Path(tmp)
             path_1 = tmp_dir / "part1.mp3"
             path_2 = tmp_dir / "part2.mp3"
 
-            self.synthesize(voice_1, path_1)
-            self.synthesize(voice_2, path_2)
+            self._provider.synthesize(voice_1, path_1)
+            self._provider.synthesize(voice_2, path_2)
 
             stitch_audio([path_1, path_2], output_path, pause_ms)
 
         return SynthesisResult(
             file_path=output_path,
             text=f"{text_1} | {text_2}",
-            voice_name=f"{voice_1.voice.voice_id}+{voice_2.voice.voice_id}",
+            voice_name=f"{voice_1.voice}+{voice_2.voice}",
         )
 
     def synthesize_pair_batch(
@@ -165,18 +104,7 @@ class PollyClient:
         merge_strategy: MergeStrategy = MergeStrategy.ONE_FILE_PER_INPUT,
         pause_ms: int = 500,
     ) -> list[SynthesisResult]:
-        """Synthesize multiple pairs, optionally merging into one file.
-
-        Args:
-            pairs: List of (request_1, request_2) tuples.
-            output_dir: Directory for output files.
-            merge_strategy: Whether to produce separate files or one
-                merged file.
-            pause_ms: Pause between pair segments in milliseconds.
-
-        Returns:
-            List of SynthesisResult.
-        """
+        """Synthesize multiple pairs, optionally merging into one file."""
         if not pairs:
             return []
 
@@ -197,7 +125,7 @@ class PollyClient:
         for req in requests:
             filename = generate_filename(req.text)
             path = output_dir / filename
-            results.append(self.synthesize(req, path))
+            results.append(self._provider.synthesize(req, path))
         return results
 
     def _synthesize_batch_merged(
@@ -211,7 +139,7 @@ class PollyClient:
             tmp_paths: list[Path] = []
             for i, req in enumerate(requests):
                 path = tmp_dir / f"seg_{i:04d}.mp3"
-                self.synthesize(req, path)
+                self._provider.synthesize(req, path)
                 tmp_paths.append(path)
 
             combined_text = " | ".join(r.text for r in requests)
@@ -222,7 +150,7 @@ class PollyClient:
             SynthesisResult(
                 file_path=out_path,
                 text=combined_text,
-                voice_name=requests[0].voice.voice_id,
+                voice_name=requests[0].voice,
             )
         ]
 

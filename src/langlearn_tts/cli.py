@@ -8,23 +8,17 @@ import platform
 import shutil
 import sys
 from pathlib import Path
-from typing import Any, cast
+from typing import cast
 
-import boto3
 import click
-from botocore.exceptions import (
-    ClientError,
-    EndpointConnectionError,
-    NoCredentialsError,
-    NoRegionError,
-)
 
-from langlearn_tts.core import PollyClient
+from langlearn_tts.core import TTSClient
+from langlearn_tts.providers import get_provider
 from langlearn_tts.types import (
     MergeStrategy,
     SynthesisRequest,
     SynthesisResult,
-    resolve_voice,
+    TTSProvider,
 )
 
 logger = logging.getLogger(__name__)
@@ -51,11 +45,27 @@ def _print_results(results: list[SynthesisResult]) -> None:
         _print_result(r)
 
 
+def _get_provider(ctx: click.Context) -> TTSProvider:
+    """Retrieve the TTSProvider from the Click context."""
+    obj = cast("dict[str, TTSProvider]", ctx.ensure_object(dict))  # pyright: ignore[reportUnknownMemberType]
+    return obj["provider"]
+
+
 @click.group()
 @click.option("--verbose", "-v", is_flag=True, help="Enable debug logging.")
-def main(verbose: bool) -> None:
-    """langlearn-tts: AWS Polly TTS for language learning."""
+@click.option(
+    "--provider",
+    "provider_name",
+    default=None,
+    envvar="LANGLEARN_TTS_PROVIDER",
+    help="TTS provider (e.g. polly). Default: auto-detect.",
+)
+@click.pass_context
+def main(ctx: click.Context, verbose: bool, provider_name: str | None) -> None:
+    """langlearn-tts: Text-to-speech for language learning."""
     _configure_logging(verbose)
+    ctx.ensure_object(dict)
+    ctx.obj["provider"] = get_provider(provider_name)
 
 
 @main.command()
@@ -80,15 +90,19 @@ def main(verbose: bool) -> None:
     type=click.Path(path_type=Path),
     help="Output file path. Defaults to auto-generated name in pwd.",
 )
-def synthesize(text: str, voice: str, rate: int, output: Path | None) -> None:
+@click.pass_context
+def synthesize(
+    ctx: click.Context, text: str, voice: str, rate: int, output: Path | None
+) -> None:
     """Synthesize a single text to an MP3 file."""
-    voice_cfg = resolve_voice(voice)
-    request = SynthesisRequest(text=text, voice=voice_cfg, rate=rate)
+    provider = _get_provider(ctx)
+    provider.resolve_voice(voice)
+    request = SynthesisRequest(text=text, voice=voice, rate=rate)
 
     if output is None:
         output = Path.cwd() / f"{voice}_{text[:20].replace(' ', '_')}.mp3"
 
-    client = PollyClient()
+    client = TTSClient(provider)
     result = client.synthesize(request, output)
     _print_result(result)
 
@@ -128,7 +142,9 @@ def synthesize(text: str, voice: str, rate: int, output: Path | None) -> None:
     help="Pause between segments in ms (used with --merge).",
 )
 @click.argument("input_file", type=click.Path(exists=True, path_type=Path))
+@click.pass_context
 def synthesize_batch(
+    ctx: click.Context,
     voice: str,
     rate: int,
     output_dir: Path | None,
@@ -141,7 +157,8 @@ def synthesize_batch(
     INPUT_FILE should contain a JSON array of strings, e.g.:
     ["hello", "world", "good morning"]
     """
-    voice_cfg = resolve_voice(voice)
+    provider = _get_provider(ctx)
+    provider.resolve_voice(voice)
     raw = json.loads(input_file.read_text(encoding="utf-8"))
 
     if not isinstance(raw, list):
@@ -154,13 +171,13 @@ def synthesize_batch(
             )
 
     texts = cast("list[str]", raw)
-    requests = [SynthesisRequest(text=t, voice=voice_cfg, rate=rate) for t in texts]
+    requests = [SynthesisRequest(text=t, voice=voice, rate=rate) for t in texts]
     strategy = (
         MergeStrategy.ONE_FILE_PER_BATCH if merge else MergeStrategy.ONE_FILE_PER_INPUT
     )
     out_dir = output_dir if output_dir is not None else Path.cwd()
 
-    client = PollyClient()
+    client = TTSClient(provider)
     results = client.synthesize_batch(requests, out_dir, strategy, pause)
     _print_results(results)
 
@@ -201,7 +218,9 @@ def synthesize_batch(
     type=click.Path(path_type=Path),
     help="Output file path.",
 )
+@click.pass_context
 def synthesize_pair(
+    ctx: click.Context,
     text1: str,
     text2: str,
     voice1: str,
@@ -214,15 +233,16 @@ def synthesize_pair(
 
     Creates [TEXT1 audio] [pause] [TEXT2 audio] in a single MP3.
     """
-    v1 = resolve_voice(voice1)
-    v2 = resolve_voice(voice2)
-    req1 = SynthesisRequest(text=text1, voice=v1, rate=rate)
-    req2 = SynthesisRequest(text=text2, voice=v2, rate=rate)
+    provider = _get_provider(ctx)
+    provider.resolve_voice(voice1)
+    provider.resolve_voice(voice2)
+    req1 = SynthesisRequest(text=text1, voice=voice1, rate=rate)
+    req2 = SynthesisRequest(text=text2, voice=voice2, rate=rate)
 
     if output is None:
         output = Path.cwd() / f"pair_{text1[:10]}_{text2[:10]}.mp3"
 
-    client = PollyClient()
+    client = TTSClient(provider)
     result = client.synthesize_pair(text1, req1, text2, req2, output, pause)
     _print_result(result)
 
@@ -268,7 +288,9 @@ def synthesize_pair(
     help="Merge all pair outputs into a single file.",
 )
 @click.argument("input_file", type=click.Path(exists=True, path_type=Path))
+@click.pass_context
 def synthesize_pair_batch(
+    ctx: click.Context,
     voice1: str,
     voice2: str,
     rate: int,
@@ -282,8 +304,9 @@ def synthesize_pair_batch(
     INPUT_FILE should contain a JSON array of [text1, text2] pairs:
     [["strong", "stark"], ["house", "Haus"]]
     """
-    v1 = resolve_voice(voice1)
-    v2 = resolve_voice(voice2)
+    provider = _get_provider(ctx)
+    provider.resolve_voice(voice1)
+    provider.resolve_voice(voice2)
 
     raw = json.loads(input_file.read_text(encoding="utf-8"))
     if not isinstance(raw, list):
@@ -302,8 +325,8 @@ def synthesize_pair_batch(
     raw_pairs = cast("list[list[str]]", raw)
     pairs: list[tuple[SynthesisRequest, SynthesisRequest]] = [
         (
-            SynthesisRequest(text=p[0], voice=v1, rate=rate),
-            SynthesisRequest(text=p[1], voice=v2, rate=rate),
+            SynthesisRequest(text=p[0], voice=voice1, rate=rate),
+            SynthesisRequest(text=p[1], voice=voice2, rate=rate),
         )
         for p in raw_pairs
     ]
@@ -313,7 +336,7 @@ def synthesize_pair_batch(
     )
     out_dir = output_dir if output_dir is not None else Path.cwd()
 
-    client = PollyClient()
+    client = TTSClient(provider)
     results = client.synthesize_pair_batch(pairs, out_dir, strategy, pause)
     _print_results(results)
 
@@ -343,8 +366,10 @@ def _default_output_dir() -> Path:
 
 
 @main.command()
-def doctor() -> None:
+@click.pass_context
+def doctor(ctx: click.Context) -> None:
     """Check system health for langlearn-tts."""
+    provider = _get_provider(ctx)
     passed = 0
     failed = 0
     lines: list[str] = []
@@ -371,32 +396,10 @@ def doctor() -> None:
     else:
         _check(_FAIL, "ffmpeg: not found")
 
-    # AWS credentials
-    try:
-        sts: Any = boto3.client("sts")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-        identity: Any = sts.get_caller_identity()  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-        account: str = identity["Account"]  # pyright: ignore[reportUnknownVariableType]
-        _check(_PASS, f"AWS credentials (account: {account})")
-    except NoCredentialsError:
-        _check(_FAIL, "AWS credentials: not configured (run `aws configure`)")
-    except NoRegionError:
-        _check(_FAIL, "AWS credentials: no region set (run `aws configure`)")
-    except EndpointConnectionError:
-        _check(_FAIL, "AWS credentials: cannot reach AWS (check network)")
-    except ClientError as e:
-        _check(_FAIL, f"AWS credentials: {e}")
-
-    # AWS Polly access
-    try:
-        polly: Any = boto3.client("polly")  # pyright: ignore[reportUnknownMemberType]
-        polly.describe_voices()
-        _check(_PASS, "AWS Polly access")
-    except (NoCredentialsError, NoRegionError):
-        _check(_FAIL, "AWS Polly access: skipped (no credentials)")
-    except EndpointConnectionError:
-        _check(_FAIL, "AWS Polly access: cannot reach AWS (check network)")
-    except ClientError as e:
-        _check(_FAIL, f"AWS Polly access: {e}")
+    # Provider-specific health checks
+    for check in provider.check_health():
+        symbol = _PASS if check.passed else _FAIL
+        _check(symbol, check.message, required=check.required)
 
     # uvx (optional)
     uvx = shutil.which("uvx")

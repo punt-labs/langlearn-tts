@@ -4,33 +4,30 @@ from __future__ import annotations
 
 import hashlib
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
-
-import boto3
-
-if TYPE_CHECKING:
-    from mypy_boto3_polly.literals import (
-        EngineType,
-        LanguageCodeType,
-        VoiceIdType,
-    )
+from typing import Protocol, runtime_checkable
 
 logger = logging.getLogger(__name__)
 
 __all__ = [
+    "HealthCheck",
     "MergeStrategy",
     "SynthesisRequest",
     "SynthesisResult",
-    "VoiceConfig",
+    "TTSProvider",
     "generate_filename",
-    "resolve_voice",
 ]
 
-# Engine preference order: best quality first.
-_ENGINE_PREFERENCE: list[str] = ["neural", "generative", "long-form", "standard"]
+
+@dataclass(frozen=True)
+class HealthCheck:
+    """Result of a single health check."""
+
+    passed: bool
+    message: str
+    required: bool = field(default=True)
 
 
 class MergeStrategy(Enum):
@@ -42,108 +39,11 @@ class MergeStrategy(Enum):
 
 
 @dataclass(frozen=True)
-class VoiceConfig:
-    """Maps a voice to its Polly parameters.
-
-    Each VoiceConfig bundles a Polly voice ID with its required language
-    code and engine type, eliminating the need for callers to know these
-    implementation details.
-    """
-
-    voice_id: VoiceIdType
-    language_code: LanguageCodeType
-    engine: EngineType
-
-
-# Cache of resolved voices, keyed by lowercase name.
-# Pre-populated entries act as aliases and are never overwritten.
-VOICES: dict[str, VoiceConfig] = {}
-
-# Whether the full voice list has been fetched from the API.
-_voices_loaded: bool = False
-
-
-def _best_engine(supported: list[str]) -> EngineType:
-    """Pick the best engine from a list of supported engines."""
-    if not supported:
-        msg = "Voice has no supported engines"
-        raise ValueError(msg)
-    for engine in _ENGINE_PREFERENCE:
-        if engine in supported:
-            return engine  # type: ignore[return-value]
-    return supported[0]  # type: ignore[return-value]
-
-
-def _load_voices_from_api() -> None:
-    """Fetch all voices from the Polly API and populate the cache.
-
-    Paginates through all pages of the describe_voices response.
-    """
-    global _voices_loaded
-    if _voices_loaded:
-        return
-
-    client: Any = boto3.client("polly")  # pyright: ignore[reportUnknownMemberType]
-    next_token: str | None = None
-
-    while True:
-        kwargs: dict[str, str] = {}
-        if next_token is not None:
-            kwargs["NextToken"] = next_token
-
-        resp: dict[str, Any] = client.describe_voices(**kwargs)
-
-        for voice in resp["Voices"]:
-            key = voice["Id"].lower()
-            if key not in VOICES:
-                VOICES[key] = VoiceConfig(
-                    voice_id=voice["Id"],
-                    language_code=voice["LanguageCode"],
-                    engine=_best_engine(voice["SupportedEngines"]),
-                )
-
-        next_token = resp.get("NextToken")
-        if not next_token:
-            break
-
-    _voices_loaded = True
-    logger.debug("Loaded %d voices from Polly API", len(VOICES))
-
-
-def resolve_voice(name: str) -> VoiceConfig:
-    """Resolve a voice name to its configuration.
-
-    Checks the local cache first, then queries the Polly API to
-    resolve any valid Polly voice ID.
-
-    Args:
-        name: Case-insensitive voice name (e.g. "joanna", "Lucia").
-
-    Returns:
-        The corresponding VoiceConfig.
-
-    Raises:
-        ValueError: If the voice name is not a valid Polly voice.
-    """
-    key = name.lower()
-    if key in VOICES:
-        return VOICES[key]
-
-    _load_voices_from_api()
-
-    if key in VOICES:
-        return VOICES[key]
-
-    available = ", ".join(sorted(VOICES))
-    raise ValueError(f"Unknown voice '{name}'. Available: {available}")
-
-
-@dataclass(frozen=True)
 class SynthesisRequest:
     """A request to synthesize a single text to audio."""
 
     text: str
-    voice: VoiceConfig
+    voice: str
     rate: int = 90
     """Speech rate as a percentage (e.g. 90 = 90% speed)."""
 
@@ -163,6 +63,52 @@ class SynthesisResult:
             "text": self.text,
             "voice": self.voice_name,
         }
+
+
+@runtime_checkable
+class TTSProvider(Protocol):
+    """Provider-agnostic interface for text-to-speech engines."""
+
+    @property
+    def name(self) -> str:
+        """Short identifier for this provider (e.g. 'polly')."""
+        ...
+
+    def synthesize(
+        self, request: SynthesisRequest, output_path: Path
+    ) -> SynthesisResult:
+        """Synthesize text to an audio file.
+
+        Args:
+            request: The synthesis parameters.
+            output_path: Where to write the audio file.
+
+        Returns:
+            A SynthesisResult with the file path and metadata.
+        """
+        ...
+
+    def resolve_voice(self, name: str) -> str:
+        """Validate and resolve a voice name.
+
+        Args:
+            name: Case-insensitive voice name.
+
+        Returns:
+            The canonical voice name.
+
+        Raises:
+            ValueError: If the voice name is not valid for this provider.
+        """
+        ...
+
+    def check_health(self) -> list[HealthCheck]:
+        """Run provider-specific health checks.
+
+        Returns:
+            List of HealthCheck results.
+        """
+        ...
 
 
 def generate_filename(text: str, prefix: str = "") -> str:

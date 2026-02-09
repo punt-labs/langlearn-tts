@@ -11,8 +11,8 @@ from unittest.mock import MagicMock
 import pytest
 from pydub import AudioSegment
 
-from langlearn_tts.core import PollyClient
-from langlearn_tts.types import VoiceConfig
+from langlearn_tts.core import TTSClient
+from langlearn_tts.providers.polly import PollyProvider, VoiceConfig
 
 # Test voice configs — constructed directly, no API call needed.
 JOANNA = VoiceConfig(voice_id="Joanna", language_code="en-US", engine="neural")
@@ -25,15 +25,15 @@ SEOYEON = VoiceConfig(voice_id="Seoyeon", language_code="ko-KR", engine="neural"
 def _populate_voice_cache() -> Iterator[None]:  # pyright: ignore[reportUnusedFunction]
     """Pre-populate the voice cache so resolve_voice() never hits the Polly API.
 
-    Tests that verify resolve_voice's API-calling behavior (test_types.py)
+    Tests that verify resolve_voice's API-calling behavior (test_polly.py)
     explicitly clear VOICES and reset _voices_loaded before their test logic.
     """
-    import langlearn_tts.types as t
+    import langlearn_tts.providers.polly as polly
 
-    saved_voices = dict(t.VOICES)
-    saved_loaded = t._voices_loaded  # pyright: ignore[reportPrivateUsage]
+    saved_voices = dict(polly.VOICES)
+    saved_loaded = polly._voices_loaded  # pyright: ignore[reportPrivateUsage]
 
-    t.VOICES.update(
+    polly.VOICES.update(
         {
             "joanna": JOANNA,
             "hans": HANS,
@@ -41,13 +41,13 @@ def _populate_voice_cache() -> Iterator[None]:  # pyright: ignore[reportUnusedFu
             "seoyeon": SEOYEON,
         }
     )
-    t._voices_loaded = True  # pyright: ignore[reportPrivateUsage]
+    polly._voices_loaded = True  # pyright: ignore[reportPrivateUsage]
 
     yield
 
-    t.VOICES.clear()
-    t.VOICES.update(saved_voices)
-    t._voices_loaded = saved_loaded  # pyright: ignore[reportPrivateUsage]
+    polly.VOICES.clear()
+    polly.VOICES.update(saved_voices)
+    polly._voices_loaded = saved_loaded  # pyright: ignore[reportPrivateUsage]
 
 
 @pytest.fixture
@@ -97,16 +97,12 @@ def mock_boto_client() -> MagicMock:
 
 
 @pytest.fixture
-def polly_client(mock_boto_client: MagicMock) -> PollyClient:
-    """Create a PollyClient with a mocked boto3 backend."""
-    return PollyClient(boto_client=mock_boto_client)
+def polly_provider(mock_boto_client: MagicMock) -> PollyProvider:
+    """Create a PollyProvider with a mocked boto3 backend."""
+    return PollyProvider(boto_client=mock_boto_client)
 
 
 @pytest.fixture
-def english_voice() -> VoiceConfig:
-    return JOANNA
-
-
-@pytest.fixture
-def german_voice() -> VoiceConfig:
-    return HANS
+def tts_client(polly_provider: PollyProvider) -> TTSClient:
+    """Create a TTSClient backed by a mock PollyProvider."""
+    return TTSClient(polly_provider)
