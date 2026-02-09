@@ -1,7 +1,7 @@
 [project]
 name = "langlearn-tts"
 version = "0.3.2"
-description = "TTS MCP server and CLI for language learning (AWS Polly, OpenAI)"
+description = "TTS MCP server and CLI for language learning (ElevenLabs, AWS Polly, OpenAI)"
 readme = "README.md"
 authors = [{ name = "JF", email = "jmf@pobox.com" }]
 requires-python = ">=3.13"
@@ -17,6 +17,7 @@ dependencies = [
     "boto3-stubs[polly]>=1.35.0",
     "botocore-stubs>=1.35.0",
     "click>=8.1.0",
+    "elevenlabs>=2.0.0",
     "mcp>=1.0.0",
     "openai>=1.0.0",
     "pydub>=0.25.0",
@@ -99,6 +100,10 @@ disallow_untyped_defs = false
 
 [[tool.mypy.overrides]]
 module = "pydub.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "elevenlabs.*"
 ignore_missing_imports = true
 
 [tool.pyright]
