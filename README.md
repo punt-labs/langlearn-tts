@@ -132,7 +132,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
       "args": ["--from", "langlearn-tts", "langlearn-tts-server"],
       "env": {
         "LANGLEARN_TTS_PROVIDER": "openai",
-        "OPENAI_API_KEY": "${OPENAI_API_KEY}",
+        "OPENAI_API_KEY": "sk-...",
         "LANGLEARN_TTS_OUTPUT_DIR": "/absolute/path/to/output/directory"
       }
     }
@@ -140,14 +140,12 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 }
 ```
 
-Claude Desktop does not inherit your shell PATH. All paths must be absolute. Find your `uvx` path with `which uvx`.
-
-The `${OPENAI_API_KEY}` syntax reads the value from the MCP server's process environment at launch time, avoiding a literal secret on disk. On macOS, GUI apps inherit env vars set via `launchctl setenv` or in `~/.zprofile` (if Claude Desktop is launched from a terminal). Alternatively, replace `${OPENAI_API_KEY}` with your literal key if you prefer simplicity over the env-var reference.
+Claude Desktop does not inherit your shell environment. All paths must be absolute and API keys must be literal values in the config. Find your `uvx` path with `which uvx`.
 
 | Env var | Required | Description |
 |---------|----------|-------------|
 | `LANGLEARN_TTS_PROVIDER` | No | `openai` or `polly`. Auto-detects if omitted. |
-| `OPENAI_API_KEY` | For OpenAI | API key — use `${OPENAI_API_KEY}` to reference env, or a literal value |
+| `OPENAI_API_KEY` | For OpenAI | Your literal API key (Claude Desktop does not support env var references) |
 | `LANGLEARN_TTS_OUTPUT_DIR` | No | Output directory (default: `~/Claude-Audio`) |
 | `LANGLEARN_TTS_MODEL` | No | OpenAI model (`tts-1`, `tts-1-hd`). Default: `tts-1` |
 

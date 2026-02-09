@@ -495,20 +495,21 @@ def _detect_install_provider(provider_name: str | None) -> str:
 def _build_install_env(provider: str, audio_dir: Path) -> dict[str, str]:
     """Build the env dict for the MCP server config entry.
 
-    Uses ``${VAR}`` references for secrets so the config file reads
-    values from the MCP server's process environment at launch time,
-    rather than storing literal keys on disk.
+    Claude Desktop does not support env var interpolation (``${VAR}``),
+    so literal values are written. The API key is required because the
+    MCP server subprocess does not inherit the user's shell environment.
     """
     env: dict[str, str] = {
         "LANGLEARN_TTS_PROVIDER": provider,
         "LANGLEARN_TTS_OUTPUT_DIR": str(audio_dir),
     }
     if provider == "openai":
-        if not os.environ.get("OPENAI_API_KEY"):
+        key = os.environ.get("OPENAI_API_KEY")
+        if not key:
             raise click.ClickException(
                 "OPENAI_API_KEY is not set. Export it or use --provider polly."
             )
-        env["OPENAI_API_KEY"] = "${OPENAI_API_KEY}"
+        env["OPENAI_API_KEY"] = key
     return env
 
 
