@@ -12,13 +12,78 @@ from typing import Protocol, runtime_checkable
 logger = logging.getLogger(__name__)
 
 __all__ = [
+    "SUPPORTED_LANGUAGES",
     "HealthCheck",
     "MergeStrategy",
     "SynthesisRequest",
     "SynthesisResult",
     "TTSProvider",
     "generate_filename",
+    "validate_language",
 ]
+
+
+# ISO 639-1 codes for common language-learning languages.
+# Reference data — not a validation whitelist. Any valid ISO 639-1
+# code is accepted; providers decide what they support.
+SUPPORTED_LANGUAGES: dict[str, str] = {
+    "ar": "Arabic",
+    "bn": "Bengali",
+    "ca": "Catalan",
+    "cs": "Czech",
+    "cy": "Welsh",
+    "da": "Danish",
+    "de": "German",
+    "el": "Greek",
+    "en": "English",
+    "es": "Spanish",
+    "fi": "Finnish",
+    "fr": "French",
+    "he": "Hebrew",
+    "hi": "Hindi",
+    "hu": "Hungarian",
+    "id": "Indonesian",
+    "it": "Italian",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "ms": "Malay",
+    "nb": "Norwegian Bokmål",
+    "nl": "Dutch",
+    "pl": "Polish",
+    "pt": "Portuguese",
+    "ro": "Romanian",
+    "ru": "Russian",
+    "sk": "Slovak",
+    "sv": "Swedish",
+    "th": "Thai",
+    "tr": "Turkish",
+    "uk": "Ukrainian",
+    "vi": "Vietnamese",
+    "zh": "Chinese",
+}
+
+
+def validate_language(code: str) -> str:
+    """Validate and normalize an ISO 639-1 language code.
+
+    Checks format only (2 lowercase ASCII letters). Does not check
+    whether the code is in SUPPORTED_LANGUAGES — providers decide
+    what they support.
+
+    Returns:
+        The lowercase code.
+
+    Raises:
+        ValueError: If the code is not 2 ASCII letters.
+    """
+    normalized = code.strip().lower()
+    if len(normalized) != 2 or not normalized.isascii() or not normalized.isalpha():
+        msg = (
+            f"Invalid language code '{code}'. "
+            "Expected ISO 639-1 format (2 letters, e.g. 'de', 'ko')."
+        )
+        raise ValueError(msg)
+    return normalized
 
 
 @dataclass(frozen=True)
@@ -44,6 +109,8 @@ class SynthesisRequest:
 
     text: str
     voice: str
+    language: str | None = None
+    """ISO 639-1 language code (e.g. 'de', 'ko'). None = unspecified."""
     rate: int = 90
     """Speech rate as a percentage (e.g. 90 = 90% speed)."""
     stability: float | None = None
@@ -63,14 +130,19 @@ class SynthesisResult:
     file_path: Path
     text: str
     voice_name: str
+    language: str | None = None
+    """ISO 639-1 language code used for synthesis, if known."""
 
     def to_dict(self) -> dict[str, str]:
         """Serialize to a dict suitable for MCP tool responses."""
-        return {
+        d: dict[str, str] = {
             "file_path": str(self.file_path),
             "text": self.text,
             "voice": self.voice_name,
         }
+        if self.language is not None:
+            d["language"] = self.language
+        return d
 
 
 @runtime_checkable

@@ -7,11 +7,13 @@ from pathlib import Path
 import pytest
 
 from langlearn_tts.types import (
+    SUPPORTED_LANGUAGES,
     HealthCheck,
     MergeStrategy,
     SynthesisRequest,
     SynthesisResult,
     generate_filename,
+    validate_language,
 )
 
 
@@ -56,6 +58,14 @@ class TestSynthesisRequest:
         req = SynthesisRequest(text="hello", voice="hans")
         assert req.voice == "hans"
 
+    def test_language_default_none(self) -> None:
+        req = SynthesisRequest(text="hello", voice="joanna")
+        assert req.language is None
+
+    def test_language_set(self) -> None:
+        req = SynthesisRequest(text="Guten Tag", voice="daniel", language="de")
+        assert req.language == "de"
+
 
 class TestSynthesisResult:
     def test_to_dict(self) -> None:
@@ -68,6 +78,67 @@ class TestSynthesisResult:
         assert d["file_path"] == "/tmp/test.mp3"
         assert d["text"] == "hello"
         assert d["voice"] == "Joanna"
+        assert "language" not in d
+
+    def test_to_dict_with_language(self) -> None:
+        result = SynthesisResult(
+            file_path=Path("/tmp/test.mp3"),
+            text="Guten Tag",
+            voice_name="Daniel",
+            language="de",
+        )
+        d = result.to_dict()
+        assert d["language"] == "de"
+
+    def test_language_default_none(self) -> None:
+        result = SynthesisResult(
+            file_path=Path("/tmp/test.mp3"),
+            text="hello",
+            voice_name="Joanna",
+        )
+        assert result.language is None
+
+
+class TestValidateLanguage:
+    def test_valid_code(self) -> None:
+        assert validate_language("de") == "de"
+
+    def test_normalizes_case(self) -> None:
+        assert validate_language("DE") == "de"
+
+    def test_strips_whitespace(self) -> None:
+        assert validate_language(" fr ") == "fr"
+
+    def test_rejects_too_long(self) -> None:
+        with pytest.raises(ValueError, match="Invalid language code"):
+            validate_language("deu")
+
+    def test_rejects_too_short(self) -> None:
+        with pytest.raises(ValueError, match="Invalid language code"):
+            validate_language("d")
+
+    def test_rejects_empty(self) -> None:
+        with pytest.raises(ValueError, match="Invalid language code"):
+            validate_language("")
+
+    def test_rejects_digits(self) -> None:
+        with pytest.raises(ValueError, match="Invalid language code"):
+            validate_language("d1")
+
+    def test_rejects_non_ascii(self) -> None:
+        with pytest.raises(ValueError, match="Invalid language code"):
+            validate_language("dé")
+
+
+class TestSupportedLanguages:
+    def test_has_common_languages(self) -> None:
+        for code in ("de", "en", "es", "fr", "ja", "ko", "ru", "zh"):
+            assert code in SUPPORTED_LANGUAGES
+
+    def test_values_are_strings(self) -> None:
+        for name in SUPPORTED_LANGUAGES.values():
+            assert isinstance(name, str)
+            assert len(name) > 0
 
 
 class TestGenerateFilename:
