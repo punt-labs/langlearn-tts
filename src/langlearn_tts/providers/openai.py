@@ -138,11 +138,9 @@ class OpenAIProvider:
         key = name.lower()
         if key in VOICES:
             return VOICES[key]
-        all_names = sorted(VOICES)
-        sample = all_names[:10]
-        hint = ", ".join(sample)
-        if len(all_names) > 10:
-            hint += f" ... ({len(all_names)} total)"
+        from langlearn_tts.providers import format_voice_hint
+
+        hint = format_voice_hint(sorted(VOICES))
         raise ValueError(f"Unknown voice '{name}'. Available: {hint}")
 
     @staticmethod

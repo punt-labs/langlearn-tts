@@ -9,7 +9,30 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from langlearn_tts.types import TTSProvider
 
-__all__ = ["auto_detect_provider", "get_provider"]
+__all__ = [
+    "DEFAULT_VOICES",
+    "auto_detect_provider",
+    "format_voice_hint",
+    "get_provider",
+]
+
+# Canonical default voice per provider, used in help text.
+# Must stay in sync with each provider's default_voice property.
+DEFAULT_VOICES: dict[str, str] = {
+    "elevenlabs": "rachel",
+    "polly": "joanna",
+    "openai": "nova",
+}
+
+
+def format_voice_hint(names: list[str], limit: int = 10) -> str:
+    """Format a truncated voice list for error messages."""
+    sample = names[:limit]
+    hint = ", ".join(sample)
+    if len(names) > limit:
+        hint += f" ... ({len(names)} total)"
+    return hint
+
 
 # Registry mapping provider name → factory callable.
 # Factories are lazy (no imports at module level) to avoid loading
