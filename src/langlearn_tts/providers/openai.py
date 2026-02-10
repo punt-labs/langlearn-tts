@@ -138,8 +138,12 @@ class OpenAIProvider:
         key = name.lower()
         if key in VOICES:
             return VOICES[key]
-        available = ", ".join(sorted(VOICES))
-        raise ValueError(f"Unknown voice '{name}'. Available: {available}")
+        all_names = sorted(VOICES)
+        sample = all_names[:10]
+        hint = ", ".join(sample)
+        if len(all_names) > 10:
+            hint += f" ... ({len(all_names)} total)"
+        raise ValueError(f"Unknown voice '{name}'. Available: {hint}")
 
     @staticmethod
     def _rate_to_speed(rate: int) -> float:
