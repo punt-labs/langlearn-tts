@@ -27,7 +27,7 @@ SEOYEON = VoiceConfig(voice_id="Seoyeon", language_code="ko-KR", engine="neural"
 def _populate_voice_cache() -> Iterator[None]:  # pyright: ignore[reportUnusedFunction]
     """Pre-populate the voice cache so resolve_voice() never hits the Polly API.
 
-    Tests that verify resolve_voice's API-calling behavior (test_polly.py)
+    Tests that verify resolve_voice's API-calling behavior (test_polly_provider.py)
     explicitly clear VOICES and reset _voices_loaded before their test logic.
     """
     import langlearn_tts.providers.polly as polly
