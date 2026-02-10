@@ -314,7 +314,7 @@ The engine (neural, standard, generative, long-form) is selected automatically â
 | sage | Calm, measured |
 | shimmer | Light, gentle |
 
-Select the model with `--model tts-1` (faster, cheaper) or `--model tts-1-hd` (higher quality).
+Default model: `tts-1`. Select with `--model tts-1` (faster, $15/1M chars) or `--model tts-1-hd` (higher quality, $30/1M chars). Texts longer than 4,096 characters are automatically split and stitched.
 
 ## CLI Usage
 
