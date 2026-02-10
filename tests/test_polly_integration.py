@@ -5,7 +5,6 @@ Run with: uv run pytest tests/test_polly_integration.py -v -m integration
 
 from __future__ import annotations
 
-import os
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -17,10 +16,11 @@ from langlearn_tts.types import SynthesisRequest
 
 
 def _has_aws_credentials() -> bool:
-    """Check whether AWS credentials are available via env vars or credentials file."""
-    if os.environ.get("AWS_ACCESS_KEY_ID") or os.environ.get("AWS_PROFILE"):
-        return True
-    return Path("~/.aws/credentials").expanduser().exists()
+    """Check whether AWS credentials are available via botocore session."""
+    import botocore.session  # pyright: ignore[reportMissingTypeStubs]
+
+    session = botocore.session.Session()  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+    return session.get_credentials() is not None  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue, reportUnnecessaryComparison]
 
 
 pytestmark = [
@@ -37,11 +37,20 @@ def _reset_voice_cache() -> Iterator[None]:  # pyright: ignore[reportUnusedFunct
     """Clear the mock voice cache so integration tests hit the real Polly API.
 
     The conftest autouse fixture sets _voices_loaded=True with 4 mock voices.
-    This fixture runs after it and resets the state for each test.
+    This fixture runs after it and resets the state for each test,
+    restoring the previous global state afterwards.
     """
+    prev_voices = dict(polly.VOICES)
+    prev_loaded = polly._voices_loaded  # pyright: ignore[reportPrivateUsage]
+
     polly.VOICES.clear()
     polly._voices_loaded = False  # pyright: ignore[reportPrivateUsage]
-    yield
+    try:
+        yield
+    finally:
+        polly.VOICES.clear()
+        polly.VOICES.update(prev_voices)
+        polly._voices_loaded = prev_loaded  # pyright: ignore[reportPrivateUsage]
 
 
 @pytest.fixture
@@ -129,7 +138,10 @@ class TestLanguageSupport:
         voices = provider.list_voices(language="de")
 
         assert len(voices) > 0
-        assert all(polly.VOICES[v].language_code.startswith("de") for v in voices)
+        assert all(
+            (provider.infer_language_from_voice(v) or "").startswith("de")
+            for v in voices
+        )
 
     def test_infer_language_from_voice(self, provider: PollyProvider) -> None:
         assert provider.infer_language_from_voice("joanna") == "en"
