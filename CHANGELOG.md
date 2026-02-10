@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- CONTRIBUTING.md with bug reporting, dev setup, quality gates, testing, commit format, and PR workflow
+- PyPI keywords (tts, text-to-speech, mcp, language-learning, elevenlabs, aws-polly, openai) and Repository URL
+- PyPI classifiers: Education audience, Console environment, Education topic; Development Status bumped to Beta
+
+### Changed
+- CLI `--rate` help text notes ElevenLabs ignores the rate parameter
+- CLI synthesize docstring documents ElevenLabs audio tags
+- CLI and MCP `--voice` help shows concrete defaults per provider (rachel/joanna/nova)
+- OpenAI README section expanded with default model, auto-chunking, and per-model pricing
+
+### Fixed
+- Polly and OpenAI voice error messages truncated to 10 voices (matching ElevenLabs), down from full list (93 voices for Polly)
+
 ## [0.4.4] - 2026-02-09
 
 ### Fixed

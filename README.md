@@ -96,7 +96,7 @@ Enter your Access Key ID, Secret Access Key, and region (e.g., `us-east-1`). Alt
 export OPENAI_API_KEY=sk-...
 ```
 
-Pricing: $15/1M characters (tts-1) or $30/1M (tts-1-hd).
+See [OpenAI TTS pricing](https://platform.openai.com/docs/pricing) for current rates.
 
 ### 5. Verify
 
@@ -314,7 +314,7 @@ The engine (neural, standard, generative, long-form) is selected automatically â
 | sage | Calm, measured |
 | shimmer | Light, gentle |
 
-Select the model with `--model tts-1` (faster, cheaper) or `--model tts-1-hd` (higher quality).
+Default model: `tts-1`. Select with `--model tts-1` (faster, cheaper) or `--model tts-1-hd` (higher quality). See [OpenAI TTS pricing](https://platform.openai.com/docs/pricing) for current rates. Texts longer than 4,096 characters are automatically split and stitched.
 
 ## CLI Usage
 

@@ -6,10 +6,22 @@ readme = "README.md"
 authors = [{ name = "JF", email = "jmf@pobox.com" }]
 requires-python = ">=3.13"
 license = "MIT"
+keywords = [
+    "tts",
+    "text-to-speech",
+    "mcp",
+    "language-learning",
+    "elevenlabs",
+    "aws-polly",
+    "openai",
+]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Education",
+    "Environment :: Console",
     "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
+    "Topic :: Education",
     "Topic :: Multimedia :: Sound/Audio :: Speech",
 ]
 dependencies = [
@@ -26,6 +38,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/jmf-pobox/langlearn-tts-mcp"
+Repository = "https://github.com/jmf-pobox/langlearn-tts-mcp"
 "Bug Tracker" = "https://github.com/jmf-pobox/langlearn-tts-mcp/issues"
 
 [project.scripts]

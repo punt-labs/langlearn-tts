@@ -228,5 +228,7 @@ class PollyProvider:
         if key in VOICES:
             return VOICES[key]
 
-        available = ", ".join(sorted(VOICES))
-        raise ValueError(f"Unknown voice '{name}'. Available: {available}")
+        from langlearn_tts.providers import format_voice_hint
+
+        hint = format_voice_hint(sorted(VOICES))
+        raise ValueError(f"Unknown voice '{name}'. Available: {hint}")

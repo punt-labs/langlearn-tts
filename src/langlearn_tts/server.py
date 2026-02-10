@@ -107,8 +107,8 @@ def synthesize(
             the model interprets them as performance cues. Combine with
             punctuation (ellipsis for pauses, ! for emphasis) for best
             results. Tags only work with ElevenLabs eleven_v3 model.
-        voice: Voice name (provider-specific). Defaults to provider's
-            default voice if not specified.
+        voice: Voice name. Default: provider's default voice (currently
+            rachel for ElevenLabs, joanna for Polly, nova for OpenAI).
         rate: Speech rate as percentage (90 = 90% speed, good for
             language learners). Defaults to 90. ElevenLabs ignores rate;
             use audio tags like [rushed] or [drawn out] instead.
@@ -177,7 +177,8 @@ def synthesize_batch(
     Args:
         texts: List of texts to synthesize. With ElevenLabs eleven_v3,
             embed audio tags like [tired], [excited], [whisper] in text.
-        voice: Voice name for all texts. Defaults to provider's default.
+        voice: Voice name for all texts. Default: provider's default voice
+            (currently rachel for ElevenLabs, joanna for Polly, nova for OpenAI).
         rate: Speech rate as percentage. Defaults to 90.
         merge: If true, produce one merged file instead of separate
             files per text. Defaults to false.

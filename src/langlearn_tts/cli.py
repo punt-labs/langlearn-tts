@@ -15,7 +15,7 @@ from typing import cast
 import click
 
 from langlearn_tts.core import TTSClient
-from langlearn_tts.providers import auto_detect_provider, get_provider
+from langlearn_tts.providers import DEFAULT_VOICES, auto_detect_provider, get_provider
 from langlearn_tts.types import (
     MergeStrategy,
     SynthesisRequest,
@@ -24,6 +24,12 @@ from langlearn_tts.types import (
 )
 
 logger = logging.getLogger(__name__)
+
+_PROVIDER_DISPLAY = {"elevenlabs": "ElevenLabs", "polly": "Polly", "openai": "OpenAI"}
+_VOICE_DEFAULTS = ", ".join(
+    f"{DEFAULT_VOICES[k]} ({_PROVIDER_DISPLAY[k]})"
+    for k in ("elevenlabs", "polly", "openai")
+)
 
 
 def _configure_logging(verbose: bool) -> None:
@@ -117,14 +123,14 @@ def main(
 @click.option(
     "--voice",
     default=None,
-    help="Voice name (provider-specific). Defaults to provider's default.",
+    help=f"Voice name. Default: {_VOICE_DEFAULTS}.",
 )
 @click.option(
     "--rate",
     default=90,
     show_default=True,
     type=int,
-    help="Speech rate as percentage (e.g. 90 = 90%% speed).",
+    help="Speech rate as percentage (e.g. 90 = 90%% speed). ElevenLabs ignores this.",
 )
 @click.option(
     "--output",
@@ -146,7 +152,11 @@ def synthesize(
     style: float | None,
     speaker_boost: bool,
 ) -> None:
-    """Synthesize a single text to an MP3 file."""
+    """Synthesize a single text to an MP3 file.
+
+    With ElevenLabs eleven_v3, embed audio tags like [tired], [excited],
+    [whisper], [laughs] to control delivery.
+    """
     provider = _get_provider(ctx)
     voice = voice or provider.default_voice
     provider.resolve_voice(voice)
@@ -172,14 +182,14 @@ def synthesize(
 @click.option(
     "--voice",
     default=None,
-    help="Voice name for all texts. Defaults to provider's default.",
+    help=(f"Voice name for all texts. Default: {_VOICE_DEFAULTS}."),
 )
 @click.option(
     "--rate",
     default=90,
     show_default=True,
     type=int,
-    help="Speech rate as percentage.",
+    help="Speech rate as percentage. ElevenLabs ignores this.",
 )
 @click.option(
     "--output-dir",
@@ -271,19 +281,19 @@ def synthesize_batch(
 @click.option(
     "--voice1",
     default=None,
-    help="Voice for first text (typically English). Provider default if omitted.",
+    help="Voice for first text (typically English). Default: provider's default voice.",
 )
 @click.option(
     "--voice2",
     default=None,
-    help="Voice for the second text (typically L2). Defaults to provider's default.",
+    help="Voice for the second text (typically L2). Default: provider's default voice.",
 )
 @click.option(
     "--rate",
     default=90,
     show_default=True,
     type=int,
-    help="Speech rate as percentage.",
+    help="Speech rate as percentage. ElevenLabs ignores this.",
 )
 @click.option(
     "--pause",
@@ -356,19 +366,21 @@ def synthesize_pair(
 @click.option(
     "--voice1",
     default=None,
-    help="Voice for first texts (typically English). Defaults to provider's default.",
+    help=(
+        "Voice for first texts (typically English). Default: provider's default voice."
+    ),
 )
 @click.option(
     "--voice2",
     default=None,
-    help="Voice for second texts (typically L2). Defaults to provider's default.",
+    help="Voice for second texts (typically L2). Default: provider's default voice.",
 )
 @click.option(
     "--rate",
     default=90,
     show_default=True,
     type=int,
-    help="Speech rate as percentage.",
+    help="Speech rate as percentage. ElevenLabs ignores this.",
 )
 @click.option(
     "--pause",

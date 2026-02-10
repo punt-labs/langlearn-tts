@@ -207,12 +207,11 @@ class ElevenLabsProvider:
         if key in VOICES:
             return VOICES[key]
 
+        from langlearn_tts.providers import format_voice_hint
+
         # Show only short names (without descriptions) in the hint.
         short_names = sorted(k for k in VOICES if " - " not in k)
-        sample = short_names[:10]
-        hint = ", ".join(sample)
-        if len(short_names) > 10:
-            hint += f" ... ({len(short_names)} total)"
+        hint = format_voice_hint(short_names)
         raise ValueError(f"Unknown voice '{name}'. Available: {hint}")
 
     def _build_voice_settings(self, request: SynthesisRequest) -> Any | None:  # pyright: ignore[reportExplicitAny]
