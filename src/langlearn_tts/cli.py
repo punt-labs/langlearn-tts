@@ -34,15 +34,9 @@ _VOICE_DEFAULTS = ", ".join(
 
 
 def _configure_logging(verbose: bool) -> None:
-    level = logging.DEBUG if verbose else logging.WARNING
-    logging.basicConfig(
-        level=level,
-        format="%(levelname)s: %(message)s",
-        stream=sys.stderr,
-    )
-    # Suppress noisy library loggers even in verbose mode
-    for name in ("boto3", "botocore", "urllib3", "s3transfer"):
-        logging.getLogger(name).setLevel(logging.WARNING)
+    from langlearn_tts.logging_config import configure_logging
+
+    configure_logging(stderr_level="DEBUG" if verbose else "WARNING")
 
 
 def _print_result(result: SynthesisResult) -> None:

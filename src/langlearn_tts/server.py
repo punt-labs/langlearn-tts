@@ -5,13 +5,13 @@ from __future__ import annotations
 import logging
 import os
 import subprocess
-import sys
 from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
 from langlearn_tts import __version__
 from langlearn_tts.core import TTSClient
+from langlearn_tts.logging_config import configure_logging
 from langlearn_tts.providers import get_provider
 from langlearn_tts.types import (
     MergeStrategy,
@@ -20,12 +20,6 @@ from langlearn_tts.types import (
     validate_language,
 )
 
-# MCP stdio servers must not write to stdout.
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(levelname)s: %(message)s",
-    stream=sys.stderr,
-)
 logger = logging.getLogger(__name__)
 
 mcp = FastMCP("langlearn-tts")
@@ -450,6 +444,8 @@ def synthesize_pair_batch(
 
 def run_server() -> None:
     """Run the MCP server with stdio transport."""
+    # MCP stdio servers must not write to stdout; stderr handler is safe.
+    configure_logging(stderr_level="INFO")
     logger.info("Starting langlearn-tts MCP server")
     mcp.run(transport="stdio")
 

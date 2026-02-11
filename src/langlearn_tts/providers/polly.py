@@ -210,12 +210,6 @@ class PollyProvider:
         ssml_text = (
             f'<speak><prosody rate="{request.rate}%">{request.text}</prosody></speak>'
         )
-        logger.debug(
-            "Synthesizing: voice=%s, text=%r",
-            voice_cfg.voice_id,
-            request.text,
-        )
-
         response = self._client.synthesize_speech(
             Text=ssml_text,
             TextType="ssml",
@@ -226,10 +220,15 @@ class PollyProvider:
             SampleRate="22050",
         )
 
+        logger.info(
+            "API call: provider=polly, voice=%s, chars=%d",
+            voice_cfg.voice_id,
+            len(request.text),
+        )
+
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, "wb") as f:
             f.write(response["AudioStream"].read())
-
         logger.info("Wrote %s", output_path)
         language = request.language or _infer_iso_from_bcp47(voice_cfg.language_code)
         return SynthesisResult(

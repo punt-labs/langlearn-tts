@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Rotating file logging to `~/.langlearn-tts/logs/langlearn-tts.log` (5 MB, 5 backups)
+- Timestamps and module names in log format
+- API call logging at INFO level: provider name, voice, character count
+
+### Fixed
+- Removed request text from Polly debug log (payload leak)
+
+### Changed
+- Logging configured via `logging.config.dictConfig()` in shared `logging_config` module
+
 ## [0.5.1] - 2026-02-10
 
 ### Fixed
