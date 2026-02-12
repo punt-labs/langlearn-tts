@@ -17,9 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Removed request text from Polly debug log (payload leak)
+- Desktop Extension: removed `provider` and `model` from install config — provider auto-detects from API key, model defaults per provider. Fixes ElevenLabs 400 error when model field left blank (Claude Desktop passes invalid value for empty optional fields).
+- Desktop Extension: support link now points to README instead of issues page
 
 ### Changed
 - Logging configured via `logging.config.dictConfig()` in shared `logging_config` module
+- Desktop Extension: API key fields listed first in install config, output directory last
 
 ## [0.5.1] - 2026-02-10
 

@@ -16,7 +16,7 @@
   },
   "homepage": "https://github.com/jmf-pobox/langlearn-tts-mcp",
   "documentation": "https://github.com/jmf-pobox/langlearn-tts-mcp#readme",
-  "support": "https://github.com/jmf-pobox/langlearn-tts-mcp/issues",
+  "support": "https://github.com/jmf-pobox/langlearn-tts-mcp#readme",
   "server": {
     "type": "uv",
     "entry_point": "src/langlearn_tts/server.py",
@@ -24,21 +24,26 @@
       "command": "uv",
       "args": ["run", "--directory", "${__dirname}", "langlearn-tts-server"],
       "env": {
-        "LANGLEARN_TTS_PROVIDER": "${user_config.provider}",
         "LANGLEARN_TTS_OUTPUT_DIR": "${user_config.output_dir}",
-        "LANGLEARN_TTS_MODEL": "${user_config.model}",
         "ELEVENLABS_API_KEY": "${user_config.elevenlabs_api_key}",
         "OPENAI_API_KEY": "${user_config.openai_api_key}"
       }
     }
   },
   "user_config": {
-    "provider": {
+    "elevenlabs_api_key": {
       "type": "string",
-      "title": "TTS Provider",
-      "description": "elevenlabs (premium, 70+ languages), polly (AWS, 28 languages), or openai (multilingual)",
-      "default": "polly",
-      "required": true
+      "title": "ElevenLabs API Key",
+      "description": "Get one at elevenlabs.io. Provider auto-detected when key is set.",
+      "sensitive": true,
+      "required": false
+    },
+    "openai_api_key": {
+      "type": "string",
+      "title": "OpenAI API Key",
+      "description": "Get one at platform.openai.com. Provider auto-detected when key is set.",
+      "sensitive": true,
+      "required": false
     },
     "output_dir": {
       "type": "directory",
@@ -46,26 +51,6 @@
       "description": "Where synthesized MP3 files are saved",
       "default": "${HOME}/langlearn-audio",
       "required": true
-    },
-    "elevenlabs_api_key": {
-      "type": "string",
-      "title": "ElevenLabs API Key",
-      "description": "Required when provider is elevenlabs. Get one at elevenlabs.io",
-      "sensitive": true,
-      "required": false
-    },
-    "openai_api_key": {
-      "type": "string",
-      "title": "OpenAI API Key",
-      "description": "Required when provider is openai. Get one at platform.openai.com",
-      "sensitive": true,
-      "required": false
-    },
-    "model": {
-      "type": "string",
-      "title": "Model (Optional)",
-      "description": "Provider-specific model override. Defaults: eleven_v3, tts-1, neural (Polly). Leave blank for default.",
-      "required": false
     }
   },
   "tools": [
