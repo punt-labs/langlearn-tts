@@ -1,0 +1,100 @@
+{
+  "manifest_version": "0.4",
+  "name": "langlearn-tts",
+  "display_name": "Language Learning TTS",
+  "version": "0.5.1",
+  "description": "Text-to-speech for language learning — synthesize vocabulary, phrases, and bilingual pairs with ElevenLabs, AWS Polly, or OpenAI.",
+  "long_description": "Synthesize text to MP3 audio files for language learning. Supports single text, batch, bilingual pairs, and batch pairs with configurable voice, speed, and pause settings.\n\n**Providers:** ElevenLabs (premium, 70+ languages), AWS Polly (28 languages), OpenAI (multilingual).\n\n**Requirements:**\n- One provider's API credentials (see configuration fields below)\n- AWS Polly users: run `aws configure` to set up credentials before use\n- **ffmpeg** is required for pair synthesis and batch merge (`brew install ffmpeg` on macOS, `apt install ffmpeg` on Linux)\n\nSingle text synthesis works without ffmpeg.",
+  "author": {
+    "name": "JF",
+    "email": "jmf@pobox.com",
+    "url": "https://github.com/jmf-pobox"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jmf-pobox/langlearn-tts-mcp.git"
+  },
+  "homepage": "https://github.com/jmf-pobox/langlearn-tts-mcp",
+  "documentation": "https://github.com/jmf-pobox/langlearn-tts-mcp#readme",
+  "support": "https://github.com/jmf-pobox/langlearn-tts-mcp/issues",
+  "server": {
+    "type": "uv",
+    "entry_point": "src/langlearn_tts/server.py",
+    "mcp_config": {
+      "command": "uv",
+      "args": ["run", "--directory", "${__dirname}", "langlearn-tts-server"],
+      "env": {
+        "LANGLEARN_TTS_PROVIDER": "${user_config.provider}",
+        "LANGLEARN_TTS_OUTPUT_DIR": "${user_config.output_dir}",
+        "LANGLEARN_TTS_MODEL": "${user_config.model}",
+        "ELEVENLABS_API_KEY": "${user_config.elevenlabs_api_key}",
+        "OPENAI_API_KEY": "${user_config.openai_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "provider": {
+      "type": "string",
+      "title": "TTS Provider",
+      "description": "elevenlabs (premium, 70+ languages), polly (AWS, 28 languages), or openai (multilingual)",
+      "default": "polly",
+      "required": true
+    },
+    "output_dir": {
+      "type": "directory",
+      "title": "Audio Output Directory",
+      "description": "Where synthesized MP3 files are saved",
+      "default": "${HOME}/langlearn-audio",
+      "required": true
+    },
+    "elevenlabs_api_key": {
+      "type": "string",
+      "title": "ElevenLabs API Key",
+      "description": "Required when provider is elevenlabs. Get one at elevenlabs.io",
+      "sensitive": true,
+      "required": false
+    },
+    "openai_api_key": {
+      "type": "string",
+      "title": "OpenAI API Key",
+      "description": "Required when provider is openai. Get one at platform.openai.com",
+      "sensitive": true,
+      "required": false
+    },
+    "model": {
+      "type": "string",
+      "title": "Model (Optional)",
+      "description": "Provider-specific model override. Defaults: eleven_v3, tts-1, neural (Polly). Leave blank for default.",
+      "required": false
+    }
+  },
+  "tools": [
+    {
+      "name": "synthesize",
+      "description": "Synthesize text to an MP3 audio file"
+    },
+    {
+      "name": "synthesize_batch",
+      "description": "Synthesize multiple texts to MP3 files, optionally merged"
+    },
+    {
+      "name": "synthesize_pair",
+      "description": "Synthesize a bilingual pair (e.g., English + German) with pause"
+    },
+    {
+      "name": "synthesize_pair_batch",
+      "description": "Synthesize a batch of bilingual pairs"
+    }
+  ],
+  "privacy_policies": [
+    "https://github.com/jmf-pobox/langlearn-tts-mcp/blob/main/PRIVACY.md"
+  ],
+  "compatibility": {
+    "platforms": ["darwin", "linux", "win32"],
+    "runtimes": {
+      "python": ">=3.13"
+    }
+  },
+  "keywords": ["tts", "text-to-speech", "language-learning", "elevenlabs", "aws-polly", "openai"],
+  "license": "MIT"
+}

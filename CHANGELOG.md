@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `.mcpb` Desktop Extension packaging — one-click install for Claude Desktop via `manifest.json` (uv server type)
+- `scripts/build-mcpb.sh` build script for reproducible `.mcpb` bundle creation
+- `PRIVACY.md` privacy policy documenting local-only operation and provider data handling
 - Rotating file logging to `~/.langlearn-tts/logs/langlearn-tts.log` (5 MB, 5 backups)
 - Timestamps and module names in log format
 - API call logging at INFO level: provider name, voice, character count
