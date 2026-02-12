@@ -218,19 +218,6 @@ git status                  # Must show "up to date with origin"
 
 Work is NOT complete until `git push` succeeds.
 
-## Session Tracking with Entire CLI
-
-This project uses **Entire** for session tracking with the `manual-commit` strategy.
-
-- **How it works**: Entire creates checkpoints on each commit and pushes them on `git push`. No workflow changes needed — git hooks fire automatically.
-- **Configuration**: `.entire/settings.json` (committed) and `.entire/settings.local.json` (gitignored, for local overrides).
-
-| Command | Purpose |
-|---------|---------|
-| `entire status` | Show tracking status and strategy |
-| `entire resume <branch>` | Resume a session on a branch |
-| `entire doctor` | Check configuration health |
-
 ## Known Type Checker Workarounds
 
 ### mypy vs pyright on boto3 (in providers/polly.py)
