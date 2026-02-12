@@ -25,13 +25,15 @@ Available as both a **Claude Desktop MCP server** (ask Claude to generate audio 
 
 ## Claude Desktop Setup
 
-### Desktop Extension (recommended)
+Pick **one** of the three options below. You do not need to do all three.
+
+### Option A: Desktop Extension (recommended)
 
 Download the `.mcpb` Desktop Extension bundle from the [latest release](https://github.com/jmf-pobox/langlearn-tts-mcp/releases/latest) and double-click to install. Claude Desktop will prompt you to paste your API key and choose an output directory — no manual configuration needed.
 
 The provider is auto-detected from which API key you provide. ElevenLabs and OpenAI keys are entered during install. For AWS Polly, run `aws configure` in a terminal first — no key is needed in the extension config.
 
-### CLI install
+### Option B: CLI install
 
 Requires the `langlearn-tts` CLI (see [CLI Installation](#cli-installation) below).
 
@@ -41,7 +43,7 @@ langlearn-tts install
 
 Writes to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS). Options: `--provider NAME`, `--output-dir PATH`, `--uvx-path PATH`. Restart Claude Desktop after running.
 
-### Manual configuration
+### Option C: Manual configuration
 
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
