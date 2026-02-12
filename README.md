@@ -23,7 +23,164 @@ Available as both a **Claude Desktop MCP server** (ask Claude to generate audio 
 - **Voice settings** — ElevenLabs stability, similarity, style, and speaker boost controls
 - **Provider selection** — auto-detects ElevenLabs when `ELEVENLABS_API_KEY` is set; falls back to Polly; use `--provider` to override
 
-## Quick Start
+## Claude Desktop Setup
+
+### Desktop Extension (recommended)
+
+Download the `.mcpb` Desktop Extension bundle from the [latest release](https://github.com/jmf-pobox/langlearn-tts-mcp/releases/latest) and double-click to install. Claude Desktop will prompt you to paste your API key and choose an output directory — no manual configuration needed.
+
+The provider is auto-detected from which API key you provide. ElevenLabs and OpenAI keys are entered during install. For AWS Polly, run `aws configure` in a terminal first — no key is needed in the extension config.
+
+### CLI install
+
+Requires the `langlearn-tts` CLI (see [CLI Installation](#cli-installation) below).
+
+```bash
+langlearn-tts install
+```
+
+Writes to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS). Options: `--provider NAME`, `--output-dir PATH`, `--uvx-path PATH`. Restart Claude Desktop after running.
+
+### Manual configuration
+
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "langlearn-tts": {
+      "command": "/absolute/path/to/uvx",
+      "args": ["--from", "langlearn-tts", "langlearn-tts-server"],
+      "env": {
+        "LANGLEARN_TTS_OUTPUT_DIR": "/absolute/path/to/output/directory"
+      }
+    }
+  }
+}
+```
+
+Claude Desktop does not inherit your shell environment. API keys must be literal values (env var references are not supported). Restart after editing.
+
+### Environment variables
+
+| Env var | Required | Description |
+|---------|----------|-------------|
+| `LANGLEARN_TTS_PROVIDER` | No | `elevenlabs`, `polly` (default when no API key), or `openai` |
+| `ELEVENLABS_API_KEY` | For ElevenLabs | Your API key |
+| `OPENAI_API_KEY` | For OpenAI | Your API key |
+| `LANGLEARN_TTS_OUTPUT_DIR` | No | Output directory (default: `~/langlearn-audio`) |
+| `LANGLEARN_TTS_MODEL` | No | Model name. ElevenLabs: `eleven_v3` (default). OpenAI: `tts-1`, `tts-1-hd` |
+
+For Polly, AWS credentials are read from `~/.aws/credentials`.
+
+### Other MCP clients
+
+langlearn-tts works with any MCP client that supports stdio transport. Use the server command `uvx --from langlearn-tts langlearn-tts-server` with the environment variables above. Find your `uvx` path with `which uvx` — all paths must be absolute.
+
+## AI Tutor Prompts
+
+langlearn-tts ships with 28 ready-made AI tutor prompts — one for each combination of 7 languages and 4 levels. Paste a prompt into a Claude Desktop Project's Instructions field, and Claude becomes a language tutor that generates audio during lessons.
+
+### Browse prompts
+
+```bash
+# List all available prompts
+langlearn-tts prompt list
+
+# Print a prompt (pipe to clipboard with pbcopy on macOS)
+langlearn-tts prompt show german-high-school | pbcopy
+```
+
+### Set up a Claude Desktop Project
+
+1. In Claude Desktop, click **Projects** in the sidebar
+2. Click **Create Project** and name it (e.g., "German with Herr Schmidt")
+3. Open the project, click **Set custom instructions**
+4. Paste the prompt content into the Instructions field
+5. Start a new conversation within that project
+
+Using a Project keeps the tutor persona scoped to language learning. Other conversations are unaffected.
+
+### Available languages and levels
+
+| Language | High School | 1st Year | 2nd Year | Advanced |
+|----------|-------------|----------|----------|----------|
+| German | Herr Schmidt | Professorin Weber | Professor Hartmann | Professor Becker |
+| Spanish | Profesora Elena | Profesor Garcia | Profesora Carmen | Profesora Reyes |
+| French | Madame Moreau | Professeur Laurent | Professeur Dubois | Professeur Beaumont |
+| Russian | Irina Petrovna | Professor Dmitri | Professor Natasha | Professor Mikhail |
+| Korean | Kim-seonsaengnim | Professor Park | Professor Kim | Professor Yoon |
+| Japanese | Tanaka-sensei | Yamamoto-sensei | Suzuki-sensei | Mori-sensei |
+| Chinese | Laoshi Wang | Professor Chen | Professor Zhang | Professor Wei |
+
+Each prompt creates a tutor persona calibrated to the student's level, based on [Mollick & Mollick's "Assigning AI" framework](https://ssrn.com/abstract=4475995). Customize any prompt by adjusting student background, voice selection, speech rate, or focus areas.
+
+## Voices
+
+### ElevenLabs (premium)
+
+5,000+ voices. Any voice works with any language. Voice names are case-insensitive. You can also pass a voice ID directly (the 20-character alphanumeric string from the ElevenLabs dashboard).
+
+Popular voices for language learning:
+
+| Voice | Description |
+|-------|-------------|
+| Rachel | Calm, clear, American English |
+| Drew | Warm, conversational |
+| Clyde | Deep, authoritative |
+| Domi | Expressive, young |
+| Bella | Soft, gentle |
+
+Voice settings (ElevenLabs only):
+
+| Flag | Range | Description |
+|------|-------|-------------|
+| `--stability` | 0.0-1.0 | Higher = more consistent, lower = more expressive |
+| `--similarity` | 0.0-1.0 | Higher = closer to original voice, lower = more variation |
+| `--style` | 0.0-1.0 | Higher = more expressive/dramatic |
+| `--speaker-boost` | flag | Enhances voice clarity at the cost of generation speed |
+
+### AWS Polly
+
+Any voice from the [AWS Polly voice list](https://docs.aws.amazon.com/polly/latest/dg/voicelist.html) is supported. Voice names are case-insensitive. Each voice is a dedicated neural model trained for a specific language, producing the most native-sounding pronunciation. The tool queries the Polly API on first use and caches the result.
+
+Common voices for language learning:
+
+| Voice | Language | Engine |
+|-------|----------|--------|
+| joanna | English (US) | neural |
+| matthew | English (US) | neural |
+| daniel | German | neural |
+| vicki | German (female) | neural |
+| lucia | Spanish (European) | neural |
+| lupe | Spanish (US) | neural |
+| léa | French | neural |
+| tatyana | Russian | standard |
+| seoyeon | Korean | neural |
+| takumi | Japanese | neural |
+| zhiyu | Chinese (Mandarin) | neural |
+
+The engine (neural, standard, generative, long-form) is selected automatically — neural preferred when available.
+
+### OpenAI TTS
+
+9 multilingual voices. Any voice works with any language — the model infers the language from the text. Voice names are case-insensitive. Pronunciation quality varies by language; major languages tend to be solid, less-resourced languages can be inconsistent.
+
+| Voice | Description |
+|-------|-------------|
+| alloy | Neutral, balanced |
+| ash | Warm, conversational |
+| coral | Clear, expressive |
+| echo | Smooth, authoritative |
+| fable | Warm, British-accented |
+| onyx | Deep, resonant |
+| nova | Friendly, upbeat |
+| sage | Calm, measured |
+| shimmer | Light, gentle |
+
+Default model: `tts-1`. Select with `--model tts-1` (faster, cheaper) or `--model tts-1-hd` (higher quality). See [OpenAI TTS pricing](https://platform.openai.com/docs/pricing) for current rates. Texts longer than 4,096 characters are automatically split and stitched.
+
+## CLI Installation
 
 ### 1. Install uv (Python package manager)
 
@@ -114,171 +271,6 @@ uv sync --all-extras
 uv run langlearn-tts --help
 ```
 
-## Claude Desktop Setup
-
-### Desktop Extension (recommended)
-
-Download the `.mcpb` Desktop Extension bundle from the [latest release](https://github.com/jmf-pobox/langlearn-tts-mcp/releases/latest) and double-click to install. Claude Desktop will prompt you to paste your API key and choose an output directory — no manual configuration needed.
-
-The provider is auto-detected from which API key you provide. ElevenLabs and OpenAI keys are entered during install. For AWS Polly, run `aws configure` in a terminal first — no key is needed in the extension config.
-
-### CLI install
-
-```bash
-langlearn-tts install
-```
-
-Writes to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS). Options: `--provider NAME`, `--output-dir PATH`, `--uvx-path PATH`. Restart Claude Desktop after running.
-
-### Manual configuration
-
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "langlearn-tts": {
-      "command": "/absolute/path/to/uvx",
-      "args": ["--from", "langlearn-tts", "langlearn-tts-server"],
-      "env": {
-        "LANGLEARN_TTS_OUTPUT_DIR": "/absolute/path/to/output/directory"
-      }
-    }
-  }
-}
-```
-
-Claude Desktop does not inherit your shell environment. API keys must be literal values (env var references are not supported). Restart after editing.
-
-### Environment variables
-
-| Env var | Required | Description |
-|---------|----------|-------------|
-| `LANGLEARN_TTS_PROVIDER` | No | `elevenlabs`, `polly` (default when no API key), or `openai` |
-| `ELEVENLABS_API_KEY` | For ElevenLabs | Your API key |
-| `OPENAI_API_KEY` | For OpenAI | Your API key |
-| `LANGLEARN_TTS_OUTPUT_DIR` | No | Output directory (default: `~/langlearn-audio`) |
-| `LANGLEARN_TTS_MODEL` | No | Model name. ElevenLabs: `eleven_v3` (default). OpenAI: `tts-1`, `tts-1-hd` |
-
-For Polly, AWS credentials are read from `~/.aws/credentials`.
-
-### Other MCP clients
-
-langlearn-tts works with any MCP client that supports stdio transport. Use the server command `uvx --from langlearn-tts langlearn-tts-server` with the environment variables above. Find your `uvx` path with `which uvx` — all paths must be absolute.
-
-## AI Tutor Prompts
-
-langlearn-tts ships with 28 ready-made AI tutor prompts — one for each combination of 7 languages and 4 levels. Paste a prompt into a Claude Desktop Project's Instructions field, and Claude becomes a language tutor that generates audio during lessons.
-
-### Browse prompts
-
-```bash
-# List all available prompts
-langlearn-tts prompt list
-
-# Print a prompt (pipe to clipboard with pbcopy on macOS)
-langlearn-tts prompt show german-high-school | pbcopy
-```
-
-### Set up a Claude Desktop Project
-
-1. In Claude Desktop, click **Projects** in the sidebar
-2. Click **Create Project** and name it (e.g., "German with Herr Schmidt")
-3. Open the project, click **Set custom instructions**
-4. Paste the prompt content into the Instructions field
-5. Start a new conversation within that project
-
-Using a Project keeps the tutor persona scoped to language learning. Other conversations are unaffected.
-
-### Available languages and levels
-
-| Language | High School | 1st Year | 2nd Year | Advanced |
-|----------|-------------|----------|----------|----------|
-| German | Herr Schmidt | Professorin Weber | Professor Hartmann | Professor Becker |
-| Spanish | Profesora Elena | Profesor Garcia | Profesora Carmen | Profesora Reyes |
-| French | Madame Moreau | Professeur Laurent | Professeur Dubois | Professeur Beaumont |
-| Russian | Irina Petrovna | Professor Dmitri | Professor Natasha | Professor Mikhail |
-| Korean | Kim-seonsaengnim | Professor Park | Professor Kim | Professor Yoon |
-| Japanese | Tanaka-sensei | Yamamoto-sensei | Suzuki-sensei | Mori-sensei |
-| Chinese | Laoshi Wang | Professor Chen | Professor Zhang | Professor Wei |
-
-Each prompt creates a tutor persona calibrated to the student's level, based on [Mollick & Mollick's "Assigning AI" framework](https://ssrn.com/abstract=4475995). Customize any prompt by adjusting student background, voice selection, speech rate, or focus areas.
-
-## Troubleshooting
-
-```bash
-langlearn-tts doctor
-```
-
-Checks Python version, active provider, ffmpeg, provider-specific credentials, `uvx`, Claude Desktop config, and output directory. Required checks must pass (exit code 1 on failure); optional checks show `○` markers. Failed checks include actionable fix hints.
-
-Logs are written to `~/.langlearn-tts/logs/langlearn-tts.log` (5 MB rotation, 5 backups). Logs record provider name, voice, and character count per API call — never the text you synthesize. See [PRIVACY.md](PRIVACY.md) for details.
-
-## Voices
-
-### ElevenLabs (premium)
-
-5,000+ voices. Any voice works with any language. Voice names are case-insensitive. You can also pass a voice ID directly (the 20-character alphanumeric string from the ElevenLabs dashboard).
-
-Popular voices for language learning:
-
-| Voice | Description |
-|-------|-------------|
-| Rachel | Calm, clear, American English |
-| Drew | Warm, conversational |
-| Clyde | Deep, authoritative |
-| Domi | Expressive, young |
-| Bella | Soft, gentle |
-
-Voice settings (ElevenLabs only):
-
-| Flag | Range | Description |
-|------|-------|-------------|
-| `--stability` | 0.0-1.0 | Higher = more consistent, lower = more expressive |
-| `--similarity` | 0.0-1.0 | Higher = closer to original voice, lower = more variation |
-| `--style` | 0.0-1.0 | Higher = more expressive/dramatic |
-| `--speaker-boost` | flag | Enhances voice clarity at the cost of generation speed |
-
-### AWS Polly
-
-Any voice from the [AWS Polly voice list](https://docs.aws.amazon.com/polly/latest/dg/voicelist.html) is supported. Voice names are case-insensitive. Each voice is a dedicated neural model trained for a specific language, producing the most native-sounding pronunciation. The tool queries the Polly API on first use and caches the result.
-
-Common voices for language learning:
-
-| Voice | Language | Engine |
-|-------|----------|--------|
-| joanna | English (US) | neural |
-| matthew | English (US) | neural |
-| daniel | German | neural |
-| vicki | German (female) | neural |
-| lucia | Spanish (European) | neural |
-| lupe | Spanish (US) | neural |
-| léa | French | neural |
-| tatyana | Russian | standard |
-| seoyeon | Korean | neural |
-| takumi | Japanese | neural |
-| zhiyu | Chinese (Mandarin) | neural |
-
-The engine (neural, standard, generative, long-form) is selected automatically — neural preferred when available.
-
-### OpenAI TTS
-
-9 multilingual voices. Any voice works with any language — the model infers the language from the text. Voice names are case-insensitive. Pronunciation quality varies by language; major languages tend to be solid, less-resourced languages can be inconsistent.
-
-| Voice | Description |
-|-------|-------------|
-| alloy | Neutral, balanced |
-| ash | Warm, conversational |
-| coral | Clear, expressive |
-| echo | Smooth, authoritative |
-| fable | Warm, British-accented |
-| onyx | Deep, resonant |
-| nova | Friendly, upbeat |
-| sage | Calm, measured |
-| shimmer | Light, gentle |
-
-Default model: `tts-1`. Select with `--model tts-1` (faster, cheaper) or `--model tts-1-hd` (higher quality). See [OpenAI TTS pricing](https://platform.openai.com/docs/pricing) for current rates. Texts longer than 4,096 characters are automatically split and stitched.
-
 ## CLI Usage
 
 ```bash
@@ -322,6 +314,16 @@ All four tools are available in Claude Desktop once the server is configured:
 | `synthesize_pair_batch` | Multiple pairs, optionally merged |
 
 Each tool accepts `auto_play` (default: true) to play audio immediately after synthesis.
+
+## Troubleshooting
+
+```bash
+langlearn-tts doctor
+```
+
+Checks Python version, active provider, ffmpeg, provider-specific credentials, `uvx`, Claude Desktop config, and output directory. Required checks must pass (exit code 1 on failure); optional checks show `○` markers. Failed checks include actionable fix hints.
+
+Logs are written to `~/.langlearn-tts/logs/langlearn-tts.log` (5 MB rotation, 5 backups). Logs record provider name, voice, and character count per API call — never the text you synthesize. See [PRIVACY.md](PRIVACY.md) for details.
 
 ## Development
 
