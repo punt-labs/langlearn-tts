@@ -14,8 +14,8 @@ A Claude Desktop extension that gives Claude the ability to speak. Ask Claude to
 You need an account with at least one text-to-speech provider:
 
 - [**ElevenLabs**](https://elevenlabs.io) — highest quality, 5,000+ voices, 70+ languages. Free tier: 10K chars/month.
-- [**AWS Polly**](https://aws.amazon.com/polly/) — best per-language pronunciation, 93 voices. Requires an AWS account ([setup guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)).
 - [**OpenAI TTS**](https://platform.openai.com/docs/guides/text-to-speech) — easiest setup, 9 voices, 57 languages.
+- [**AWS Polly**](https://aws.amazon.com/polly/) — best per-language pronunciation, 93 voices. Requires an AWS account ([setup guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)).
 
 ### 2. Install in Claude Desktop
 
