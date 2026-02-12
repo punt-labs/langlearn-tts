@@ -591,7 +591,11 @@ def doctor(ctx: click.Context) -> None:
     if v >= (3, 13):
         _check(_PASS, f"Python {v.major}.{v.minor}.{v.micro}")
     else:
-        _check(_FAIL, f"Python {v.major}.{v.minor}.{v.micro} (requires 3.13+)")
+        _check(
+            _FAIL,
+            f"Python {v.major}.{v.minor}.{v.micro} (requires 3.13+)"
+            " — install from https://www.python.org/downloads/",
+        )
 
     # Active provider
     _check(_PASS, f"Provider: {provider.name}")
@@ -601,7 +605,12 @@ def doctor(ctx: click.Context) -> None:
     if ffmpeg:
         _check(_PASS, f"ffmpeg: {ffmpeg}")
     else:
-        _check(_FAIL, "ffmpeg: not found")
+        hint = {
+            "Darwin": "brew install ffmpeg",
+            "Linux": "see https://ffmpeg.org/download.html",
+            "Windows": "winget install --id Gyan.FFmpeg",
+        }.get(platform.system(), "see https://ffmpeg.org/download.html")
+        _check(_FAIL, f"ffmpeg: not found — {hint}")
 
     # Provider-specific health checks
     for check in provider.check_health():
@@ -659,7 +668,11 @@ def doctor(ctx: click.Context) -> None:
         test_file.unlink()
         _check(_PASS, f"Output directory: {out_dir}")
     except OSError as e:
-        _check(_FAIL, f"Output directory: {out_dir} ({e})")
+        _check(
+            _FAIL,
+            f"Output directory: {out_dir} ({e})"
+            " — check permissions or use --output-dir",
+        )
 
     # Print report
     click.echo("=" * 40)
@@ -737,7 +750,18 @@ def _build_install_env(provider: str, audio_dir: Path) -> dict[str, str]:
 def install(
     output_dir: Path | None, uvx_path: str | None, install_provider: str | None
 ) -> None:
-    """Register the MCP server with Claude Desktop."""
+    """Register the MCP server with Claude Desktop.
+
+    Writes a langlearn-tts entry to the Claude Desktop config file at
+    ~/Library/Application Support/Claude/claude_desktop_config.json (macOS).
+    The entry includes the uvx command, provider name, output directory, and
+    API key (for ElevenLabs/OpenAI) as environment variables. Requires a
+    Claude Desktop restart to take effect.
+
+    \b
+    Alternative: install the .mcpb Desktop Extension bundle for one-click
+    setup — see https://github.com/jmf-pobox/langlearn-tts-mcp#readme
+    """
     if platform.system() != "Darwin":
         click.echo(
             "Warning: Claude Desktop config path is only known for macOS. "

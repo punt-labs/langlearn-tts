@@ -16,11 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - API call logging at INFO level: provider name, voice, character count
 
 ### Fixed
+- `doctor` command: actionable fix hints for Python version, ffmpeg (OS-specific install commands), and output directory failures
 - Removed request text from Polly debug log (payload leak)
 - Desktop Extension: removed `provider` and `model` from install config — provider auto-detects from API key, model defaults per provider. Fixes ElevenLabs 400 error when model field left blank (Claude Desktop passes invalid value for empty optional fields).
 - Desktop Extension: support link now points to README instead of issues page
 
 ### Changed
+- `install` command help text: documents config file path, env vars written, restart requirement, and .mcpb alternative
 - Logging configured via `logging.config.dictConfig()` in shared `logging_config` module
 - Desktop Extension: API key fields listed first in install config, output directory last
 
