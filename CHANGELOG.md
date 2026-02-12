@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-02-11
+
+### Changed
+- README rewritten for non-technical users: one-sentence intro, 4-step Quick Start (API key, install extension, tutor project, examples), Features described as what Claude can do
+- Developer content (CLI installation, voices, env vars, manual config, MCP tools) moved under Developer Reference section with clear divider
+
 ## [0.6.1] - 2026-02-11
 
 ### Changed
