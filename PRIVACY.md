@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**langlearn-tts** version 0.5.1
+**langlearn-tts** version 0.6.0
 
 ## Data We Collect
 

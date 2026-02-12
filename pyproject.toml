@@ -1,6 +1,6 @@
 [project]
 name = "langlearn-tts"
-version = "0.5.1"
+version = "0.6.0"
 description = "TTS MCP server and CLI for language learning (ElevenLabs, AWS Polly, OpenAI)"
 readme = "README.md"
 authors = [{ name = "JF", email = "jmf@pobox.com" }]

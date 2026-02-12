@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-02-11
+
 ### Added
 - `.mcpb` Desktop Extension packaging — one-click install for Claude Desktop via `manifest.json` (uv server type)
 - `scripts/build-mcpb.sh` build script for reproducible `.mcpb` bundle creation
