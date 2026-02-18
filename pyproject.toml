@@ -37,9 +37,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/jmf-pobox/langlearn-tts-mcp"
-Repository = "https://github.com/jmf-pobox/langlearn-tts-mcp"
-"Bug Tracker" = "https://github.com/jmf-pobox/langlearn-tts-mcp/issues"
+Homepage = "https://github.com/punt-labs/langlearn-tts"
+Repository = "https://github.com/punt-labs/langlearn-tts"
+"Bug Tracker" = "https://github.com/punt-labs/langlearn-tts/issues"
 
 [project.scripts]
 langlearn-tts = "langlearn_tts.cli:main"

@@ -8,15 +8,15 @@
   "author": {
     "name": "JF",
     "email": "jmf@pobox.com",
-    "url": "https://github.com/jmf-pobox"
+    "url": "https://github.com/punt-labs"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jmf-pobox/langlearn-tts-mcp.git"
+    "url": "https://github.com/punt-labs/langlearn-tts.git"
   },
-  "homepage": "https://github.com/jmf-pobox/langlearn-tts-mcp",
-  "documentation": "https://github.com/jmf-pobox/langlearn-tts-mcp#readme",
-  "support": "https://github.com/jmf-pobox/langlearn-tts-mcp#readme",
+  "homepage": "https://github.com/punt-labs/langlearn-tts",
+  "documentation": "https://github.com/punt-labs/langlearn-tts#readme",
+  "support": "https://github.com/punt-labs/langlearn-tts#readme",
   "server": {
     "type": "uv",
     "entry_point": "src/langlearn_tts/server.py",
@@ -72,7 +72,7 @@
     }
   ],
   "privacy_policies": [
-    "https://github.com/jmf-pobox/langlearn-tts-mcp/blob/main/PRIVACY.md"
+    "https://github.com/punt-labs/langlearn-tts/blob/main/PRIVACY.md"
   ],
   "compatibility": {
     "platforms": ["darwin", "linux", "win32"],

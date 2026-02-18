@@ -760,7 +760,7 @@ def install(
 
     \b
     Alternative: install the .mcpb Desktop Extension bundle for one-click
-    setup — see https://github.com/jmf-pobox/langlearn-tts-mcp#readme
+    setup — see https://github.com/punt-labs/langlearn-tts#readme
     """
     if platform.system() != "Darwin":
         click.echo(

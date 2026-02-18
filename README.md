@@ -1,8 +1,8 @@
 # langlearn-tts
 
 [![PyPI](https://img.shields.io/pypi/v/langlearn-tts)](https://pypi.org/project/langlearn-tts/)
-[![GitHub](https://img.shields.io/github/v/release/jmf-pobox/langlearn-tts-mcp)](https://github.com/jmf-pobox/langlearn-tts-mcp)
-[![Tests](https://github.com/jmf-pobox/langlearn-tts-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/jmf-pobox/langlearn-tts-mcp/actions/workflows/ci.yml)
+[![GitHub](https://img.shields.io/github/v/release/punt-labs/langlearn-tts)](https://github.com/punt-labs/langlearn-tts)
+[![Tests](https://github.com/punt-labs/langlearn-tts/actions/workflows/ci.yml/badge.svg)](https://github.com/punt-labs/langlearn-tts/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/pypi/pyversions/langlearn-tts)](https://pypi.org/project/langlearn-tts/)
 
 A Claude Desktop extension that gives Claude the ability to speak. Ask Claude to pronounce words, generate audio flashcards, or run a full language lesson with audio — in 70+ languages.
@@ -19,7 +19,7 @@ You need an account with at least one text-to-speech provider:
 
 ### 2. Install in Claude Desktop
 
-[**Download langlearn-tts.mcpb**](https://github.com/jmf-pobox/langlearn-tts-mcp/releases/latest/download/langlearn-tts.mcpb) and double-click to install. Claude Desktop will prompt you for your API key and an output directory.
+[**Download langlearn-tts.mcpb**](https://github.com/punt-labs/langlearn-tts/releases/latest/download/langlearn-tts.mcpb) and double-click to install. Claude Desktop will prompt you for your API key and an output directory.
 
 ### 3. Set up a tutor project (optional)
 
@@ -28,7 +28,7 @@ langlearn-tts ships with 28 tutor prompts — one for each combination of 7 lang
 1. In Claude Desktop, click **Projects** in the sidebar
 2. Click **Create Project** and name it (e.g., "German with Herr Schmidt")
 3. Open the project, click **Set custom instructions**
-4. Copy a prompt from the [prompts directory](https://github.com/jmf-pobox/langlearn-tts-mcp/tree/main/src/langlearn_tts/prompts) and paste it into the Instructions field
+4. Copy a prompt from the [prompts directory](https://github.com/punt-labs/langlearn-tts/tree/main/src/langlearn_tts/prompts) and paste it into the Instructions field
 5. Start a new conversation within that project
 
 | Language | High School | 1st Year | 2nd Year | Advanced |
@@ -204,7 +204,7 @@ langlearn-tts works with any MCP client that supports stdio transport. Use the s
 ### Development
 
 ```bash
-git clone https://github.com/jmf-pobox/langlearn-tts-mcp.git
+git clone https://github.com/punt-labs/langlearn-tts.git
 cd langlearn-tts-mcp
 uv sync --all-extras
 

@@ -31,4 +31,4 @@ API keys you configure are stored locally by the Claude Desktop application usin
 
 ## Contact
 
-Questions or concerns: [GitHub Issues](https://github.com/jmf-pobox/langlearn-tts-mcp/issues)
+Questions or concerns: [GitHub Issues](https://github.com/punt-labs/langlearn-tts/issues)

@@ -1,0 +1,3 @@
+
+
+Makes sense. The bead `lltts-jyw` has the submission plan if you decide to go ahead as-is, and a Node rewrite of just the server layer is a separable decision you could make later. The CLI can stay Python either way.

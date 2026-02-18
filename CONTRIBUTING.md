@@ -2,7 +2,7 @@
 
 ## Reporting Bugs
 
-Open an issue at <https://github.com/jmf-pobox/langlearn-tts-mcp/issues> with:
+Open an issue at <https://github.com/punt-labs/langlearn-tts/issues> with:
 
 - Steps to reproduce
 - Expected vs actual behavior
@@ -12,7 +12,7 @@ Open an issue at <https://github.com/jmf-pobox/langlearn-tts-mcp/issues> with:
 ## Development Setup
 
 ```bash
-git clone https://github.com/jmf-pobox/langlearn-tts-mcp.git
+git clone https://github.com/punt-labs/langlearn-tts.git
 cd langlearn-tts-mcp
 uv sync --all-extras
 ```
