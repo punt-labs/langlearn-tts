@@ -1,0 +1,10 @@
+{
+  "name": "langlearn-tts",
+  "description": "Suppress MCP tool output for langlearn-tts in Claude Code.",
+  "version": "0.6.2",
+  "author": {
+    "name": "JF",
+    "email": "jmf@pobox.com",
+    "organization": "Punt Labs"
+  }
+}
