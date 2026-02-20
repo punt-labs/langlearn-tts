@@ -14,9 +14,12 @@ from langlearn_tts.core import TTSClient
 from langlearn_tts.logging_config import configure_logging
 from langlearn_tts.providers import get_provider
 from langlearn_tts.types import (
+    AudioProviderId,
     MergeStrategy,
     SynthesisRequest,
+    SynthesisResult,
     TTSProvider,
+    generate_filename,
     result_to_dict,
     validate_language,
 )
@@ -93,6 +96,21 @@ def _resolve_voice_and_language(
         language = provider.infer_language_from_voice(voice)
 
     return voice, language
+
+
+def _cached_result(
+    provider: TTSProvider, request: SynthesisRequest, output_path: Path
+) -> SynthesisResult:
+    """Build a cached AudioResult without calling the provider."""
+    provider_id = AudioProviderId(provider.name)
+    return SynthesisResult(
+        path=output_path,
+        text=request.text,
+        provider=provider_id,
+        voice=request.voice,
+        language=request.language,
+        metadata=request.metadata,
+    )
 
 
 def _play_audio(path: Path) -> None:
@@ -187,7 +205,10 @@ def synthesize(
     )
 
     client = TTSClient(provider)
-    result = client.synthesize(request, path)
+    if path.exists():
+        result = _cached_result(provider, request, path)
+    else:
+        result = client.synthesize(request, path)
     if auto_play:
         _play_audio(result.path)
     return str(result_to_dict(result))
@@ -251,13 +272,36 @@ def synthesize_batch(
         )
         for t in texts
     ]
-    strategy = (
-        MergeStrategy.ONE_FILE_PER_BATCH if merge else MergeStrategy.ONE_FILE_PER_INPUT
-    )
+    if not requests:
+        return str([])
     dir_path = _resolve_output_dir(output_dir)
 
     client = TTSClient(provider)
-    results = client.synthesize_batch(requests, dir_path, strategy, pause_ms)
+    if merge:
+        combined_text = " | ".join(r.text for r in requests)
+        out_path = dir_path / generate_filename(combined_text, prefix="batch_")
+        if out_path.exists():
+            cached = SynthesisResult(
+                path=out_path,
+                text=combined_text,
+                provider=AudioProviderId(provider.name),
+                voice=voice,
+                language=language,
+                metadata=requests[0].metadata,
+            )
+            results = [cached]
+        else:
+            results = client.synthesize_batch(
+                requests, dir_path, MergeStrategy.ONE_FILE_PER_BATCH, pause_ms
+            )
+    else:
+        results: list[SynthesisResult] = []
+        for req in requests:
+            out_path = dir_path / generate_filename(req.text)
+            if out_path.exists():
+                results.append(_cached_result(provider, req, out_path))
+            else:
+                results.append(client.synthesize(req, out_path))
     if auto_play:
         for r in results:
             _play_audio(r.path)
@@ -346,7 +390,19 @@ def synthesize_pair(
     )
 
     client = TTSClient(provider)
-    result = client.synthesize_pair(text1, req1, text2, req2, path, pause_ms)
+    if path.exists():
+        voice_parts = [v for v in (voice1, voice2) if v]
+        combined_voice = "+".join(voice_parts) if voice_parts else None
+        result = SynthesisResult(
+            path=path,
+            text=f"{text1} | {text2}",
+            provider=AudioProviderId(provider.name),
+            voice=combined_voice,
+            language=lang1,
+            metadata=req1.metadata,
+        )
+    else:
+        result = client.synthesize_pair(text1, req1, text2, req2, path, pause_ms)
     if auto_play:
         _play_audio(result.path)
     return str(result_to_dict(result))
@@ -429,14 +485,58 @@ def synthesize_pair_batch(
         )
         for p in pairs
     ]
+    if not pair_requests:
+        return str([])
 
-    strategy = (
-        MergeStrategy.ONE_FILE_PER_BATCH if merge else MergeStrategy.ONE_FILE_PER_INPUT
-    )
     dir_path = _resolve_output_dir(output_dir)
 
     client = TTSClient(provider)
-    results = client.synthesize_pair_batch(pair_requests, dir_path, strategy, pause_ms)
+    if merge:
+        all_texts = " | ".join(f"{r1.text}-{r2.text}" for r1, r2 in pair_requests)
+        out_path = dir_path / generate_filename(all_texts, prefix="pairs_")
+        if out_path.exists():
+            results = [
+                SynthesisResult(
+                    path=out_path,
+                    text=all_texts,
+                    provider=AudioProviderId(provider.name),
+                    voice="mixed",
+                    metadata=pair_requests[0][0].metadata,
+                )
+            ]
+        else:
+            results = client.synthesize_pair_batch(
+                pair_requests, dir_path, MergeStrategy.ONE_FILE_PER_BATCH, pause_ms
+            )
+    else:
+        results: list[SynthesisResult] = []
+        for req_1, req_2 in pair_requests:
+            combined = f"{req_1.text}_{req_2.text}"
+            out_path = dir_path / generate_filename(combined, prefix="pair_")
+            if out_path.exists():
+                voice_parts = [v for v in (req_1.voice, req_2.voice) if v]
+                combined_voice = "+".join(voice_parts) if voice_parts else None
+                results.append(
+                    SynthesisResult(
+                        path=out_path,
+                        text=f"{req_1.text} | {req_2.text}",
+                        provider=AudioProviderId(provider.name),
+                        voice=combined_voice,
+                        language=req_1.language,
+                        metadata=req_1.metadata,
+                    )
+                )
+            else:
+                results.append(
+                    client.synthesize_pair(
+                        req_1.text,
+                        req_1,
+                        req_2.text,
+                        req_2,
+                        out_path,
+                        pause_ms,
+                    )
+                )
     if auto_play:
         for r in results:
             _play_audio(r.path)
