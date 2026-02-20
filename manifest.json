@@ -1,6 +1,6 @@
 {
   "manifest_version": "0.4",
-  "name": "langlearn-tts",
+  "name": "punt-langlearn-tts",
   "display_name": "Language Learning TTS",
   "version": "0.6.2",
   "description": "Text-to-speech for language learning — synthesize vocabulary, phrases, and bilingual pairs with ElevenLabs, AWS Polly, or OpenAI.",

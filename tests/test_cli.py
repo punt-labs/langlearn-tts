@@ -593,7 +593,11 @@ class TestInstallCommand:
         data = json.loads(config_path.read_text())
         server = data["mcpServers"]["langlearn-tts"]
         assert server["command"] == _UVX
-        assert server["args"] == ["--from", "langlearn-tts", "langlearn-tts-server"]
+        assert server["args"] == [
+            "--from",
+            "punt-langlearn-tts",
+            "langlearn-tts-server",
+        ]
         assert server["env"]["LANGLEARN_TTS_OUTPUT_DIR"] == str(audio_dir)
         assert server["env"]["LANGLEARN_TTS_PROVIDER"] == "polly"
 
