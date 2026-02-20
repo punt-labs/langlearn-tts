@@ -1,5 +1,5 @@
 [project]
-name = "langlearn-tts"
+name = "punt-langlearn-tts"
 version = "0.6.2"
 description = "TTS MCP server and CLI for language learning (ElevenLabs, AWS Polly, OpenAI)"
 readme = "README.md"
@@ -57,6 +57,9 @@ dev = [
 [build-system]
 requires = ["uv_build>=0.9.14,<0.10.0"]
 build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "langlearn_tts"
 
 [tool.ruff]
 line-length = 88

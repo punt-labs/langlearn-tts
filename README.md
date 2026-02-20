@@ -1,9 +1,9 @@
 # langlearn-tts
 
-[![PyPI](https://img.shields.io/pypi/v/langlearn-tts)](https://pypi.org/project/langlearn-tts/)
+[![PyPI](https://img.shields.io/pypi/v/punt-langlearn-tts)](https://pypi.org/project/punt-langlearn-tts/)
 [![GitHub](https://img.shields.io/github/v/release/punt-labs/langlearn-tts)](https://github.com/punt-labs/langlearn-tts)
 [![Tests](https://github.com/punt-labs/langlearn-tts/actions/workflows/ci.yml/badge.svg)](https://github.com/punt-labs/langlearn-tts/actions/workflows/ci.yml)
-[![Python](https://img.shields.io/pypi/pyversions/langlearn-tts)](https://pypi.org/project/langlearn-tts/)
+[![Python](https://img.shields.io/pypi/pyversions/punt-langlearn-tts)](https://pypi.org/project/punt-langlearn-tts/)
 
 A Claude Desktop extension that gives Claude the ability to speak. Ask Claude to pronounce words, generate audio flashcards, or run a full language lesson with audio — in 70+ languages.
 
@@ -19,7 +19,7 @@ You need an account with at least one text-to-speech provider:
 
 ### 2. Install in Claude Desktop
 
-[**Download langlearn-tts.mcpb**](https://github.com/punt-labs/langlearn-tts/releases/latest/download/langlearn-tts.mcpb) and double-click to install. Claude Desktop will prompt you for your API key and an output directory.
+[**Download punt-langlearn-tts.mcpb**](https://github.com/punt-labs/langlearn-tts/releases/latest/download/punt-langlearn-tts.mcpb) and double-click to install. Claude Desktop will prompt you for your API key and an output directory.
 
 ### 3. Set up a tutor project (optional)
 
@@ -86,7 +86,7 @@ Everything below is for developers using the CLI, integrating with other MCP cli
 Install [uv](https://docs.astral.sh/uv/) (manages Python automatically), then:
 
 ```bash
-uv tool install langlearn-tts
+uv tool install punt-langlearn-tts
 ```
 
 Install ffmpeg for audio stitching (pairs, merged batches):
@@ -122,7 +122,7 @@ Or add manually:
   "mcpServers": {
     "langlearn-tts": {
       "command": "/absolute/path/to/uvx",
-      "args": ["--from", "langlearn-tts", "langlearn-tts-server"],
+      "args": ["--from", "punt-langlearn-tts", "langlearn-tts-server"],
       "env": {
         "LANGLEARN_TTS_OUTPUT_DIR": "/absolute/path/to/output/directory"
       }
@@ -199,13 +199,13 @@ Each tool accepts `auto_play` (default: true) to play audio immediately after sy
 
 ### Other MCP clients
 
-langlearn-tts works with any MCP client that supports stdio transport. Use the server command `uvx --from langlearn-tts langlearn-tts-server` with the environment variables above. Find your `uvx` path with `which uvx` — all paths must be absolute.
+langlearn-tts works with any MCP client that supports stdio transport. Use the server command `uvx --from punt-langlearn-tts langlearn-tts-server` with the environment variables above. Find your `uvx` path with `which uvx` — all paths must be absolute.
 
 ### Development
 
 ```bash
 git clone https://github.com/punt-labs/langlearn-tts.git
-cd langlearn-tts-mcp
+cd langlearn-tts
 uv sync --all-extras
 
 uv run pytest tests/ -v

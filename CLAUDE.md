@@ -4,7 +4,7 @@
 
 TTS MCP server and CLI for language learning. Supports ElevenLabs (premium), AWS Polly, and OpenAI TTS.
 
-- **Package**: `langlearn-tts`
+- **Package**: `punt-langlearn-tts`
 - **CLI**: `langlearn-tts`
 - **MCP server**: `langlearn-tts-server`
 - **Python**: 3.13+, managed with `uv`
@@ -199,7 +199,7 @@ Every release follows this exact sequence. No steps skipped.
 7. **Tag**: `git tag vX.Y.Z`
 8. **Push**: `git push origin main vX.Y.Z`
 9. **GitHub release**: `gh release create vX.Y.Z --title "vX.Y.Z" --notes-file -` (use CHANGELOG entry)
-10. **Verify**: `uv tool install --upgrade langlearn-tts && langlearn-tts doctor`
+10. **Verify**: `uv tool install --upgrade punt-langlearn-tts && langlearn-tts doctor`
 
 A release is not complete until all 10 steps are done.
 

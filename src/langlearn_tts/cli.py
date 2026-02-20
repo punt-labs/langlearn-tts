@@ -803,7 +803,7 @@ def install(
 
     data["mcpServers"]["langlearn-tts"] = {
         "command": uvx,
-        "args": ["--from", "langlearn-tts", "langlearn-tts-server"],
+        "args": ["--from", "punt-langlearn-tts", "langlearn-tts-server"],
         "env": env,
     }
 

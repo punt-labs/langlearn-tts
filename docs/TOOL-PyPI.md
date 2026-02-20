@@ -1,4 +1,4 @@
-# PyPI Publishing Checklist for langlearn-tts
+# PyPI Publishing Checklist for punt-langlearn-tts
 
 Build with `uv build`, publish with `twine` (reads `~/.pypirc` for credentials).
 
@@ -39,7 +39,7 @@ Validates the distribution metadata and README rendering.
 uv pip install -e .
 ```
 
-Installs in editable mode for local development. Uninstall with `uv pip uninstall langlearn-tts`.
+Installs in editable mode for local development. Uninstall with `uv pip uninstall punt-langlearn-tts`.
 
 ---
 
@@ -48,7 +48,7 @@ Installs in editable mode for local development. Uninstall with `uv pip uninstal
 ```sh
 uv venv /tmp/langlearn-test
 source /tmp/langlearn-test/bin/activate
-uv pip install dist/langlearn_tts-*.whl
+uv pip install dist/punt_langlearn_tts-*.whl
 langlearn-tts --help
 langlearn-tts doctor
 deactivate
@@ -65,7 +65,7 @@ uvx twine upload --repository testpypi dist/*
 Install from TestPyPI to verify:
 
 ```sh
-uv pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ langlearn-tts
+uv pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ punt-langlearn-tts
 ```
 
 The `--extra-index-url` fallback is needed because dependencies (boto3, click, etc.) are on PyPI, not TestPyPI.
@@ -82,11 +82,11 @@ uvx twine upload dist/*
 
 ## 8. Verify on PyPI
 
-- Check: https://pypi.org/project/langlearn-tts/
+- Check: https://pypi.org/project/punt-langlearn-tts/
 - Install in a fresh environment:
 
 ```sh
-uv tool install langlearn-tts
+uv tool install punt-langlearn-tts
 langlearn-tts --help
 langlearn-tts doctor
 ```

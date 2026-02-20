@@ -5,7 +5,7 @@
 #
 # Usage: ./scripts/build-mcpb.sh
 #
-# Output: dist/langlearn-tts-<version>.mcpb
+# Output: dist/punt-langlearn-tts-<version>.mcpb
 
 set -euo pipefail
 
@@ -32,14 +32,14 @@ if [ "$version" != "$init_version" ]; then
     exit 1
 fi
 
-echo "Building langlearn-tts $version .mcpb bundle..."
+echo "Building punt-langlearn-tts $version .mcpb bundle..."
 
 mkdir -p dist
-mcpb pack . "dist/langlearn-tts-${version}.mcpb"
+mcpb pack . "dist/punt-langlearn-tts-${version}.mcpb"
 
-# Create stable-named copy for GitHub release (latest/download/langlearn-tts.mcpb).
-cp "dist/langlearn-tts-${version}.mcpb" "dist/langlearn-tts.mcpb"
+# Create stable-named copy for GitHub release (latest/download/punt-langlearn-tts.mcpb).
+cp "dist/punt-langlearn-tts-${version}.mcpb" "dist/punt-langlearn-tts.mcpb"
 
-echo "Built: dist/langlearn-tts-${version}.mcpb"
-echo "       dist/langlearn-tts.mcpb (stable name)"
-echo "Size: $(du -h "dist/langlearn-tts-${version}.mcpb" | cut -f1)"
+echo "Built: dist/punt-langlearn-tts-${version}.mcpb"
+echo "       dist/punt-langlearn-tts.mcpb (stable name)"
+echo "Size: $(du -h "dist/punt-langlearn-tts-${version}.mcpb" | cut -f1)"
