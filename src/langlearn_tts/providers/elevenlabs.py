@@ -6,12 +6,19 @@ import logging
 import os
 import re
 import tempfile
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
 from elevenlabs.core import ApiError  # pyright: ignore[reportMissingTypeStubs]
 
-from langlearn_tts.types import HealthCheck, SynthesisRequest, SynthesisResult
+from langlearn_tts.output import resolve_output_path
+from langlearn_tts.types import (
+    AudioProviderId,
+    HealthCheck,
+    SynthesisRequest,
+    SynthesisResult,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -105,17 +112,28 @@ class ElevenLabsProvider:
     def default_voice(self) -> str:
         return "rachel"
 
+    def generate_audio(self, request: SynthesisRequest) -> SynthesisResult:
+        output_path = resolve_output_path(request)
+        return self.synthesize(request, output_path)
+
+    def generate_audios(
+        self, requests: Sequence[SynthesisRequest]
+    ) -> list[SynthesisResult]:
+        return [self.generate_audio(request) for request in requests]
+
     def synthesize(
         self, request: SynthesisRequest, output_path: Path
     ) -> SynthesisResult:
         """Synthesize text to an MP3 file using ElevenLabs."""
-        voice_id = self._resolve_voice_id(request.voice)
+        resolved_voice = request.voice or self.default_voice
+        voice_id = self._resolve_voice_id(resolved_voice)
+        rate = request.rate if request.rate is not None else 100
 
-        if request.rate != 100:
+        if rate != 100:
             logger.debug(
                 "ElevenLabs does not support rate adjustment (got rate=%d). "
                 "Audio will be at normal speed.",
-                request.rate,
+                rate,
             )
 
         char_limit = _MODEL_CHAR_LIMITS.get(self._model, _DEFAULT_CHAR_LIMIT)
@@ -126,15 +144,18 @@ class ElevenLabsProvider:
             self._single_synthesize(request.text, output_path, voice_id, request)
 
         logger.info("Wrote %s", output_path)
+        display_voice = (
+            resolved_voice
+            if _VOICE_ID_RE.match(resolved_voice)
+            else resolved_voice.lower()
+        )
         return SynthesisResult(
-            file_path=output_path,
+            path=output_path,
             text=request.text,
-            voice_name=(
-                request.voice
-                if _VOICE_ID_RE.match(request.voice)
-                else request.voice.lower()
-            ),
+            provider=AudioProviderId.elevenlabs,
+            voice=display_voice,
             language=request.language,
+            metadata=request.metadata,
         )
 
     def resolve_voice(self, name: str, language: str | None = None) -> str:

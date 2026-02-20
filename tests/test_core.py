@@ -23,7 +23,7 @@ class TestTTSClientSynthesize:
 
         result = tts_client.synthesize(request, out)
 
-        assert result.file_path == out
+        assert result.path == out
         assert out.exists()
         assert out.stat().st_size > 0
 
@@ -67,7 +67,7 @@ class TestTTSClientSynthesize:
 
         result = tts_client.synthesize(request, out)
 
-        assert result.file_path.exists()
+        assert result.path.exists()
 
     def test_synthesize_result_metadata(
         self, tts_client: TTSClient, tmp_output_dir: Path
@@ -78,7 +78,7 @@ class TestTTSClientSynthesize:
         result = tts_client.synthesize(request, out)
 
         assert result.text == "안녕하세요"
-        assert result.voice_name == "Seoyeon"
+        assert result.voice == "Seoyeon"
 
 
 class TestTTSClientSynthesizeBatch:
@@ -102,7 +102,7 @@ class TestTTSClientSynthesizeBatch:
 
         assert len(results) == 2
         for r in results:
-            assert r.file_path.exists()
+            assert r.path.exists()
 
     def test_batch_separate_distinct_files(
         self, tts_client: TTSClient, tmp_output_dir: Path
@@ -116,7 +116,7 @@ class TestTTSClientSynthesizeBatch:
             requests, tmp_output_dir, MergeStrategy.ONE_FILE_PER_INPUT
         )
 
-        paths = {r.file_path for r in results}
+        paths = {r.path for r in results}
         assert len(paths) == 2
 
     def test_batch_merged_creates_single_file(
@@ -132,7 +132,7 @@ class TestTTSClientSynthesizeBatch:
         )
 
         assert len(results) == 1
-        assert results[0].file_path.exists()
+        assert results[0].path.exists()
 
     def test_batch_merged_text_contains_all(
         self, tts_client: TTSClient, tmp_output_dir: Path
@@ -160,8 +160,8 @@ class TestTTSClientSynthesizePair:
 
         result = tts_client.synthesize_pair("strong", req1, "stark", req2, out, 500)
 
-        assert result.file_path == out
-        assert result.file_path.exists()
+        assert result.path == out
+        assert result.path.exists()
 
     def test_pair_result_contains_both_texts(
         self, tts_client: TTSClient, tmp_output_dir: Path
@@ -217,7 +217,7 @@ class TestTTSClientSynthesizePairBatch:
 
         assert len(results) == 2
         for r in results:
-            assert r.file_path.exists()
+            assert r.path.exists()
 
     def test_pair_batch_merged(
         self, tts_client: TTSClient, tmp_output_dir: Path
@@ -238,7 +238,7 @@ class TestTTSClientSynthesizePairBatch:
         )
 
         assert len(results) == 1
-        assert results[0].file_path.exists()
+        assert results[0].path.exists()
 
 
 class TestStitchAudio:

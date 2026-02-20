@@ -17,6 +17,7 @@ from langlearn_tts.types import (
     MergeStrategy,
     SynthesisRequest,
     TTSProvider,
+    result_to_dict,
     validate_language,
 )
 
@@ -162,7 +163,7 @@ def synthesize(
             providers. Defaults to provider default.
 
     Returns:
-        JSON string with file_path, text, voice, and language fields.
+        JSON string with path, text, voice, and language fields.
     """
     _validate_voice_settings(stability, similarity, style)
     provider = get_provider()
@@ -188,8 +189,8 @@ def synthesize(
     client = TTSClient(provider)
     result = client.synthesize(request, path)
     if auto_play:
-        _play_audio(result.file_path)
-    return str(result.to_dict())
+        _play_audio(result.path)
+    return str(result_to_dict(result))
 
 
 @mcp.tool()
@@ -231,7 +232,7 @@ def synthesize_batch(
         speaker_boost: ElevenLabs speaker boost toggle.
 
     Returns:
-        JSON string with list of results, each containing file_path,
+        JSON string with list of results, each containing path,
         text, voice, and language fields.
     """
     _validate_voice_settings(stability, similarity, style)
@@ -259,8 +260,8 @@ def synthesize_batch(
     results = client.synthesize_batch(requests, dir_path, strategy, pause_ms)
     if auto_play:
         for r in results:
-            _play_audio(r.file_path)
-    return str([r.to_dict() for r in results])
+            _play_audio(r.path)
+    return str([result_to_dict(r) for r in results])
 
 
 @mcp.tool()
@@ -310,7 +311,7 @@ def synthesize_pair(
         speaker_boost: ElevenLabs speaker boost toggle.
 
     Returns:
-        JSON string with file_path, text, voice, and language fields.
+        JSON string with path, text, voice, and language fields.
     """
     _validate_voice_settings(stability, similarity, style)
     provider = get_provider()
@@ -347,8 +348,8 @@ def synthesize_pair(
     client = TTSClient(provider)
     result = client.synthesize_pair(text1, req1, text2, req2, path, pause_ms)
     if auto_play:
-        _play_audio(result.file_path)
-    return str(result.to_dict())
+        _play_audio(result.path)
+    return str(result_to_dict(result))
 
 
 @mcp.tool()
@@ -438,8 +439,8 @@ def synthesize_pair_batch(
     results = client.synthesize_pair_batch(pair_requests, dir_path, strategy, pause_ms)
     if auto_play:
         for r in results:
-            _play_audio(r.file_path)
-    return str([r.to_dict() for r in results])
+            _play_audio(r.path)
+    return str([result_to_dict(r) for r in results])
 
 
 def run_server() -> None:

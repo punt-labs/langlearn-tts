@@ -8,11 +8,13 @@ import pytest
 
 from langlearn_tts.types import (
     SUPPORTED_LANGUAGES,
+    AudioProviderId,
     HealthCheck,
     MergeStrategy,
     SynthesisRequest,
     SynthesisResult,
     generate_filename,
+    result_to_dict,
     validate_language,
 )
 
@@ -43,7 +45,7 @@ class TestMergeStrategy:
 class TestSynthesisRequest:
     def test_default_rate(self) -> None:
         req = SynthesisRequest(text="hello", voice="joanna")
-        assert req.rate == 90
+        assert req.rate is None
 
     def test_custom_rate(self) -> None:
         req = SynthesisRequest(text="hello", voice="joanna", rate=100)
@@ -70,31 +72,34 @@ class TestSynthesisRequest:
 class TestSynthesisResult:
     def test_to_dict(self) -> None:
         result = SynthesisResult(
-            file_path=Path("/tmp/test.mp3"),
+            path=Path("/tmp/test.mp3"),
             text="hello",
-            voice_name="Joanna",
+            provider=AudioProviderId.openai,
+            voice="Joanna",
         )
-        d = result.to_dict()
-        assert d["file_path"] == "/tmp/test.mp3"
+        d = result_to_dict(result)
+        assert d["path"] == "/tmp/test.mp3"
         assert d["text"] == "hello"
         assert d["voice"] == "Joanna"
         assert "language" not in d
 
     def test_to_dict_with_language(self) -> None:
         result = SynthesisResult(
-            file_path=Path("/tmp/test.mp3"),
+            path=Path("/tmp/test.mp3"),
             text="Guten Tag",
-            voice_name="Daniel",
+            provider=AudioProviderId.openai,
+            voice="Daniel",
             language="de",
         )
-        d = result.to_dict()
+        d = result_to_dict(result)
         assert d["language"] == "de"
 
     def test_language_default_none(self) -> None:
         result = SynthesisResult(
-            file_path=Path("/tmp/test.mp3"),
+            path=Path("/tmp/test.mp3"),
             text="hello",
-            voice_name="Joanna",
+            provider=AudioProviderId.openai,
+            voice="Joanna",
         )
         assert result.language is None
 

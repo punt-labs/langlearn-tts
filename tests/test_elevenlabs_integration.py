@@ -92,9 +92,9 @@ class TestSynthesize:
 
         result = provider.synthesize(request, out)
 
-        assert result.file_path == out
+        assert result.path == out
         assert result.text == "Hello, world."
-        assert result.voice_name == voice_name
+        assert result.voice == voice_name
         assert out.exists()
         assert out.stat().st_size > 0
 
@@ -131,4 +131,4 @@ class TestSynthesize:
 
         assert out.exists()
         assert out.stat().st_size > 0
-        assert result.voice_name == voice_name
+        assert result.voice == voice_name

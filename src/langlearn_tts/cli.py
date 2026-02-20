@@ -21,6 +21,7 @@ from langlearn_tts.types import (
     SynthesisRequest,
     SynthesisResult,
     TTSProvider,
+    result_to_dict,
     validate_language,
 )
 
@@ -32,6 +33,15 @@ _VOICE_DEFAULTS = ", ".join(
     for k in ("elevenlabs", "polly", "openai")
 )
 
+json_output_enabled = False
+
+
+def _emit(payload: object, text: str) -> None:
+    if json_output_enabled:
+        click.echo(json.dumps(payload))
+    else:
+        click.echo(text)
+
 
 def _configure_logging(verbose: bool) -> None:
     from langlearn_tts.logging_config import configure_logging
@@ -40,10 +50,15 @@ def _configure_logging(verbose: bool) -> None:
 
 
 def _print_result(result: SynthesisResult) -> None:
-    click.echo(f"{result.file_path}")
+    payload = result_to_dict(result)
+    _emit(payload, f"{result.path}")
 
 
 def _print_results(results: list[SynthesisResult]) -> None:
+    if json_output_enabled:
+        payload = [result_to_dict(r) for r in results]
+        _emit(payload, "")
+        return
     for r in results:
         _print_result(r)
 
@@ -118,6 +133,7 @@ def _voice_settings_options[F: Callable[..., object]](fn: F) -> F:
 
 @click.group()
 @click.option("--verbose", "-v", is_flag=True, help="Enable debug logging.")
+@click.option("--json", "json_output", is_flag=True, help="Output JSON.")
 @click.option(
     "--provider",
     "provider_name",
@@ -133,9 +149,15 @@ def _voice_settings_options[F: Callable[..., object]](fn: F) -> F:
 )
 @click.pass_context
 def main(
-    ctx: click.Context, verbose: bool, provider_name: str | None, model: str | None
+    ctx: click.Context,
+    verbose: bool,
+    json_output: bool,
+    provider_name: str | None,
+    model: str | None,
 ) -> None:
     """langlearn-tts: Text-to-speech for language learning."""
+    global json_output_enabled
+    json_output_enabled = json_output
     _configure_logging(verbose)
     ctx.ensure_object(dict)
     ctx.obj["provider"] = get_provider(provider_name, model=model)
@@ -577,10 +599,19 @@ def doctor(ctx: click.Context) -> None:
     passed = 0
     failed = 0
     lines: list[str] = []
+    checks: list[dict[str, object]] = []
 
     def _check(symbol: str, message: str, *, required: bool = True) -> None:
         nonlocal passed, failed
         lines.append(f"{symbol} {message}")
+        checks.append(
+            {
+                "status": symbol,
+                "message": message,
+                "required": required,
+                "passed": symbol == _PASS,
+            }
+        )
         if symbol == _PASS:
             passed += 1
         elif symbol == _FAIL and required:
@@ -674,12 +705,18 @@ def doctor(ctx: click.Context) -> None:
             " — check permissions or use --output-dir",
         )
 
-    # Print report
-    click.echo("=" * 40)
-    for line in lines:
-        click.echo(line)
-    click.echo("=" * 40)
-    click.echo(f"{passed} passed, {failed} failed")
+    if json_output_enabled:
+        _emit(
+            {"passed": passed, "failed": failed, "checks": checks},
+            "",
+        )
+    else:
+        # Print report
+        click.echo("=" * 40)
+        for line in lines:
+            click.echo(line)
+        click.echo("=" * 40)
+        click.echo(f"{passed} passed, {failed} failed")
 
     if failed > 0:
         raise SystemExit(1)

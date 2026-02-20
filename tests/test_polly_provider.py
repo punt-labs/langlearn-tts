@@ -151,7 +151,7 @@ class TestPollyProviderSynthesize:
 
         result = polly_provider.synthesize(request, out)
 
-        assert result.file_path == out
+        assert result.path == out
         assert out.exists()
         assert out.stat().st_size > 0
 
@@ -198,7 +198,7 @@ class TestPollyProviderSynthesize:
         result = polly_provider.synthesize(request, out)
 
         assert result.text == "안녕하세요"
-        assert result.voice_name == "Seoyeon"
+        assert result.voice == "Seoyeon"
 
 
 class TestPollyProviderName:

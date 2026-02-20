@@ -9,16 +9,23 @@ from enum import Enum
 from pathlib import Path
 from typing import Protocol, runtime_checkable
 
+from langlearn_types import AudioProvider, AudioProviderId, AudioRequest, AudioResult
+
 logger = logging.getLogger(__name__)
 
 __all__ = [
     "SUPPORTED_LANGUAGES",
+    "AudioProvider",
+    "AudioProviderId",
+    "AudioRequest",
+    "AudioResult",
     "HealthCheck",
     "MergeStrategy",
     "SynthesisRequest",
     "SynthesisResult",
     "TTSProvider",
     "generate_filename",
+    "result_to_dict",
     "validate_language",
 ]
 
@@ -103,50 +110,28 @@ class MergeStrategy(Enum):
     ONE_FILE_PER_BATCH = "single"
 
 
-@dataclass(frozen=True)
-class SynthesisRequest:
-    """A request to synthesize a single text to audio."""
-
-    text: str
-    voice: str
-    language: str | None = None
-    """ISO 639-1 language code (e.g. 'de', 'ko'). None = unspecified."""
-    rate: int = 90
-    """Speech rate as a percentage (e.g. 90 = 90% speed)."""
-    stability: float | None = None
-    """ElevenLabs voice stability (0.0-1.0). None = provider default."""
-    similarity: float | None = None
-    """ElevenLabs voice similarity boost (0.0-1.0). None = provider default."""
-    style: float | None = None
-    """ElevenLabs voice style/expressiveness (0.0-1.0). None = provider default."""
-    speaker_boost: bool | None = None
-    """ElevenLabs speaker boost toggle. None = provider default."""
+SynthesisRequest = AudioRequest
+SynthesisResult = AudioResult
 
 
-@dataclass(frozen=True)
-class SynthesisResult:
-    """The result of a synthesis operation."""
-
-    file_path: Path
-    text: str
-    voice_name: str
-    language: str | None = None
-    """ISO 639-1 language code used for synthesis, if known."""
-
-    def to_dict(self) -> dict[str, str]:
-        """Serialize to a dict suitable for MCP tool responses."""
-        d: dict[str, str] = {
-            "file_path": str(self.file_path),
-            "text": self.text,
-            "voice": self.voice_name,
-        }
-        if self.language is not None:
-            d["language"] = self.language
-        return d
+def result_to_dict(result: AudioResult) -> dict[str, str]:
+    """Serialize AudioResult to a dict suitable for MCP tool responses."""
+    d: dict[str, str] = {
+        "path": str(result.path),
+        "text": result.text,
+        "provider": result.provider.value,
+    }
+    if result.voice is not None:
+        d["voice"] = result.voice
+    if result.language is not None:
+        d["language"] = result.language
+    if result.metadata:
+        d.update(result.metadata)
+    return d
 
 
 @runtime_checkable
-class TTSProvider(Protocol):
+class TTSProvider(AudioProvider, Protocol):
     """Provider-agnostic interface for text-to-speech engines."""
 
     @property
@@ -159,9 +144,7 @@ class TTSProvider(Protocol):
         """Default voice name for this provider."""
         ...
 
-    def synthesize(
-        self, request: SynthesisRequest, output_path: Path
-    ) -> SynthesisResult:
+    def synthesize(self, request: AudioRequest, output_path: Path) -> AudioResult:
         """Synthesize text to an audio file.
 
         Args:
@@ -169,7 +152,7 @@ class TTSProvider(Protocol):
             output_path: Where to write the audio file.
 
         Returns:
-            A SynthesisResult with the file path and metadata.
+            A SynthesisResult with the path and metadata.
         """
         ...
 

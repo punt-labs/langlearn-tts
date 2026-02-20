@@ -10,14 +10,20 @@ from unittest.mock import MagicMock, patch
 from click.testing import CliRunner, Result
 
 from langlearn_tts.cli import main
-from langlearn_tts.types import HealthCheck, MergeStrategy, SynthesisResult
+from langlearn_tts.types import (
+    AudioProviderId,
+    HealthCheck,
+    MergeStrategy,
+    SynthesisResult,
+)
 
 
 def _mock_synthesize_result(path: Path, text: str = "hello") -> SynthesisResult:
     return SynthesisResult(
-        file_path=path,
+        path=path,
         text=text,
-        voice_name="Joanna",
+        provider=AudioProviderId.polly,
+        voice="Joanna",
     )
 
 
@@ -299,9 +305,10 @@ class TestSynthesizePairCommand:
         mock_get_provider.return_value = _make_mock_provider()
         mock_instance = mock_client_cls.return_value
         mock_instance.synthesize_pair.return_value = SynthesisResult(
-            file_path=out,
+            path=out,
             text="strong | stark",
-            voice_name="joanna+hans",
+            provider=AudioProviderId.polly,
+            voice="joanna+hans",
         )
 
         runner = CliRunner()
@@ -332,9 +339,10 @@ class TestSynthesizePairCommand:
         mock_get_provider.return_value = _make_mock_provider()
         mock_instance = mock_client_cls.return_value
         mock_instance.synthesize_pair.return_value = SynthesisResult(
-            file_path=out,
+            path=out,
             text="strong | stark",
-            voice_name="joanna+hans",
+            provider=AudioProviderId.polly,
+            voice="joanna+hans",
         )
 
         runner = CliRunner()
@@ -372,14 +380,16 @@ class TestSynthesizePairBatchCommand:
         mock_instance = mock_client_cls.return_value
         mock_instance.synthesize_pair_batch.return_value = [
             SynthesisResult(
-                file_path=out_dir / "a.mp3",
+                path=out_dir / "a.mp3",
                 text="strong | stark",
-                voice_name="joanna+hans",
+                provider=AudioProviderId.polly,
+                voice="joanna+hans",
             ),
             SynthesisResult(
-                file_path=out_dir / "b.mp3",
+                path=out_dir / "b.mp3",
                 text="house | Haus",
-                voice_name="joanna+hans",
+                provider=AudioProviderId.polly,
+                voice="joanna+hans",
             ),
         ]
 

@@ -5,13 +5,20 @@ from __future__ import annotations
 import logging
 import os
 import tempfile
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
 import openai
 
 from langlearn_tts.core import split_text
-from langlearn_tts.types import HealthCheck, SynthesisRequest, SynthesisResult
+from langlearn_tts.output import resolve_output_path
+from langlearn_tts.types import (
+    AudioProviderId,
+    HealthCheck,
+    SynthesisRequest,
+    SynthesisResult,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -58,12 +65,23 @@ class OpenAIProvider:
     def default_voice(self) -> str:
         return "nova"
 
+    def generate_audio(self, request: SynthesisRequest) -> SynthesisResult:
+        output_path = resolve_output_path(request)
+        return self.synthesize(request, output_path)
+
+    def generate_audios(
+        self, requests: Sequence[SynthesisRequest]
+    ) -> list[SynthesisResult]:
+        return [self.generate_audio(request) for request in requests]
+
     def synthesize(
         self, request: SynthesisRequest, output_path: Path
     ) -> SynthesisResult:
         """Synthesize text to an MP3 file using OpenAI TTS."""
-        voice = self._resolve_voice_name(request.voice)
-        speed = self._rate_to_speed(request.rate)
+        resolved_voice = request.voice or self.default_voice
+        voice = self._resolve_voice_name(resolved_voice)
+        rate = request.rate if request.rate is not None else 90
+        speed = self._rate_to_speed(rate)
 
         if len(request.text) > _MAX_CHARS:
             self._chunked_synthesize(request, output_path, voice, speed)
@@ -72,10 +90,12 @@ class OpenAIProvider:
 
         logger.info("Wrote %s", output_path)
         return SynthesisResult(
-            file_path=output_path,
+            path=output_path,
             text=request.text,
-            voice_name=voice,
+            provider=AudioProviderId.openai,
+            voice=voice,
             language=request.language,
+            metadata=request.metadata,
         )
 
     def resolve_voice(self, name: str, language: str | None = None) -> str:

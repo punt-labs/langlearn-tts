@@ -3,13 +3,20 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 import boto3
 
-from langlearn_tts.types import HealthCheck, SynthesisRequest, SynthesisResult
+from langlearn_tts.output import resolve_output_path
+from langlearn_tts.types import (
+    AudioProviderId,
+    HealthCheck,
+    SynthesisRequest,
+    SynthesisResult,
+)
 
 if TYPE_CHECKING:
     from mypy_boto3_polly.client import PollyClient as PollyClientType
@@ -198,6 +205,15 @@ class PollyProvider:
     def default_voice(self) -> str:
         return "joanna"
 
+    def generate_audio(self, request: SynthesisRequest) -> SynthesisResult:
+        output_path = resolve_output_path(request)
+        return self.synthesize(request, output_path)
+
+    def generate_audios(
+        self, requests: Sequence[SynthesisRequest]
+    ) -> list[SynthesisResult]:
+        return [self.generate_audio(request) for request in requests]
+
     def synthesize(
         self, request: SynthesisRequest, output_path: Path
     ) -> SynthesisResult:
@@ -206,10 +222,10 @@ class PollyProvider:
         Resolves the voice name to Polly parameters internally, wraps
         the text in SSML with prosody rate, and writes the MP3 output.
         """
-        voice_cfg = self._resolve_voice_config(request.voice)
-        ssml_text = (
-            f'<speak><prosody rate="{request.rate}%">{request.text}</prosody></speak>'
-        )
+        resolved_voice = request.voice or self.default_voice
+        voice_cfg = self._resolve_voice_config(resolved_voice)
+        rate = request.rate if request.rate is not None else 100
+        ssml_text = f'<speak><prosody rate="{rate}%">{request.text}</prosody></speak>'
         response = self._client.synthesize_speech(
             Text=ssml_text,
             TextType="ssml",
@@ -232,10 +248,12 @@ class PollyProvider:
         logger.info("Wrote %s", output_path)
         language = request.language or _infer_iso_from_bcp47(voice_cfg.language_code)
         return SynthesisResult(
-            file_path=output_path,
+            path=output_path,
             text=request.text,
-            voice_name=voice_cfg.voice_id,
+            provider=AudioProviderId.polly,
+            voice=voice_cfg.voice_id,
             language=language,
+            metadata=request.metadata,
         )
 
     def resolve_voice(self, name: str, language: str | None = None) -> str:

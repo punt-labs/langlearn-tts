@@ -104,7 +104,7 @@ class TestElevenLabsProviderSynthesize:
 
         result = elevenlabs_provider.synthesize(request, out)
 
-        assert result.file_path == out
+        assert result.path == out
         assert out.exists()
         assert out.stat().st_size > 0
 
@@ -119,8 +119,8 @@ class TestElevenLabsProviderSynthesize:
         result = elevenlabs_provider.synthesize(request, out)
 
         assert result.text == "hello world"
-        assert result.voice_name == "rachel"
-        assert result.file_path == out
+        assert result.voice == "rachel"
+        assert result.path == out
 
     def test_synthesize_passes_model(
         self,
@@ -195,7 +195,7 @@ class TestElevenLabsProviderSynthesize:
 
         result = provider.synthesize(request, out)
 
-        assert result.file_path == out
+        assert result.path == out
         assert out.exists()
         assert mock_elevenlabs_client.text_to_speech.convert.call_count > 1
 

@@ -184,10 +184,14 @@ class TTSClient:
 
             stitch_audio([path_1, path_2], output_path, pause_ms)
 
+        voice_parts = [v for v in (result_1.voice, result_2.voice) if v]
+        combined_voice = "+".join(voice_parts) if voice_parts else None
         return SynthesisResult(
-            file_path=output_path,
+            path=output_path,
             text=f"{text_1} | {text_2}",
-            voice_name=f"{result_1.voice_name}+{result_2.voice_name}",
+            provider=result_1.provider,
+            voice=combined_voice,
+            language=result_1.language,
         )
 
     def synthesize_pair_batch(
@@ -231,22 +235,28 @@ class TTSClient:
             tmp_dir = Path(tmp)
             tmp_paths: list[Path] = []
             canonical_voice = ""
+            provider_id = None
             for i, req in enumerate(requests):
                 path = tmp_dir / f"seg_{i:04d}.mp3"
                 result = self._provider.synthesize(req, path)
                 if i == 0:
-                    canonical_voice = result.voice_name
+                    canonical_voice = result.voice or ""
+                    provider_id = result.provider
                 tmp_paths.append(path)
 
             combined_text = " | ".join(r.text for r in requests)
             out_path = output_dir / generate_filename(combined_text, prefix="batch_")
             stitch_audio(tmp_paths, out_path, pause_ms)
 
+        if provider_id is None:
+            raise RuntimeError("Missing provider for merged synthesis result")
+
         return [
             SynthesisResult(
-                file_path=out_path,
+                path=out_path,
                 text=combined_text,
-                voice_name=canonical_voice,
+                provider=provider_id,
+                voice=canonical_voice or None,
             )
         ]
 
@@ -275,10 +285,11 @@ class TTSClient:
         with tempfile.TemporaryDirectory() as tmp:
             tmp_dir = Path(tmp)
             pair_paths: list[Path] = []
+            provider_id = None
 
             for i, (req_1, req_2) in enumerate(pairs):
                 pair_path = tmp_dir / f"pair_{i:04d}.mp3"
-                self.synthesize_pair(
+                pair_result = self.synthesize_pair(
                     req_1.text,
                     req_1,
                     req_2.text,
@@ -286,17 +297,23 @@ class TTSClient:
                     pair_path,
                     pause_ms,
                 )
+                if provider_id is None:
+                    provider_id = pair_result.provider
                 pair_paths.append(pair_path)
 
             all_texts = " | ".join(f"{r1.text}-{r2.text}" for r1, r2 in pairs)
             out_path = output_dir / generate_filename(all_texts, prefix="pairs_")
             stitch_audio(pair_paths, out_path, pause_ms)
 
+        if provider_id is None:
+            raise RuntimeError("Missing provider for merged pair synthesis result")
+
         return [
             SynthesisResult(
-                file_path=out_path,
+                path=out_path,
                 text=all_texts,
-                voice_name="mixed",
+                provider=provider_id,
+                voice="mixed",
             )
         ]
 

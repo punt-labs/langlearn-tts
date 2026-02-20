@@ -148,7 +148,7 @@ class TestOpenAIProviderSynthesize:
 
         result = openai_provider.synthesize(request, out)
 
-        assert result.file_path == out
+        assert result.path == out
         assert out.exists()
         assert out.stat().st_size > 0
 
@@ -236,8 +236,8 @@ class TestOpenAIProviderSynthesize:
         result = openai_provider.synthesize(request, out)
 
         assert result.text == "hello world"
-        assert result.voice_name == "sage"
-        assert result.file_path == out
+        assert result.voice == "sage"
+        assert result.path == out
 
     def test_synthesize_chunked_text(
         self,
@@ -252,7 +252,7 @@ class TestOpenAIProviderSynthesize:
 
         result = provider.synthesize(request, out)
 
-        assert result.file_path == out
+        assert result.path == out
         assert out.exists()
         # Should have been called multiple times (chunked).
         assert mock_openai_client.audio.speech.create.call_count > 1
