@@ -13,7 +13,7 @@ Open an issue at <https://github.com/punt-labs/langlearn-tts/issues> with:
 
 ```bash
 git clone https://github.com/punt-labs/langlearn-tts.git
-cd langlearn-tts-mcp
+cd langlearn-tts
 uv sync --all-extras
 ```
 
