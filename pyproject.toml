@@ -34,6 +34,7 @@ dependencies = [
     "openai>=1.0.0",
     "pydub>=0.25.0",
     "audioop-lts>=0.2.1",
+    "punt-langlearn-types>=0.1.0",
 ]
 
 [project.urls]
@@ -60,6 +61,9 @@ build-backend = "uv_build"
 
 [tool.uv.build-backend]
 module-name = "langlearn_tts"
+
+[tool.uv.sources]
+punt-langlearn-types = { path = "../langlearn-types" }
 
 [tool.ruff]
 line-length = 88
