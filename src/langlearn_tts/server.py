@@ -277,6 +277,7 @@ def synthesize_batch(
     dir_path = _resolve_output_dir(output_dir)
 
     client = TTSClient(provider)
+    results: list[SynthesisResult]
     if merge:
         combined_text = " | ".join(r.text for r in requests)
         out_path = dir_path / generate_filename(combined_text, prefix="batch_")
@@ -295,7 +296,7 @@ def synthesize_batch(
                 requests, dir_path, MergeStrategy.ONE_FILE_PER_BATCH, pause_ms
             )
     else:
-        results: list[SynthesisResult] = []
+        results = []
         for req in requests:
             out_path = dir_path / generate_filename(req.text)
             if out_path.exists():
@@ -491,6 +492,7 @@ def synthesize_pair_batch(
     dir_path = _resolve_output_dir(output_dir)
 
     client = TTSClient(provider)
+    results: list[SynthesisResult]
     if merge:
         all_texts = " | ".join(f"{r1.text}-{r2.text}" for r1, r2 in pair_requests)
         out_path = dir_path / generate_filename(all_texts, prefix="pairs_")
@@ -509,7 +511,7 @@ def synthesize_pair_batch(
                 pair_requests, dir_path, MergeStrategy.ONE_FILE_PER_BATCH, pause_ms
             )
     else:
-        results: list[SynthesisResult] = []
+        results = []
         for req_1, req_2 in pair_requests:
             combined = f"{req_1.text}_{req_2.text}"
             out_path = dir_path / generate_filename(combined, prefix="pair_")
