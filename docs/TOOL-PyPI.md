@@ -82,7 +82,7 @@ uvx twine upload dist/*
 
 ## 8. Verify on PyPI
 
-- Check: https://pypi.org/project/punt-langlearn-tts/
+- Check: <https://pypi.org/project/punt-langlearn-tts/>
 - Install in a fresh environment:
 
 ```sh

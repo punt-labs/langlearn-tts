@@ -51,42 +51,49 @@ Prompts are calibrated by level using established second-language acquisition pr
 ## Available Prompts
 
 ### German
+
 - [`german-high-school.md`](german-high-school.md) — Herr Schmidt, high school beginners
 - [`german-university-1st-year.md`](german-university-1st-year.md) — Professorin Weber, 1st year university
 - [`german-university-2nd-year.md`](german-university-2nd-year.md) — Professor Hartmann, 2nd year university
 - [`german-advanced.md`](german-advanced.md) — Professor Becker, advanced university
 
 ### Spanish
+
 - [`spanish-high-school.md`](spanish-high-school.md) — Profesora Elena, high school beginners
 - [`spanish-university-1st-year.md`](spanish-university-1st-year.md) — Profesor Garcia, 1st year university
 - [`spanish-university-2nd-year.md`](spanish-university-2nd-year.md) — Profesora Carmen, 2nd year university
 - [`spanish-advanced.md`](spanish-advanced.md) — Profesora Reyes, advanced university
 
 ### French
+
 - [`french-high-school.md`](french-high-school.md) — Madame Moreau, high school beginners
 - [`french-university-1st-year.md`](french-university-1st-year.md) — Professeur Laurent, 1st year university
 - [`french-university-2nd-year.md`](french-university-2nd-year.md) — Professeur Dubois, 2nd year university
 - [`french-advanced.md`](french-advanced.md) — Professeur Beaumont, advanced university
 
 ### Russian
+
 - [`russian-high-school.md`](russian-high-school.md) — Irina Petrovna, high school beginners
 - [`russian-university-1st-year.md`](russian-university-1st-year.md) — Professor Dmitri, 1st year university
 - [`russian-university-2nd-year.md`](russian-university-2nd-year.md) — Professor Natasha, 2nd year university
 - [`russian-advanced.md`](russian-advanced.md) — Professor Mikhail, advanced university
 
 ### Korean
+
 - [`korean-high-school.md`](korean-high-school.md) — Kim-seonsaengnim, high school beginners
 - [`korean-university-1st-year.md`](korean-university-1st-year.md) — Professor Park, 1st year university
 - [`korean-university-2nd-year.md`](korean-university-2nd-year.md) — Professor Kim, 2nd year university
 - [`korean-advanced.md`](korean-advanced.md) — Professor Yoon, advanced university
 
 ### Japanese
+
 - [`japanese-high-school.md`](japanese-high-school.md) — Tanaka-sensei, high school beginners
 - [`japanese-university-1st-year.md`](japanese-university-1st-year.md) — Yamamoto-sensei, 1st year university
 - [`japanese-university-2nd-year.md`](japanese-university-2nd-year.md) — Suzuki-sensei, 2nd year university
 - [`japanese-advanced.md`](japanese-advanced.md) — Mori-sensei, advanced university
 
 ### Chinese (Mandarin)
+
 - [`chinese-high-school.md`](chinese-high-school.md) — Laoshi Wang, high school beginners
 - [`chinese-university-1st-year.md`](chinese-university-1st-year.md) — Professor Chen, 1st year university
 - [`chinese-university-2nd-year.md`](chinese-university-2nd-year.md) — Professor Zhang, 2nd year university

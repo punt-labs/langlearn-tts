@@ -143,6 +143,7 @@ bd sync                     # Sync with git remote
 ### Creating Issues for Discovered Work
 
 When you discover work that isn't part of the current task:
+
 1. Create a beads issue: `bd create --title="..." --type=task`
 2. Add dependencies if relevant: `bd dep add <new-issue> <blocking-issue>`
 3. Continue with current work.

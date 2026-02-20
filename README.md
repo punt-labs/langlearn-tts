@@ -48,11 +48,11 @@ Each prompt is calibrated to the student's level, based on [Mollick & Mollick's 
 In any Claude Desktop conversation, try:
 
 > "Say 'Guten Morgen' in German"
-
+>
 > "Create an audio flashcard: 'good morning' in English, then 'Guten Morgen' in German"
-
+>
 > "Synthesize these Spanish words as a merged audio file: hola, gracias, por favor, de nada"
-
+>
 > "Generate pair flashcards for these German vocabulary words: strong/stark, house/Haus, book/Buch"
 
 Audio plays automatically after each request. Files are saved to your output directory (`~/langlearn-audio` by default).
