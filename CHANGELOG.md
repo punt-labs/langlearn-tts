@@ -10,12 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.6.2] - 2026-02-11
 
 ### Changed
+
 - README rewritten for non-technical users: one-sentence intro, 4-step Quick Start (API key, install extension, tutor project, examples), Features described as what Claude can do
 - Developer content (CLI installation, voices, env vars, manual config, MCP tools) moved under Developer Reference section with clear divider
 
 ## [0.6.1] - 2026-02-11
 
 ### Changed
+
 - README: replaced MCP Server Setup with Claude Desktop-focused section — Desktop Extension (.mcpb) as recommended install, CLI and manual config as alternatives
 - README: added log file location and privacy link to Troubleshooting section
 - README: ffmpeg install instructions use ffmpeg.org for Linux (distro-agnostic) and `winget install --id Gyan.FFmpeg` for Windows
@@ -23,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.6.0] - 2026-02-11
 
 ### Added
+
 - `.mcpb` Desktop Extension packaging — one-click install for Claude Desktop via `manifest.json` (uv server type)
 - `scripts/build-mcpb.sh` build script for reproducible `.mcpb` bundle creation
 - `PRIVACY.md` privacy policy documenting local-only operation and provider data handling
@@ -31,12 +34,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - API call logging at INFO level: provider name, voice, character count
 
 ### Fixed
+
 - `doctor` command: actionable fix hints for Python version, ffmpeg (OS-specific install commands), and output directory failures
 - Removed request text from Polly debug log (payload leak)
 - Desktop Extension: removed `provider` and `model` from install config — provider auto-detects from API key, model defaults per provider. Fixes ElevenLabs 400 error when model field left blank (Claude Desktop passes invalid value for empty optional fields).
 - Desktop Extension: support link now points to README instead of issues page
 
 ### Changed
+
 - `install` command help text: documents config file path, env vars written, restart requirement, and .mcpb alternative
 - Logging configured via `logging.config.dictConfig()` in shared `logging_config` module
 - Desktop Extension: API key fields listed first in install config, output directory last
@@ -44,11 +49,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.1] - 2026-02-10
 
 ### Fixed
+
 - MCP server now reports package version (e.g. `0.5.1`) instead of FastMCP library version in `serverInfo`
 
 ## [0.5.0] - 2026-02-10
 
 ### Added
+
 - Language-first TTS: language is now a first-class concept across the entire stack
 - `--language`/`--lang` option on CLI `synthesize` and `synthesize-batch` commands
 - `--lang1`/`--lang2` options on CLI `synthesize-pair` and `synthesize-pair-batch` commands
@@ -66,6 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PyPI classifiers: Education audience, Console environment, Education topic; Development Status bumped to Beta
 
 ### Changed
+
 - CLI `--rate` help text notes ElevenLabs ignores the rate parameter
 - CLI synthesize docstring documents ElevenLabs audio tags
 - CLI and MCP `--voice` help shows concrete defaults per provider (rachel/joanna/nova)
@@ -73,27 +81,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Voice is now optional when language is provided — the provider selects a default voice for the language
 
 ### Fixed
+
 - Polly and OpenAI voice error messages truncated to 10 voices (matching ElevenLabs), down from full list (93 voices for Polly)
 
 ## [0.4.4] - 2026-02-09
 
 ### Fixed
+
 - Suppress pydub 0.25.1 `SyntaxWarning` on Python 3.13 — invalid escape sequences in pydub's regex strings printed to stderr on first run after install
 
 ## [0.4.3] - 2026-02-09
 
 ### Changed
+
 - All 28 tutor prompts are now provider-agnostic — removed hardcoded Polly voice names, server auto-selects voices
 - Tutor prompts add level-calibrated target language interaction: classroom L2 routines (beginner), circumlocution and rephrasing (intermediate), L2 immersion with English redirect (advanced)
 
 ## [0.4.2] - 2026-02-09
 
 ### Added
+
 - MCP tool docstrings document ElevenLabs eleven_v3 audio tags — free-form performance cues like `[tired]`, `[excited]`, `[whisper]`, `[sigh]` that control voice delivery
 
 ## [0.4.1] - 2026-02-09
 
 ### Fixed
+
 - ElevenLabs voice resolution: API returns names with descriptions (e.g. "Adam - dominant, firm"); lookups of short names like "adam" now resolve correctly
 - MCP tool voice defaults: replaced hardcoded Polly voice names (`joanna`, `hans`) with provider-aware defaults (`rachel` for ElevenLabs, `joanna` for Polly, `nova` for OpenAI)
 - MCP tool docstrings: voice examples are now provider-agnostic so LLM clients pick valid voices
@@ -102,11 +115,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Test isolation: install tests no longer leak `ELEVENLABS_API_KEY` from environment
 
 ### Added
+
 - `default_voice` property on `TTSProvider` protocol
 
 ## [0.4.0] - 2026-02-09
 
 ### Added
+
 - ElevenLabs TTS provider (`providers/elevenlabs.py`) with 5,000+ voices, 70+ languages, default model `eleven_v3`
 - Voice settings: `--stability`, `--similarity`, `--style`, `--speaker-boost` CLI flags and MCP tool params (ElevenLabs only)
 - Auto-detection prefers ElevenLabs when `ELEVENLABS_API_KEY` is set
@@ -114,23 +129,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `split_text()` public function in `core.py` for provider-agnostic text chunking
 
 ### Changed
+
 - Text chunking (`split_text`, `_split_at_words`) moved from `providers/openai.py` to `core.py` for shared use across providers
 - `SynthesisRequest` gains optional `stability`, `similarity`, `style`, `speaker_boost` fields (ignored by Polly and OpenAI)
 
 ## [0.3.2] - 2026-02-08
 
 ### Changed
+
 - Default provider is now Polly (was OpenAI when `OPENAI_API_KEY` was set) — dedicated per-language neural voices produce more native-sounding pronunciation
 - OpenAI provider requires explicit opt-in via `--provider openai` or `LANGLEARN_TTS_PROVIDER=openai`
 
 ## [0.3.1] - 2026-02-08
 
 ### Fixed
+
 - `install` command writes literal `OPENAI_API_KEY` value — Claude Desktop does not support `${VAR}` env var interpolation (that syntax is Claude Code only)
 
 ## [0.3.0] - 2026-02-08
 
 ### Added
+
 - `TTSProvider` protocol and `HealthCheck` dataclass in `types.py`
 - `providers` package with `PollyProvider`, `get_provider()`, and provider registry
 - `--provider` CLI flag and `LANGLEARN_TTS_PROVIDER` env var for provider selection
@@ -141,6 +160,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auto-detection: defaults to OpenAI when `OPENAI_API_KEY` is set
 
 ### Changed
+
 - `install` command auto-detects provider and writes `LANGLEARN_TTS_PROVIDER` + `OPENAI_API_KEY` (when applicable) into Claude Desktop config
 - `install` command accepts `--provider` flag to override auto-detection
 - `doctor` command shows active provider name
@@ -150,23 +170,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `get_provider()` accepts `**kwargs` for provider-specific options (e.g. `model`)
 
 ### Fixed
+
 - OpenAI chunking: `_split_at_words` now character-splits words exceeding `max_chars` instead of emitting oversized chunks
 
 ### Removed
+
 - `PollyClient` class from `core.py` (replaced by `TTSClient`)
 - `VoiceConfig`, `resolve_voice()`, and voice cache from `types.py` (moved to `providers/polly.py`)
 
 ## [0.1.2] - 2026-02-08
 
 ### Changed
+
 - Rewrote README Quick Start for novice users (step-by-step from zero)
 
 ## [0.1.1] - 2026-02-08
 
 ### Fixed
+
 - `install` command now uses `uvx --from langlearn-tts langlearn-tts-server` so Claude Desktop can resolve the package from PyPI
 
 ### Changed
+
 - Renamed package from `langlearn-polly` to `langlearn-tts` to support multiple TTS providers
 - CLI command renamed from `langlearn-polly` to `langlearn-tts`
 - MCP server renamed from `langlearn-polly-server` to `langlearn-tts-server`
@@ -175,6 +200,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2026-02-08
 
 ### Added
+
 - Single text synthesis with configurable voice and speech rate
 - Batch synthesis from JSON file with optional merge into single file
 - Pair synthesis — stitch two languages with a pause between them
