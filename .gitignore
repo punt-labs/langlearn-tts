@@ -17,6 +17,7 @@ htmlcov/
 *.ogg
 .venv/
 .env
+.envrc
 uv.lock
 lancedb/
 .claude/
