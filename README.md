@@ -81,13 +81,40 @@ Logs are written to `~/.langlearn-tts/logs/langlearn-tts.log` (never contains th
 
 Everything below is for developers using the CLI, integrating with other MCP clients, or contributing to the project.
 
-### CLI Installation
+### Claude Code / CLI
 
-Install [uv](https://docs.astral.sh/uv/) (manages Python automatically), then:
+```bash
+curl -fsSL https://raw.githubusercontent.com/punt-labs/langlearn-tts/fd8199e/install.sh | sh
+```
+
+The default provider is AWS Polly. To use a different provider:
+
+```bash
+LANGLEARN_TTS_PROVIDER=elevenlabs curl -fsSL https://raw.githubusercontent.com/punt-labs/langlearn-tts/fd8199e/install.sh | sh
+```
+
+<details>
+<summary>Manual install (if you already have uv)</summary>
 
 ```bash
 uv tool install punt-langlearn-tts
+langlearn-tts install --provider polly
+langlearn-tts doctor
 ```
+
+</details>
+
+<details>
+<summary>Verify before running</summary>
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/punt-labs/langlearn-tts/fd8199e/install.sh -o install.sh
+shasum -a 256 install.sh
+cat install.sh
+sh install.sh
+```
+
+</details>
 
 Install ffmpeg for audio stitching (pairs, merged batches):
 
@@ -99,12 +126,6 @@ brew install ffmpeg
 
 # Windows
 winget install --id Gyan.FFmpeg
-```
-
-Verify:
-
-```bash
-langlearn-tts doctor
 ```
 
 ### Claude Desktop setup via CLI
