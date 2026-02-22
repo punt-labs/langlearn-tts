@@ -7,6 +7,16 @@
 
 A Claude Desktop extension that gives Claude the ability to speak. Ask Claude to pronounce words, generate audio flashcards, or run a full language lesson with audio — in 70+ languages.
 
+## Status (2026-02-21)
+
+- Core CLI and MCP surfaces are working with ElevenLabs, OpenAI TTS, and AWS Polly.
+- Provider defaults and audio variants (word + example) are still being standardized.
+- Claude Desktop directory submission is pending external review.
+
+## Roadmap
+
+See ROADMAP.md.
+
 ## Quick Start
 
 ### 1. Get a TTS API key

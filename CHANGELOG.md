@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- ROADMAP.md documenting current status and next steps.
+
+### Changed
+
+- README: added status and roadmap sections.
+
 ## [0.6.2] - 2026-02-11
 
 ### Changed
