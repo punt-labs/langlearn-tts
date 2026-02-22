@@ -63,7 +63,7 @@ build-backend = "uv_build"
 module-name = "langlearn_tts"
 
 [tool.uv.sources]
-punt-langlearn-types = { path = "../langlearn-types" }
+punt-langlearn-types = { git = "https://github.com/punt-labs/langlearn-types", rev = "7ca74011c014de62236373cf4d364ad2758e5f06" }
 
 [tool.ruff]
 line-length = 88
