@@ -1,0 +1,69 @@
+Implement the following plan:
+
+# Fix: Consolidate output directory resolution (lltts-612)
+
+## Context
+
+Audio files write to different directories depending on the code path. Three independent `_default_output_dir()` implementations exist with different fallback behavior:
+
+| Site | Env var check | Fallback |
+|------|---------------|----------|
+| `server.py:49` | `LANGLEARN_TTS_OUTPUT_DIR` | `~/langlearn-audio` |
+| `cli.py:590` | **None** | `~/langlearn-audio` |
+| `output.py:18` | `LANGLEARN_TTS_OUTPUT_DIR` | `"."` (cwd) |
+
+CLI synthesize commands also default to `Path.cwd()` (lines 226, 330, 429, 563), inconsistent with `doctor`/`install` which use `~/langlearn-audio`.
+
+## Fix
+
+Single `default_output_dir()` in `output.py`. All sites import it. Resolution: **explicit param → env var → `~/langlearn-audio`**.
+
+## Commits
+
+### 1. `refactor(output): add canonical default_output_dir function`
+**Files:** `src/langlearn_tts/output.py`, `tests/test_output.py` (new)
+
+- Add `default_output_dir()` to `output.py`
+- Fix `resolve_output_path()` fallback from `"."` → `default_output_dir()`
+- Add tests for both functions
+
+### 2. `refactor(server): use consolidated default_output_dir`
+**Files:** `src/langlearn_tts/server.py`
+
+- Delete local `_default_output_dir()` (lines 49-54)
+- Import `default_output_dir` from `langlearn_tts.output`
+- Update `_resolve_output_dir()` to call it
+- No behavioral change (server already had correct logic)
+
+### 3. `refactor(cli): use consolidated default_output_dir, stop defaulting to cwd`
+**Files:** `src/langlearn_tts/cli.py`, `tests/test_cli.py`
+
+- Delete local `_default_output_dir()` (lines 590-591)
+- Import `default_output_dir` from `langlearn_tts.output`
+- Replace `Path.cwd()` defaults in synthesize (226), synthesize-batch (330), synthesize-pair (429), synthesize-pair-batch (563)
+- Update `doctor` (694) and `install` (817) callsites
+- Update `--output`/`--output-dir` help text
+- Update test mock path: `f"{_CLI}._default_output_dir"` → `"langlearn_tts.output.default_output_dir"`
+- **Behavioral change**: CLI commands now default to `~/langlearn-audio` instead of cwd
+
+### 4. Update CHANGELOG.md
+- Add `Changed` entry under `[Unreleased]` noting CLI default directory change
+
+### 5. Close bead lltts-612, sync, push
+
+## Verification
+
+```bash
+uv run ruff check src/ tests/ && uv run ruff format --check src/ tests/ && uv run mypy src/ tests/ && uv run pyright src/ tests/ && uv run pytest tests/ -v
+```
+
+
+If you need specific details from before exiting plan mode (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/jfreeman/.REDACTED.jsonl
+
+---
+
+request Copilot review.  Make that standard in your workflow.
+
+---
+
+ok check in 2m
