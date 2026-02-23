@@ -26,9 +26,10 @@ def resolve_output_path(request: SynthesisRequest) -> Path:
     if output_path:
         path = Path(output_path)
     else:
-        output_dir = metadata.get("output_dir") or str(default_output_dir())
+        output_dir_raw = metadata.get("output_dir")
+        output_dir = Path(output_dir_raw) if output_dir_raw else default_output_dir()
         filename = metadata.get("filename") or generate_filename(request.text)
-        path = Path(output_dir) / filename
+        path = output_dir / filename
 
     path.parent.mkdir(parents=True, exist_ok=True)
     return path

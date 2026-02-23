@@ -488,7 +488,7 @@ class TestDoctorCommand:
             patch(f"{_CLI}.get_provider", return_value=provider),
             patch(f"{_CLI}._claude_desktop_config_path", return_value=config_path),
             patch(
-                "langlearn_tts.output.default_output_dir",
+                f"{_CLI}.default_output_dir",
                 return_value=tmp_path / "audio",
             ),
         ):
