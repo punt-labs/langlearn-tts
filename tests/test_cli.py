@@ -487,7 +487,10 @@ class TestDoctorCommand:
             patch(f"{_CLI}.shutil.which", side_effect=which_side_effect),
             patch(f"{_CLI}.get_provider", return_value=provider),
             patch(f"{_CLI}._claude_desktop_config_path", return_value=config_path),
-            patch(f"{_CLI}._default_output_dir", return_value=tmp_path / "audio"),
+            patch(
+                f"{_CLI}.default_output_dir",
+                return_value=tmp_path / "audio",
+            ),
         ):
             result = runner.invoke(main, ["doctor"])
 

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-import os
 import subprocess
 from pathlib import Path
 
@@ -12,6 +11,7 @@ from mcp.server.fastmcp import FastMCP
 from langlearn_tts import __version__
 from langlearn_tts.core import TTSClient
 from langlearn_tts.logging_config import configure_logging
+from langlearn_tts.output import default_output_dir
 from langlearn_tts.providers import get_provider
 from langlearn_tts.types import (
     AudioProviderId,
@@ -46,19 +46,11 @@ def _validate_voice_settings(
             raise ValueError(msg)
 
 
-def _default_output_dir() -> Path:
-    """Resolve the default output directory from environment or fallback."""
-    env_dir = os.environ.get("LANGLEARN_TTS_OUTPUT_DIR")
-    if env_dir:
-        return Path(env_dir)
-    return Path.home() / "langlearn-audio"
-
-
 def _resolve_output_dir(output_dir: str | None) -> Path:
     """Resolve an output directory, using the default if not specified."""
     if output_dir:
         return Path(output_dir)
-    return _default_output_dir()
+    return default_output_dir()
 
 
 def _resolve_output_path(
