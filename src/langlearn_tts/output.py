@@ -8,6 +8,17 @@ from pathlib import Path
 from langlearn_tts.types import SynthesisRequest, generate_filename
 
 
+def default_output_dir() -> Path:
+    """Resolve the default output directory from environment or fallback.
+
+    Resolution order: ``LANGLEARN_TTS_OUTPUT_DIR`` env var → ``~/langlearn-audio``.
+    """
+    env_dir = os.environ.get("LANGLEARN_TTS_OUTPUT_DIR")
+    if env_dir:
+        return Path(env_dir)
+    return Path.home() / "langlearn-audio"
+
+
 def resolve_output_path(request: SynthesisRequest) -> Path:
     """Resolve output path for a synthesis request."""
     metadata = request.metadata
@@ -15,9 +26,7 @@ def resolve_output_path(request: SynthesisRequest) -> Path:
     if output_path:
         path = Path(output_path)
     else:
-        output_dir = metadata.get("output_dir") or os.environ.get(
-            "LANGLEARN_TTS_OUTPUT_DIR", "."
-        )
+        output_dir = metadata.get("output_dir") or str(default_output_dir())
         filename = metadata.get("filename") or generate_filename(request.text)
         path = Path(output_dir) / filename
 
