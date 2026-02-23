@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - README: added status and roadmap sections.
+- CLI commands now default output to `~/langlearn-audio` (or `LANGLEARN_TTS_OUTPUT_DIR` env var) instead of current working directory. Consolidated three independent output directory implementations into a single `default_output_dir()` in `output.py`.
 
 ## [0.6.2] - 2026-02-11
 
