@@ -15,6 +15,7 @@ from typing import cast
 import click
 
 from langlearn_tts.core import TTSClient
+from langlearn_tts.output import default_output_dir
 from langlearn_tts.providers import DEFAULT_VOICES, auto_detect_provider, get_provider
 from langlearn_tts.types import (
     MergeStrategy,
@@ -188,7 +189,7 @@ def main(
     "-o",
     default=None,
     type=click.Path(path_type=Path),
-    help="Output file path. Defaults to auto-generated name in pwd.",
+    help="Output file path. Defaults to auto-generated name in ~/langlearn-audio.",
 )
 @_voice_settings_options
 @click.pass_context
@@ -223,7 +224,7 @@ def synthesize(
     )
 
     if output is None:
-        output = Path.cwd() / f"{voice}_{text[:20].replace(' ', '_')}.mp3"
+        output = default_output_dir() / f"{voice}_{text[:20].replace(' ', '_')}.mp3"
 
     client = TTSClient(provider)
     result = client.synthesize(request, output)
@@ -254,7 +255,7 @@ def synthesize(
     "-d",
     default=None,
     type=click.Path(path_type=Path),
-    help="Output directory. Defaults to current directory.",
+    help="Output directory. Defaults to ~/langlearn-audio.",
 )
 @click.option(
     "--merge",
@@ -327,7 +328,7 @@ def synthesize_batch(
     strategy = (
         MergeStrategy.ONE_FILE_PER_BATCH if merge else MergeStrategy.ONE_FILE_PER_INPUT
     )
-    out_dir = output_dir if output_dir is not None else Path.cwd()
+    out_dir = output_dir if output_dir is not None else default_output_dir()
 
     client = TTSClient(provider)
     results = client.synthesize_batch(requests, out_dir, strategy, pause)
@@ -426,7 +427,7 @@ def synthesize_pair(
     )
 
     if output is None:
-        output = Path.cwd() / f"pair_{text1[:10]}_{text2[:10]}.mp3"
+        output = default_output_dir() / f"pair_{text1[:10]}_{text2[:10]}.mp3"
 
     client = TTSClient(provider)
     result = client.synthesize_pair(text1, req1, text2, req2, output, pause)
@@ -475,7 +476,7 @@ def synthesize_pair(
     "-d",
     default=None,
     type=click.Path(path_type=Path),
-    help="Output directory. Defaults to current directory.",
+    help="Output directory. Defaults to ~/langlearn-audio.",
 )
 @click.option(
     "--merge",
@@ -560,7 +561,7 @@ def synthesize_pair_batch(
     strategy = (
         MergeStrategy.ONE_FILE_PER_BATCH if merge else MergeStrategy.ONE_FILE_PER_INPUT
     )
-    out_dir = output_dir if output_dir is not None else Path.cwd()
+    out_dir = output_dir if output_dir is not None else default_output_dir()
 
     client = TTSClient(provider)
     results = client.synthesize_pair_batch(pairs, out_dir, strategy, pause)
@@ -585,10 +586,6 @@ def _claude_desktop_config_path() -> Path:
         / "Claude"
         / "claude_desktop_config.json"
     )
-
-
-def _default_output_dir() -> Path:
-    return Path.home() / "langlearn-audio"
 
 
 @main.command()
@@ -691,7 +688,7 @@ def doctor(ctx: click.Context) -> None:
         )
 
     # Output directory
-    out_dir = _default_output_dir()
+    out_dir = default_output_dir()
     try:
         out_dir.mkdir(parents=True, exist_ok=True)
         test_file = out_dir / ".doctor_test"
@@ -814,7 +811,7 @@ def install(
         )
 
     # Resolve output directory
-    audio_dir = output_dir or _default_output_dir()
+    audio_dir = output_dir or default_output_dir()
     audio_dir.mkdir(parents=True, exist_ok=True)
 
     # Detect provider and build env
