@@ -36,6 +36,10 @@ def auto_detect_provider() -> str:
 def get_provider(name: str | None = None, **kwargs: str | None) -> TTSProvider:
     """Look up a provider by name, or auto-detect.
 
+    Returns langlearn-tts subclasses (not punt-tts base classes) so that
+    ``generate_audio``/``generate_audios`` use langlearn-specific output
+    path resolution (``~/langlearn-audio``).
+
     Args:
         name: Provider name (e.g. 'polly', 'openai'). If None, auto-detects.
         **kwargs: Provider-specific options (e.g. model='tts-1-hd').
@@ -46,7 +50,16 @@ def get_provider(name: str | None = None, **kwargs: str | None) -> TTSProvider:
     Raises:
         ValueError: If the provider name is not registered.
     """
-    from punt_tts.providers import get_provider as _get_provider
+    from langlearn_tts.providers.elevenlabs import ElevenLabsProvider
+    from langlearn_tts.providers.openai import OpenAIProvider
+    from langlearn_tts.providers.polly import PollyProvider
 
     resolved = name.lower() if name is not None else auto_detect_provider()
-    return _get_provider(resolved, **kwargs)
+    if resolved == "polly":
+        return PollyProvider(**kwargs)  # type: ignore[arg-type]
+    if resolved == "openai":
+        return OpenAIProvider(**kwargs)  # type: ignore[arg-type]
+    if resolved == "elevenlabs":
+        return ElevenLabsProvider(**kwargs)
+    msg = f"Unknown provider {resolved!r}. Choose from: polly, openai, elevenlabs."
+    raise ValueError(msg)
