@@ -5,15 +5,15 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from langlearn_tts.types import SynthesisRequest, generate_filename
+from punt_tts.types import AudioRequest as SynthesisRequest, generate_filename
 
 
 def default_output_dir() -> Path:
     """Resolve the default output directory from environment or fallback.
 
-    Resolution order: ``LANGLEARN_TTS_OUTPUT_DIR`` env var → ``~/langlearn-audio``.
+    Resolution order: ``TTS_OUTPUT_DIR`` env var → ``~/langlearn-audio``.
     """
-    env_dir = os.environ.get("LANGLEARN_TTS_OUTPUT_DIR")
+    env_dir = os.environ.get("TTS_OUTPUT_DIR")
     if env_dir:
         return Path(env_dir)
     return Path.home() / "langlearn-audio"

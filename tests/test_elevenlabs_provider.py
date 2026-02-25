@@ -41,7 +41,7 @@ class TestElevenLabsProviderResolveVoice:
 
     def test_resolve_from_api(self, mock_elevenlabs_client: MagicMock) -> None:
         """Voice not in cache triggers API fetch."""
-        import langlearn_tts.providers.elevenlabs as elevenlabs
+        import punt_tts.providers.elevenlabs as elevenlabs
 
         saved_voices = dict(elevenlabs.VOICES)
         saved_loaded = elevenlabs._voices_loaded  # pyright: ignore[reportPrivateUsage]
@@ -63,7 +63,7 @@ class TestElevenLabsProviderResolveVoice:
         self, mock_elevenlabs_client: MagicMock
     ) -> None:
         """Lookup of 'matilda' works when API returns description."""
-        import langlearn_tts.providers.elevenlabs as elevenlabs
+        import punt_tts.providers.elevenlabs as elevenlabs
 
         saved_voices = dict(elevenlabs.VOICES)
         saved_loaded = elevenlabs._voices_loaded  # pyright: ignore[reportPrivateUsage]
@@ -282,12 +282,12 @@ class TestElevenLabsProviderDefaultModel:
         provider = ElevenLabsProvider(model="eleven_turbo_v2_5", client=MagicMock())
         assert provider._model == "eleven_turbo_v2_5"  # pyright: ignore[reportPrivateUsage]
 
-    @patch.dict("os.environ", {"LANGLEARN_TTS_MODEL": "eleven_turbo_v2"})
+    @patch.dict("os.environ", {"TTS_MODEL": "eleven_turbo_v2"})
     def test_model_from_env(self) -> None:
         provider = ElevenLabsProvider(client=MagicMock())
         assert provider._model == "eleven_turbo_v2"  # pyright: ignore[reportPrivateUsage]
 
-    @patch.dict("os.environ", {"LANGLEARN_TTS_MODEL": "eleven_turbo_v2"})
+    @patch.dict("os.environ", {"TTS_MODEL": "eleven_turbo_v2"})
     def test_explicit_overrides_env(self) -> None:
         provider = ElevenLabsProvider(model="eleven_v3", client=MagicMock())
         assert provider._model == "eleven_v3"  # pyright: ignore[reportPrivateUsage]
