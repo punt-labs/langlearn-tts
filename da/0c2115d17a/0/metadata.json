@@ -1,0 +1,49 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "da0c2115d17a",
+  "session_id": "0742cd3c-db27-4429-8ec3-839db1c6c5e2",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-25T20:18:00.423237Z",
+  "branch": "refactor/depend-on-punt-tts",
+  "checkpoints_count": 0,
+  "files_touched": [
+    ".claude-plugin/plugin.json",
+    ".claude/settings.json",
+    ".github/workflows/docs.yml",
+    ".github/workflows/lint.yml",
+    ".github/workflows/test.yml",
+    ".gitignore",
+    ".mcp.json",
+    "CHANGELOG.md",
+    "manifest.json",
+    "pyproject.toml",
+    "scripts/release-plugin.sh",
+    "scripts/restore-dev-plugin.sh",
+    "src/langlearn_tts/__init__.py",
+    "src/langlearn_tts/providers/__init__.py",
+    "src/langlearn_tts/providers/elevenlabs.py",
+    "src/langlearn_tts/server.py",
+    "tests/conftest.py",
+    "tests/test_elevenlabs_provider.py"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "337479df-3331-4c55-bc72-ac6f737b4c66",
+  "checkpoint_transcript_start": 1333,
+  "transcript_lines_at_start": 1333,
+  "token_usage": {
+    "input_tokens": 3837,
+    "cache_creation_tokens": 148590,
+    "cache_read_tokens": 7160828,
+    "output_tokens": 3016,
+    "api_call_count": 68
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-25T20:18:00.126061Z",
+    "agent_lines": 0,
+    "human_added": 0,
+    "human_modified": 140,
+    "human_removed": 277,
+    "total_committed": 11,
+    "agent_percentage": 0
+  }
+}

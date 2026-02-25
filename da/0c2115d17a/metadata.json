@@ -1,0 +1,43 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "da0c2115d17a",
+  "strategy": "manual-commit",
+  "branch": "refactor/depend-on-punt-tts",
+  "checkpoints_count": 0,
+  "files_touched": [
+    ".claude-plugin/plugin.json",
+    ".claude/settings.json",
+    ".github/workflows/docs.yml",
+    ".github/workflows/lint.yml",
+    ".github/workflows/test.yml",
+    ".gitignore",
+    ".mcp.json",
+    "CHANGELOG.md",
+    "manifest.json",
+    "pyproject.toml",
+    "scripts/release-plugin.sh",
+    "scripts/restore-dev-plugin.sh",
+    "src/langlearn_tts/__init__.py",
+    "src/langlearn_tts/providers/__init__.py",
+    "src/langlearn_tts/providers/elevenlabs.py",
+    "src/langlearn_tts/server.py",
+    "tests/conftest.py",
+    "tests/test_elevenlabs_provider.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/da/0c2115d17a/0/metadata.json",
+      "transcript": "/da/0c2115d17a/0/full.jsonl",
+      "context": "/da/0c2115d17a/0/context.md",
+      "content_hash": "/da/0c2115d17a/0/content_hash.txt",
+      "prompt": "/da/0c2115d17a/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 3837,
+    "cache_creation_tokens": 148590,
+    "cache_read_tokens": 7160828,
+    "output_tokens": 3016,
+    "api_call_count": 68
+  }
+}
