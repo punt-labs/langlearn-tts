@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.4] - 2026-02-25
+
+### Fixed
+
+- ElevenLabs default voice changed from "rachel" (retired from premade library) to "matilda" (Knowledgable, Professional).
+
 ## [0.6.3] - 2026-02-22
 
 ### Added

@@ -2,12 +2,12 @@
   "manifest_version": "0.4",
   "name": "langlearn-tts",
   "display_name": "Language Learning TTS",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "Text-to-speech for language learning — synthesize vocabulary, phrases, and bilingual pairs with ElevenLabs, AWS Polly, or OpenAI.",
   "long_description": "Synthesize text to MP3 audio files for language learning. Supports single text, batch, bilingual pairs, and batch pairs with configurable voice, speed, and pause settings. ffmpeg is needed for pair synthesis and batch merge; single text synthesis works without it.\n\nThis extension requires one of three TTS providers: ElevenLabs (premium, 70+ languages), OpenAI (multilingual), or AWS Polly (28 languages). To use ElevenLabs or OpenAI, paste your API key below. To use AWS Polly, run `aws configure` in a terminal — no key is needed here.",
   "author": {
-    "name": "JF",
-    "email": "jmf@pobox.com",
+    "name": "Punt Labs",
+    "email": "hello@punt-labs.com",
     "url": "https://github.com/punt-labs"
   },
   "repository": {
