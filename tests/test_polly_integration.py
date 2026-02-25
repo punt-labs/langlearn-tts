@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-import langlearn_tts.providers.polly as polly
+import punt_tts.providers.polly as polly
 from langlearn_tts.providers.polly import PollyProvider
 from langlearn_tts.types import SynthesisRequest
 

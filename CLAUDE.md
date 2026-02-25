@@ -44,20 +44,23 @@ uvx twine check dist/*
 
 ## Architecture
 
+langlearn-tts is a thin bridge over `punt-tts`. The TTS engine (types, core, providers) lives in punt-tts; langlearn-tts adds langlearn-specific output path resolution, branding, and the `AudioProvider` protocol from `langlearn-types`.
+
 Module structure under `src/langlearn_tts/`:
 
 | Module | Responsibility |
 |--------|---------------|
-| `types.py` | Domain types: `TTSProvider` protocol, `HealthCheck`, `SynthesisRequest`, `SynthesisResult`, `MergeStrategy` |
-| `core.py` | `TTSClient` — provider-agnostic orchestration: batching, pair stitching, audio merge, `split_text()` |
+| `types.py` | Re-exports from `punt_tts.types` (`TTSProvider`, `HealthCheck`, `SynthesisRequest`, `SynthesisResult`, `MergeStrategy`, etc.) plus `AudioProvider` protocol from `langlearn_types` for the orchestrator boundary |
+| `core.py` | Re-exports `TTSClient`, `split_text`, `stitch_audio` from `punt_tts.core` |
+| `output.py` | langlearn-specific output path resolution: `TTS_OUTPUT_DIR` env var → `~/langlearn-audio` default |
 | `cli.py` | Click CLI — `--provider` flag, voice settings flags, synthesize, batch, pair, pair-batch, doctor, install |
 | `server.py` | FastMCP server — exposes same operations as MCP tools |
 | `providers/__init__.py` | Provider registry, `get_provider()`, auto-detection (ElevenLabs > Polly) |
-| `providers/polly.py` | `PollyProvider` — AWS Polly synthesis, voice resolution, health checks. Only file with boto3 |
-| `providers/openai.py` | `OpenAIProvider` — OpenAI TTS synthesis, static voices, auto-chunking >4096 chars. Only file with openai |
-| `providers/elevenlabs.py` | `ElevenLabsProvider` — ElevenLabs synthesis, voice settings, voice resolution, health checks. Only file with elevenlabs |
+| `providers/polly.py` | Thin subclass of `punt_tts.providers.polly.PollyProvider` — overrides `generate_audio`/`generate_audios` for langlearn output path resolution |
+| `providers/openai.py` | Thin subclass of `punt_tts.providers.openai.OpenAIProvider` — same pattern |
+| `providers/elevenlabs.py` | Thin subclass of `punt_tts.providers.elevenlabs.ElevenLabsProvider` — same pattern |
 
-Tests mirror source: `test_types.py`, `test_core.py`, `test_cli.py`, `test_polly.py`, `test_openai_provider.py`, `test_elevenlabs_provider.py` plus `conftest.py` for shared fixtures.
+Tests mirror source: `test_types.py`, `test_core.py`, `test_cli.py`, `test_polly_provider.py`, `test_openai_provider.py`, `test_elevenlabs_provider.py` plus `conftest.py` for shared fixtures.
 
 ## Python Coding Standards
 

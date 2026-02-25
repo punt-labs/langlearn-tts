@@ -611,8 +611,8 @@ class TestInstallCommand:
             "punt-langlearn-tts",
             "langlearn-tts-server",
         ]
-        assert server["env"]["LANGLEARN_TTS_OUTPUT_DIR"] == str(audio_dir)
-        assert server["env"]["LANGLEARN_TTS_PROVIDER"] == "polly"
+        assert server["env"]["TTS_OUTPUT_DIR"] == str(audio_dir)
+        assert server["env"]["TTS_PROVIDER"] == "polly"
 
     @patch(f"{_CLI}.get_provider")
     def test_preserves_other_servers(
@@ -771,7 +771,7 @@ class TestInstallCommand:
 
         data = json.loads(config_path.read_text())
         env = data["mcpServers"]["langlearn-tts"]["env"]
-        assert env["LANGLEARN_TTS_PROVIDER"] == "polly"
+        assert env["TTS_PROVIDER"] == "polly"
         assert "OPENAI_API_KEY" not in env
 
     @patch(f"{_CLI}.get_provider")
@@ -798,7 +798,7 @@ class TestInstallCommand:
 
         data = json.loads(config_path.read_text())
         env = data["mcpServers"]["langlearn-tts"]["env"]
-        assert env["LANGLEARN_TTS_PROVIDER"] == "openai"
+        assert env["TTS_PROVIDER"] == "openai"
         assert env["OPENAI_API_KEY"] == "sk-test-key"
 
     @patch(f"{_CLI}.get_provider")
@@ -823,7 +823,7 @@ class TestInstallCommand:
 
         data = json.loads(config_path.read_text())
         env = data["mcpServers"]["langlearn-tts"]["env"]
-        assert env["LANGLEARN_TTS_PROVIDER"] == "polly"
+        assert env["TTS_PROVIDER"] == "polly"
         assert "OPENAI_API_KEY" not in env
 
     @patch(f"{_CLI}.get_provider")
@@ -849,7 +849,7 @@ class TestInstallCommand:
 
         data = json.loads(config_path.read_text())
         env = data["mcpServers"]["langlearn-tts"]["env"]
-        assert env["LANGLEARN_TTS_PROVIDER"] == "polly"
+        assert env["TTS_PROVIDER"] == "polly"
         assert "OPENAI_API_KEY" not in env
 
     @patch(f"{_CLI}.get_provider")
@@ -904,7 +904,7 @@ class TestInstallCommand:
 
         data = json.loads(config_path.read_text())
         env = data["mcpServers"]["langlearn-tts"]["env"]
-        assert env["LANGLEARN_TTS_PROVIDER"] == "elevenlabs"
+        assert env["TTS_PROVIDER"] == "elevenlabs"
         assert env["ELEVENLABS_API_KEY"] == "sk_test_key"
 
     @patch(f"{_CLI}.get_provider")
@@ -956,5 +956,5 @@ class TestInstallCommand:
 
         data = json.loads(config_path.read_text())
         env = data["mcpServers"]["langlearn-tts"]["env"]
-        assert env["LANGLEARN_TTS_PROVIDER"] == "elevenlabs"
+        assert env["TTS_PROVIDER"] == "elevenlabs"
         assert env["ELEVENLABS_API_KEY"] == "sk_test_key"

@@ -14,10 +14,10 @@ from typing import cast
 
 import click
 
-from langlearn_tts.core import TTSClient
 from langlearn_tts.output import default_output_dir
 from langlearn_tts.providers import DEFAULT_VOICES, auto_detect_provider, get_provider
-from langlearn_tts.types import (
+from punt_tts.core import TTSClient
+from punt_tts.types import (
     MergeStrategy,
     SynthesisRequest,
     SynthesisResult,
@@ -139,13 +139,13 @@ def _voice_settings_options[F: Callable[..., object]](fn: F) -> F:
     "--provider",
     "provider_name",
     default=None,
-    envvar="LANGLEARN_TTS_PROVIDER",
+    envvar="TTS_PROVIDER",
     help="TTS provider (elevenlabs, polly, openai). Default: auto-detect.",
 )
 @click.option(
     "--model",
     default=None,
-    envvar="LANGLEARN_TTS_MODEL",
+    envvar="TTS_MODEL",
     help="Model name (e.g. eleven_v3, tts-1, tts-1-hd). Provider-specific.",
 )
 @click.pass_context
@@ -742,8 +742,8 @@ def _build_install_env(provider: str, audio_dir: Path) -> dict[str, str]:
     MCP server subprocess does not inherit the user's shell environment.
     """
     env: dict[str, str] = {
-        "LANGLEARN_TTS_PROVIDER": provider,
-        "LANGLEARN_TTS_OUTPUT_DIR": str(audio_dir),
+        "TTS_PROVIDER": provider,
+        "TTS_OUTPUT_DIR": str(audio_dir),
     }
     if provider == "elevenlabs":
         key = os.environ.get("ELEVENLABS_API_KEY")

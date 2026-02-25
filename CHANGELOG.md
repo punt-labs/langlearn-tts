@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Refactored to depend on `punt-tts>=0.1.0` for TTS engine core. langlearn-tts is now a thin bridge: providers subclass punt-tts, types and core are re-exports.
+- Environment variables renamed: `LANGLEARN_TTS_PROVIDER` → `TTS_PROVIDER`, `LANGLEARN_TTS_MODEL` → `TTS_MODEL`, `LANGLEARN_TTS_OUTPUT_DIR` → `TTS_OUTPUT_DIR`.
+
+### Removed
+
+- Direct dependencies on `boto3`, `botocore`, `elevenlabs`, `openai`, `pydub`, `audioop-lts` — now transitive through `punt-tts`.
+
 ## [0.6.4] - 2026-02-25
 
 ### Fixed

@@ -7,12 +7,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from langlearn_tts.core import (
+from langlearn_tts.providers.openai import OpenAIProvider
+from langlearn_tts.types import SynthesisRequest
+from punt_tts.core import (
     _split_at_words,  # pyright: ignore[reportPrivateUsage]
     split_text,
 )
-from langlearn_tts.providers.openai import OpenAIProvider
-from langlearn_tts.types import SynthesisRequest
 
 
 class TestSplitText:
@@ -268,12 +268,12 @@ class TestOpenAIProviderDefaultModel:
         provider = OpenAIProvider(model="tts-1-hd", client=MagicMock())
         assert provider._model == "tts-1-hd"  # pyright: ignore[reportPrivateUsage]
 
-    @patch.dict("os.environ", {"LANGLEARN_TTS_MODEL": "tts-1-hd"})
+    @patch.dict("os.environ", {"TTS_MODEL": "tts-1-hd"})
     def test_model_from_env(self) -> None:
         provider = OpenAIProvider(client=MagicMock())
         assert provider._model == "tts-1-hd"  # pyright: ignore[reportPrivateUsage]
 
-    @patch.dict("os.environ", {"LANGLEARN_TTS_MODEL": "tts-1-hd"})
+    @patch.dict("os.environ", {"TTS_MODEL": "tts-1-hd"})
     def test_explicit_overrides_env(self) -> None:
         provider = OpenAIProvider(model="tts-1", client=MagicMock())
         assert provider._model == "tts-1"  # pyright: ignore[reportPrivateUsage]

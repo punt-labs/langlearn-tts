@@ -9,14 +9,13 @@ from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 
 from langlearn_tts import __version__
-from langlearn_tts.core import TTSClient
 from langlearn_tts.logging_config import configure_logging
 from langlearn_tts.output import default_output_dir
 from langlearn_tts.providers import get_provider
-from langlearn_tts.types import (
-    AudioProviderId,
+from langlearn_tts.types import AudioProviderId, SynthesisRequest
+from punt_tts.core import TTSClient
+from punt_tts.types import (
     MergeStrategy,
-    SynthesisRequest,
     SynthesisResult,
     TTSProvider,
     generate_filename,
@@ -161,7 +160,7 @@ def synthesize(
             synthesis. Defaults to true.
         output_path: Full path for the output file. If not provided,
             a file is auto-generated in output_dir.
-        output_dir: Directory for output. Defaults to LANGLEARN_TTS_OUTPUT_DIR
+        output_dir: Directory for output. Defaults to TTS_OUTPUT_DIR
             env var or ~/langlearn-audio/.
         stability: ElevenLabs voice stability (0.0-1.0). Ignored by
             other providers. Defaults to provider default.
@@ -238,7 +237,7 @@ def synthesize_batch(
         auto_play: Open the file(s) in the default audio player after
             synthesis. Defaults to true.
         output_dir: Directory for output files. Defaults to
-            LANGLEARN_TTS_OUTPUT_DIR env var or ~/langlearn-audio/.
+            TTS_OUTPUT_DIR env var or ~/langlearn-audio/.
         stability: ElevenLabs voice stability (0.0-1.0).
         similarity: ElevenLabs voice similarity boost (0.0-1.0).
         style: ElevenLabs voice style/expressiveness (0.0-1.0).
@@ -341,7 +340,7 @@ def synthesize_pair(
         auto_play: Play the audio after synthesis. Defaults to true.
         output_path: Full path for the output file.
         output_dir: Directory for output. Defaults to
-            LANGLEARN_TTS_OUTPUT_DIR env var or ~/langlearn-audio/.
+            TTS_OUTPUT_DIR env var or ~/langlearn-audio/.
         stability: ElevenLabs voice stability (0.0-1.0).
         similarity: ElevenLabs voice similarity boost (0.0-1.0).
         style: ElevenLabs voice style/expressiveness (0.0-1.0).
@@ -439,7 +438,7 @@ def synthesize_pair_batch(
             files per pair. Defaults to false.
         auto_play: Play the audio after synthesis. Defaults to true.
         output_dir: Directory for output files. Defaults to
-            LANGLEARN_TTS_OUTPUT_DIR env var or ~/langlearn-audio/.
+            TTS_OUTPUT_DIR env var or ~/langlearn-audio/.
         stability: ElevenLabs voice stability (0.0-1.0).
         similarity: ElevenLabs voice similarity boost (0.0-1.0).
         style: ElevenLabs voice style/expressiveness (0.0-1.0).

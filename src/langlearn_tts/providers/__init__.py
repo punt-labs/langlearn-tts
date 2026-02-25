@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import os
-from collections.abc import Callable
 from typing import TYPE_CHECKING
+
+from punt_tts.providers import DEFAULT_VOICES, format_voice_hint
 
 if TYPE_CHECKING:
     from langlearn_tts.types import TTSProvider
@@ -16,64 +17,15 @@ __all__ = [
     "get_provider",
 ]
 
-# Canonical default voice per provider, used in help text.
-# Must stay in sync with each provider's default_voice property.
-DEFAULT_VOICES: dict[str, str] = {
-    "elevenlabs": "matilda",
-    "polly": "joanna",
-    "openai": "nova",
-}
-
-
-def format_voice_hint(names: list[str], limit: int = 10) -> str:
-    """Format a truncated voice list for error messages."""
-    sample = names[:limit]
-    hint = ", ".join(sample)
-    if len(names) > limit:
-        hint += f" ... ({len(names)} total)"
-    return hint
-
-
-# Registry mapping provider name → factory callable.
-# Factories are lazy (no imports at module level) to avoid loading
-# boto3/openai/etc when the provider isn't used.
-# Factories accept **kwargs to allow provider-specific options (e.g. model).
-PROVIDER_REGISTRY: dict[str, Callable[..., TTSProvider]] = {}
-
-
-def _register_polly(**kwargs: str | None) -> TTSProvider:
-    from langlearn_tts.providers.polly import PollyProvider
-
-    return PollyProvider()
-
-
-def _register_openai(**kwargs: str | None) -> TTSProvider:
-    from langlearn_tts.providers.openai import OpenAIProvider
-
-    model = kwargs.get("model")
-    return OpenAIProvider(model=model)
-
-
-def _register_elevenlabs(**kwargs: str | None) -> TTSProvider:
-    from langlearn_tts.providers.elevenlabs import ElevenLabsProvider
-
-    model = kwargs.get("model")
-    return ElevenLabsProvider(model=model)
-
-
-PROVIDER_REGISTRY["polly"] = _register_polly
-PROVIDER_REGISTRY["openai"] = _register_openai
-PROVIDER_REGISTRY["elevenlabs"] = _register_elevenlabs
-
 
 def auto_detect_provider() -> str:
     """Detect the provider from environment.
 
-    Checks LANGLEARN_TTS_PROVIDER env var first.
+    Checks TTS_PROVIDER env var first.
     Falls back to elevenlabs if ELEVENLABS_API_KEY is set.
     Otherwise defaults to polly.
     """
-    env = os.environ.get("LANGLEARN_TTS_PROVIDER")
+    env = os.environ.get("TTS_PROVIDER")
     if env:
         return env.lower()
     if os.environ.get("ELEVENLABS_API_KEY"):
@@ -83,6 +35,10 @@ def auto_detect_provider() -> str:
 
 def get_provider(name: str | None = None, **kwargs: str | None) -> TTSProvider:
     """Look up a provider by name, or auto-detect.
+
+    Returns langlearn-tts subclasses (not punt-tts base classes) so that
+    ``generate_audio``/``generate_audios`` use langlearn-specific output
+    path resolution (``~/langlearn-audio``).
 
     Args:
         name: Provider name (e.g. 'polly', 'openai'). If None, auto-detects.
@@ -94,10 +50,16 @@ def get_provider(name: str | None = None, **kwargs: str | None) -> TTSProvider:
     Raises:
         ValueError: If the provider name is not registered.
     """
+    from langlearn_tts.providers.elevenlabs import ElevenLabsProvider
+    from langlearn_tts.providers.openai import OpenAIProvider
+    from langlearn_tts.providers.polly import PollyProvider
+
     resolved = name.lower() if name is not None else auto_detect_provider()
-    factory = PROVIDER_REGISTRY.get(resolved)
-    if factory is None:
-        available = ", ".join(sorted(PROVIDER_REGISTRY))
-        msg = f"Unknown provider '{resolved}'. Available: {available}"
-        raise ValueError(msg)
-    return factory(**kwargs)
+    if resolved == "polly":
+        return PollyProvider(**kwargs)  # type: ignore[arg-type]
+    if resolved == "openai":
+        return OpenAIProvider(**kwargs)  # type: ignore[arg-type]
+    if resolved == "elevenlabs":
+        return ElevenLabsProvider(**kwargs)
+    msg = f"Unknown provider {resolved!r}. Choose from: polly, openai, elevenlabs."
+    raise ValueError(msg)

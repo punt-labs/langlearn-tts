@@ -45,7 +45,7 @@ def voice_name(_live_voice: tuple[str, str]) -> str:
 @pytest.fixture
 def provider(_live_voice: tuple[str, str]) -> ElevenLabsProvider:
     """Create a real ElevenLabsProvider with the live voice pre-cached."""
-    import langlearn_tts.providers.elevenlabs as elevenlabs
+    import punt_tts.providers.elevenlabs as elevenlabs
 
     name, vid = _live_voice
     elevenlabs.VOICES[name] = vid
@@ -70,7 +70,7 @@ class TestResolveVoice:
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Known voice name resolves via the live API voice list."""
-        import langlearn_tts.providers.elevenlabs as elevenlabs
+        import punt_tts.providers.elevenlabs as elevenlabs
 
         monkeypatch.setattr(elevenlabs, "VOICES", {})
         monkeypatch.setattr(elevenlabs, "_voices_loaded", False)

@@ -30,7 +30,7 @@ def _populate_voice_cache() -> Iterator[None]:  # pyright: ignore[reportUnusedFu
     Tests that verify resolve_voice's API-calling behavior (test_polly_provider.py)
     explicitly clear VOICES and reset _voices_loaded before their test logic.
     """
-    import langlearn_tts.providers.polly as polly
+    import punt_tts.providers.polly as polly
 
     saved_voices = dict(polly.VOICES)
     saved_loaded = polly._voices_loaded  # pyright: ignore[reportPrivateUsage]
@@ -174,7 +174,7 @@ def mock_elevenlabs_client() -> MagicMock:
 @pytest.fixture(autouse=True)
 def _populate_elevenlabs_voice_cache() -> Iterator[None]:  # pyright: ignore[reportUnusedFunction]
     """Pre-populate the ElevenLabs voice cache so resolve_voice() never hits the API."""
-    import langlearn_tts.providers.elevenlabs as elevenlabs
+    import punt_tts.providers.elevenlabs as elevenlabs
 
     saved_voices = dict(elevenlabs.VOICES)
     saved_loaded = elevenlabs._voices_loaded  # pyright: ignore[reportPrivateUsage]
