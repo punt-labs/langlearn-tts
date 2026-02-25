@@ -1,0 +1,81 @@
+Implement the following plan:
+
+# Release v0.6.3
+
+## Context
+
+The output directory consolidation fix (PR #29, lltts-612) is merged to main. Users on `0.6.2` may get files written to cwd instead of `~/langlearn-audio`. We need to release `0.6.3` to PyPI and build a new `.mcpb` Desktop Extension bundle.
+
+## Version bump: 0.6.2 → 0.6.3
+
+Three files to update:
+- `pyproject.toml:3` — `version = "0.6.2"` → `"0.6.3"`
+- `src/langlearn_tts/__init__.py:7` — `__version__ = "0.6.2"` → `"0.6.3"`
+- `manifest.json:5` — `"version": "0.6.2"` → `"0.6.3"`
+
+## CHANGELOG
+
+Move `[Unreleased]` entries to `[0.6.3] - 2026-02-22` section. Leave empty `[Unreleased]`.
+
+## Release steps (per CLAUDE.md)
+
+1. Bump version in 3 files
+2. Move CHANGELOG entries
+3. Run all quality gates
+4. Commit: `chore: release v0.6.3`
+5. Build: `rm -rf dist/ && uv build && uvx twine check dist/*`
+6. Upload to PyPI: `uvx twine upload dist/*`
+7. Tag: `git tag v0.6.3`
+8. Push: `git push origin main v0.6.3`
+9. Build .mcpb: `bash scripts/build-mcpb.sh`
+10. GitHub release: create with CHANGELOG entry, attach both `.mcpb` files
+11. Verify: `uv tool install --upgrade punt-langlearn-tts && langlearn-tts doctor`
+
+## Verification
+
+```bash
+uv run ruff check src/ tests/ && uv run ruff format --check src/ tests/ && uv run mypy src/ tests/ && uv run pyright src/ tests/ && uv run pytest tests/ -v
+```
+
+
+If you need specific details from before exiting plan mode (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/jfreeman/.REDACTED.jsonl
+
+---
+
+OK, we were waiting on punt labs to be approved by PyPI as an org, but there is a transfer function so we can publish in my personal account and then go from there. So you can switch to work on PyPI publishing for langlearn-types.  However ** you need to prefix it with punt- and you need to migrate langlearn-tts to punt- as well. This is been part of our plan.
+
+---
+
+OK, make sure the beads are correct in both projects.
+
+---
+
+Can we run an experiment? I'd like to register langlearn-tts as an MCP service with our claude code session.
+
+---
+
+project-local this is just a quick test.
+
+---
+
+OK, can you use synthesize to say something to me in English?
+
+---
+
+This is f*cking awesome. We are going to be famous.
+
+---
+
+First, we have a small bug.  The rachel voice is somewhere in our prompts and it is wrong.  I have seen that elsewhere.
+
+---
+
+Not sure how to map those to the ones I see in the dashboard, such as https://elevenlabs.io/app/voice-library?voiceId=1t1EeRixsJrKbiF1zwM6
+
+---
+
+Matilda
+
+---
+
+yes

@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "23f4ca22ef8c",
+  "strategy": "manual-commit",
+  "branch": "fix/default-voice-matilda",
+  "checkpoints_count": 2,
+  "files_touched": [
+    ".mcp.json",
+    "src/langlearn_tts/providers/__init__.py",
+    "src/langlearn_tts/providers/elevenlabs.py",
+    "src/langlearn_tts/server.py",
+    "tests/conftest.py",
+    "tests/test_elevenlabs_provider.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/23/f4ca22ef8c/0/metadata.json",
+      "transcript": "/23/f4ca22ef8c/0/full.jsonl",
+      "context": "/23/f4ca22ef8c/0/context.md",
+      "content_hash": "/23/f4ca22ef8c/0/content_hash.txt",
+      "prompt": "/23/f4ca22ef8c/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 62,
+    "cache_creation_tokens": 230831,
+    "cache_read_tokens": 3758543,
+    "output_tokens": 959,
+    "api_call_count": 49
+  }
+}

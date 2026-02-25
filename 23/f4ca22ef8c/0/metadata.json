@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "23f4ca22ef8c",
+  "session_id": "0742cd3c-db27-4429-8ec3-839db1c6c5e2",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-25T07:58:28.287558Z",
+  "branch": "fix/default-voice-matilda",
+  "checkpoints_count": 2,
+  "files_touched": [
+    ".mcp.json",
+    "src/langlearn_tts/providers/__init__.py",
+    "src/langlearn_tts/providers/elevenlabs.py",
+    "src/langlearn_tts/server.py",
+    "tests/conftest.py",
+    "tests/test_elevenlabs_provider.py"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "55666494-591d-46fd-8376-2a674aae1968",
+  "checkpoint_transcript_start": 348,
+  "transcript_lines_at_start": 348,
+  "token_usage": {
+    "input_tokens": 62,
+    "cache_creation_tokens": 230831,
+    "cache_read_tokens": 3758543,
+    "output_tokens": 959,
+    "api_call_count": 49
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-25T07:58:28.222436Z",
+    "agent_lines": 44,
+    "human_added": 56,
+    "human_modified": 8,
+    "human_removed": 0,
+    "total_committed": 108,
+    "agent_percentage": 40.74074074074074
+  }
+}
