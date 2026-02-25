@@ -17,26 +17,26 @@ class TestElevenLabsProviderName:
         assert elevenlabs_provider.name == "elevenlabs"
 
     def test_default_voice(self, elevenlabs_provider: ElevenLabsProvider) -> None:
-        assert elevenlabs_provider.default_voice == "rachel"
+        assert elevenlabs_provider.default_voice == "matilda"
 
 
 class TestElevenLabsProviderResolveVoice:
     def test_resolve_cached_voice(
         self, elevenlabs_provider: ElevenLabsProvider
     ) -> None:
-        result = elevenlabs_provider.resolve_voice("rachel")
-        assert result == "rachel"
+        result = elevenlabs_provider.resolve_voice("matilda")
+        assert result == "matilda"
 
     def test_resolve_case_insensitive(
         self, elevenlabs_provider: ElevenLabsProvider
     ) -> None:
-        assert elevenlabs_provider.resolve_voice("Rachel") == "rachel"
-        assert elevenlabs_provider.resolve_voice("RACHEL") == "rachel"
+        assert elevenlabs_provider.resolve_voice("Matilda") == "matilda"
+        assert elevenlabs_provider.resolve_voice("MATILDA") == "matilda"
 
     def test_resolve_voice_id_directly(
         self, elevenlabs_provider: ElevenLabsProvider
     ) -> None:
-        voice_id = "21m00Tcm4TlvDq8ikWAM"
+        voice_id = "XrExE9yKIg1WjnnlVkGX"
         assert elevenlabs_provider.resolve_voice(voice_id) == voice_id
 
     def test_resolve_from_api(self, mock_elevenlabs_client: MagicMock) -> None:
@@ -51,8 +51,8 @@ class TestElevenLabsProviderResolveVoice:
 
         try:
             provider = ElevenLabsProvider(client=mock_elevenlabs_client)
-            result = provider.resolve_voice("rachel")
-            assert result == "rachel"
+            result = provider.resolve_voice("matilda")
+            assert result == "matilda"
             mock_elevenlabs_client.voices.get_all.assert_called_once()
         finally:
             elevenlabs.VOICES.clear()
@@ -62,7 +62,7 @@ class TestElevenLabsProviderResolveVoice:
     def test_resolve_short_name_from_api_with_descriptions(
         self, mock_elevenlabs_client: MagicMock
     ) -> None:
-        """API returns 'Rachel - calm, gentle'; lookup of 'rachel' works."""
+        """Lookup of 'matilda' works when API returns description."""
         import langlearn_tts.providers.elevenlabs as elevenlabs
 
         saved_voices = dict(elevenlabs.VOICES)
@@ -73,14 +73,14 @@ class TestElevenLabsProviderResolveVoice:
 
         try:
             provider = ElevenLabsProvider(client=mock_elevenlabs_client)
-            # Should resolve "rachel" even though API returned
-            # "Rachel - calm, gentle".
-            result = provider.resolve_voice("rachel")
-            assert result == "rachel"
+            # Should resolve "matilda" even though API returned
+            # "Matilda - Knowledgable, Professional".
+            result = provider.resolve_voice("matilda")
+            assert result == "matilda"
 
             # Full name with description should also work.
-            result2 = provider.resolve_voice("Rachel - calm, gentle")
-            assert result2 == "rachel - calm, gentle"
+            result2 = provider.resolve_voice("Matilda - Knowledgable, Professional")
+            assert result2 == "matilda - knowledgable, professional"
         finally:
             elevenlabs.VOICES.clear()
             elevenlabs.VOICES.update(saved_voices)
@@ -99,7 +99,7 @@ class TestElevenLabsProviderSynthesize:
         elevenlabs_provider: ElevenLabsProvider,
         tmp_output_dir: Path,
     ) -> None:
-        request = SynthesisRequest(text="hello", voice="rachel", rate=100)
+        request = SynthesisRequest(text="hello", voice="matilda", rate=100)
         out = tmp_output_dir / "test.mp3"
 
         result = elevenlabs_provider.synthesize(request, out)
@@ -113,13 +113,13 @@ class TestElevenLabsProviderSynthesize:
         elevenlabs_provider: ElevenLabsProvider,
         tmp_output_dir: Path,
     ) -> None:
-        request = SynthesisRequest(text="hello world", voice="rachel", rate=100)
+        request = SynthesisRequest(text="hello world", voice="matilda", rate=100)
         out = tmp_output_dir / "meta.mp3"
 
         result = elevenlabs_provider.synthesize(request, out)
 
         assert result.text == "hello world"
-        assert result.voice == "rachel"
+        assert result.voice == "matilda"
         assert result.path == out
 
     def test_synthesize_passes_model(
@@ -130,7 +130,7 @@ class TestElevenLabsProviderSynthesize:
         provider = ElevenLabsProvider(
             model="eleven_turbo_v2_5", client=mock_elevenlabs_client
         )
-        request = SynthesisRequest(text="test", voice="rachel", rate=100)
+        request = SynthesisRequest(text="test", voice="matilda", rate=100)
         out = tmp_output_dir / "model.mp3"
 
         provider.synthesize(request, out)
@@ -146,7 +146,7 @@ class TestElevenLabsProviderSynthesize:
     ) -> None:
         request = SynthesisRequest(
             text="test",
-            voice="rachel",
+            voice="matilda",
             rate=100,
             stability=0.5,
             similarity=0.7,
@@ -171,7 +171,7 @@ class TestElevenLabsProviderSynthesize:
         elevenlabs_provider: ElevenLabsProvider,
         tmp_output_dir: Path,
     ) -> None:
-        request = SynthesisRequest(text="test", voice="rachel", rate=100)
+        request = SynthesisRequest(text="test", voice="matilda", rate=100)
         out = tmp_output_dir / "no_settings.mp3"
 
         elevenlabs_provider.synthesize(request, out)
@@ -190,7 +190,7 @@ class TestElevenLabsProviderSynthesize:
         )
         # eleven_turbo_v2 limit = 10,000 chars
         long_text = "Hello. " * 2000  # ~14000 chars
-        request = SynthesisRequest(text=long_text.strip(), voice="rachel", rate=100)
+        request = SynthesisRequest(text=long_text.strip(), voice="matilda", rate=100)
         out = tmp_output_dir / "chunked.mp3"
 
         result = provider.synthesize(request, out)
@@ -249,7 +249,7 @@ class TestElevenLabsProviderRateMessage:
         tmp_output_dir: Path,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        request = SynthesisRequest(text="test", voice="rachel", rate=90)
+        request = SynthesisRequest(text="test", voice="matilda", rate=90)
         out = tmp_output_dir / "rate.mp3"
 
         with caplog.at_level(logging.DEBUG):
@@ -264,7 +264,7 @@ class TestElevenLabsProviderRateMessage:
         tmp_output_dir: Path,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
-        request = SynthesisRequest(text="test", voice="rachel", rate=100)
+        request = SynthesisRequest(text="test", voice="matilda", rate=100)
         out = tmp_output_dir / "rate100.mp3"
 
         with caplog.at_level(logging.DEBUG):
@@ -297,21 +297,21 @@ class TestElevenLabsProviderLanguageSupport:
     def test_resolve_voice_with_language(
         self, elevenlabs_provider: ElevenLabsProvider
     ) -> None:
-        result = elevenlabs_provider.resolve_voice("rachel", language="de")
-        assert result == "rachel"
+        result = elevenlabs_provider.resolve_voice("matilda", language="de")
+        assert result == "matilda"
 
     def test_get_default_voice_any_language(
         self, elevenlabs_provider: ElevenLabsProvider
     ) -> None:
-        assert elevenlabs_provider.get_default_voice("de") == "rachel"
-        assert elevenlabs_provider.get_default_voice("ja") == "rachel"
+        assert elevenlabs_provider.get_default_voice("de") == "matilda"
+        assert elevenlabs_provider.get_default_voice("ja") == "matilda"
 
     def test_list_voices_returns_short_names(
         self, elevenlabs_provider: ElevenLabsProvider
     ) -> None:
         voices = elevenlabs_provider.list_voices()
         assert "drew" in voices
-        assert "rachel" in voices
+        assert "matilda" in voices
         for v in voices:
             assert " - " not in v
 
@@ -329,7 +329,7 @@ class TestElevenLabsProviderLanguageSupport:
     def test_infer_language_returns_none(
         self, elevenlabs_provider: ElevenLabsProvider
     ) -> None:
-        assert elevenlabs_provider.infer_language_from_voice("rachel") is None
+        assert elevenlabs_provider.infer_language_from_voice("matilda") is None
 
     def test_synthesize_preserves_language(
         self,
@@ -337,7 +337,7 @@ class TestElevenLabsProviderLanguageSupport:
         tmp_output_dir: Path,
     ) -> None:
         request = SynthesisRequest(
-            text="Guten Tag", voice="rachel", rate=100, language="de"
+            text="Guten Tag", voice="matilda", rate=100, language="de"
         )
         result = elevenlabs_provider.synthesize(request, tmp_output_dir / "test.mp3")
         assert result.language == "de"
@@ -347,6 +347,6 @@ class TestElevenLabsProviderLanguageSupport:
         elevenlabs_provider: ElevenLabsProvider,
         tmp_output_dir: Path,
     ) -> None:
-        request = SynthesisRequest(text="hello", voice="rachel", rate=100)
+        request = SynthesisRequest(text="hello", voice="matilda", rate=100)
         result = elevenlabs_provider.synthesize(request, tmp_output_dir / "test.mp3")
         assert result.language is None

@@ -146,7 +146,7 @@ def synthesize(
             punctuation (ellipsis for pauses, ! for emphasis) for best
             results. Tags only work with ElevenLabs eleven_v3 model.
         voice: Voice name. Default: provider's default voice (currently
-            rachel for ElevenLabs, joanna for Polly, nova for OpenAI).
+            matilda for ElevenLabs, joanna for Polly, nova for OpenAI).
             If language is provided without voice, a suitable default
             voice for that language is selected automatically.
         language: ISO 639-1 language code (e.g. 'de', 'ko', 'fr').
@@ -227,7 +227,7 @@ def synthesize_batch(
         texts: List of texts to synthesize. With ElevenLabs eleven_v3,
             embed audio tags like [tired], [excited], [whisper] in text.
         voice: Voice name for all texts. Default: provider's default voice
-            (currently rachel for ElevenLabs, joanna for Polly, nova for
+            (currently matilda for ElevenLabs, joanna for Polly, nova for
             OpenAI). If language is provided without voice, auto-selects.
         language: ISO 639-1 language code (e.g. 'de', 'ko').
         rate: Speech rate as percentage. Defaults to 90.
