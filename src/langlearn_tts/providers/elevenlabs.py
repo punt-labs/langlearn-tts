@@ -110,7 +110,7 @@ class ElevenLabsProvider:
 
     @property
     def default_voice(self) -> str:
-        return "rachel"
+        return "matilda"
 
     def generate_audio(self, request: SynthesisRequest) -> SynthesisResult:
         output_path = resolve_output_path(request)
@@ -219,7 +219,7 @@ class ElevenLabsProvider:
     def get_default_voice(self, language: str) -> str:
         """Get the default ElevenLabs voice for a language.
 
-        ElevenLabs voices are multilingual; always returns 'rachel'.
+        ElevenLabs voices are multilingual; always returns 'matilda'.
         """
         return self.default_voice
 

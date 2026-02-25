@@ -19,7 +19,7 @@ __all__ = [
 # Canonical default voice per provider, used in help text.
 # Must stay in sync with each provider's default_voice property.
 DEFAULT_VOICES: dict[str, str] = {
-    "elevenlabs": "rachel",
+    "elevenlabs": "matilda",
     "polly": "joanna",
     "openai": "nova",
 }

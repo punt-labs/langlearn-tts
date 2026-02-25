@@ -147,17 +147,18 @@ def mock_elevenlabs_client() -> MagicMock:
     )
 
     # Mock voices.get_all for voice resolution.
-    # Real API returns names with descriptions (e.g. "Rachel - calm, gentle").
-    voice_rachel = MagicMock()
-    voice_rachel.name = "Rachel - calm, gentle"
-    voice_rachel.voice_id = "21m00Tcm4TlvDq8ikWAM"
+    # Real API returns names with descriptions
+    # (e.g. "Matilda - Knowledgable, Professional").
+    voice_matilda = MagicMock()
+    voice_matilda.name = "Matilda - Knowledgable, Professional"
+    voice_matilda.voice_id = "XrExE9yKIg1WjnnlVkGX"
 
     voice_drew = MagicMock()
     voice_drew.name = "Drew - eloquent, calm"
     voice_drew.voice_id = "29vD33N1CtxCmqQRPOHJ"
 
     voices_response = MagicMock()
-    voices_response.voices = [voice_rachel, voice_drew]
+    voices_response.voices = [voice_matilda, voice_drew]
     client.voices.get_all.return_value = voices_response
 
     # Mock subscription for health checks.
@@ -180,7 +181,7 @@ def _populate_elevenlabs_voice_cache() -> Iterator[None]:  # pyright: ignore[rep
 
     elevenlabs.VOICES.update(
         {
-            "rachel": "21m00Tcm4TlvDq8ikWAM",
+            "matilda": "XrExE9yKIg1WjnnlVkGX",
             "drew": "29vD33N1CtxCmqQRPOHJ",
         }
     )
