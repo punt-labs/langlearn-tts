@@ -3,7 +3,7 @@
   "checkpoint_id": "da0c2115d17a",
   "strategy": "manual-commit",
   "branch": "refactor/depend-on-punt-tts",
-  "checkpoints_count": 0,
+  "checkpoints_count": 1,
   "files_touched": [
     ".claude-plugin/plugin.json",
     ".claude/settings.json",
@@ -13,16 +13,29 @@
     ".gitignore",
     ".mcp.json",
     "CHANGELOG.md",
+    "CLAUDE.md",
     "manifest.json",
     "pyproject.toml",
     "scripts/release-plugin.sh",
     "scripts/restore-dev-plugin.sh",
     "src/langlearn_tts/__init__.py",
+    "src/langlearn_tts/cli.py",
+    "src/langlearn_tts/core.py",
+    "src/langlearn_tts/output.py",
     "src/langlearn_tts/providers/__init__.py",
     "src/langlearn_tts/providers/elevenlabs.py",
+    "src/langlearn_tts/providers/openai.py",
+    "src/langlearn_tts/providers/polly.py",
     "src/langlearn_tts/server.py",
+    "src/langlearn_tts/types.py",
     "tests/conftest.py",
-    "tests/test_elevenlabs_provider.py"
+    "tests/test_cli.py",
+    "tests/test_elevenlabs_integration.py",
+    "tests/test_elevenlabs_provider.py",
+    "tests/test_openai_provider.py",
+    "tests/test_output.py",
+    "tests/test_polly_integration.py",
+    "tests/test_polly_provider.py"
   ],
   "sessions": [
     {
@@ -31,13 +44,20 @@
       "context": "/da/0c2115d17a/0/context.md",
       "content_hash": "/da/0c2115d17a/0/content_hash.txt",
       "prompt": "/da/0c2115d17a/0/prompt.txt"
+    },
+    {
+      "metadata": "/da/0c2115d17a/1/metadata.json",
+      "transcript": "/da/0c2115d17a/1/full.jsonl",
+      "context": "/da/0c2115d17a/1/context.md",
+      "content_hash": "/da/0c2115d17a/1/content_hash.txt",
+      "prompt": "/da/0c2115d17a/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 3837,
-    "cache_creation_tokens": 148590,
-    "cache_read_tokens": 7160828,
-    "output_tokens": 3016,
-    "api_call_count": 68
+    "input_tokens": 8001,
+    "cache_creation_tokens": 1054016,
+    "cache_read_tokens": 28836895,
+    "output_tokens": 33037,
+    "api_call_count": 284
   }
 }

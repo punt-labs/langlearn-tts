@@ -1,0 +1,49 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "da0c2115d17a",
+  "session_id": "52518bed-3ae7-49cb-834f-c2d1d9231e9e",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-25T20:22:06.405853Z",
+  "branch": "refactor/depend-on-punt-tts",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "pyproject.toml",
+    "src/langlearn_tts/cli.py",
+    "src/langlearn_tts/core.py",
+    "src/langlearn_tts/output.py",
+    "src/langlearn_tts/providers/__init__.py",
+    "src/langlearn_tts/providers/elevenlabs.py",
+    "src/langlearn_tts/providers/openai.py",
+    "src/langlearn_tts/providers/polly.py",
+    "src/langlearn_tts/server.py",
+    "src/langlearn_tts/types.py",
+    "tests/conftest.py",
+    "tests/test_cli.py",
+    "tests/test_elevenlabs_integration.py",
+    "tests/test_elevenlabs_provider.py",
+    "tests/test_openai_provider.py",
+    "tests/test_output.py",
+    "tests/test_polly_integration.py",
+    "tests/test_polly_provider.py"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "8782668a-3a1d-45d1-8643-f168ddca158b",
+  "token_usage": {
+    "input_tokens": 4164,
+    "cache_creation_tokens": 905426,
+    "cache_read_tokens": 21676067,
+    "output_tokens": 30021,
+    "api_call_count": 216
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-25T20:22:06.033942Z",
+    "agent_lines": 0,
+    "human_added": 0,
+    "human_modified": 204,
+    "human_removed": 1385,
+    "total_committed": 0,
+    "agent_percentage": 0
+  }
+}
