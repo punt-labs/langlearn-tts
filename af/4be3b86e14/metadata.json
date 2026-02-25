@@ -1,0 +1,43 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "af4be3b86e14",
+  "strategy": "manual-commit",
+  "branch": "refactor/reconcile-standards",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".claude-plugin/plugin.json",
+    ".claude/settings.json",
+    ".github/workflows/docs.yml",
+    ".github/workflows/lint.yml",
+    ".github/workflows/test.yml",
+    ".gitignore",
+    ".mcp.json",
+    "CHANGELOG.md",
+    "manifest.json",
+    "pyproject.toml",
+    "scripts/release-plugin.sh",
+    "scripts/restore-dev-plugin.sh",
+    "src/langlearn_tts/__init__.py",
+    "src/langlearn_tts/providers/__init__.py",
+    "src/langlearn_tts/providers/elevenlabs.py",
+    "src/langlearn_tts/server.py",
+    "tests/conftest.py",
+    "tests/test_elevenlabs_provider.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/af/4be3b86e14/0/metadata.json",
+      "transcript": "/af/4be3b86e14/0/full.jsonl",
+      "context": "/af/4be3b86e14/0/context.md",
+      "content_hash": "/af/4be3b86e14/0/content_hash.txt",
+      "prompt": "/af/4be3b86e14/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 1217,
+    "cache_creation_tokens": 138666,
+    "cache_read_tokens": 4297443,
+    "output_tokens": 2085,
+    "api_call_count": 32
+  }
+}
