@@ -1,0 +1,45 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "21bd8993ae5d",
+  "strategy": "manual-commit",
+  "branch": "refactor/depend-on-punt-tts",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "pyproject.toml",
+    "src/langlearn_tts/cli.py",
+    "src/langlearn_tts/core.py",
+    "src/langlearn_tts/output.py",
+    "src/langlearn_tts/providers/__init__.py",
+    "src/langlearn_tts/providers/elevenlabs.py",
+    "src/langlearn_tts/providers/openai.py",
+    "src/langlearn_tts/providers/polly.py",
+    "src/langlearn_tts/server.py",
+    "src/langlearn_tts/types.py",
+    "tests/conftest.py",
+    "tests/test_cli.py",
+    "tests/test_elevenlabs_integration.py",
+    "tests/test_elevenlabs_provider.py",
+    "tests/test_openai_provider.py",
+    "tests/test_output.py",
+    "tests/test_polly_integration.py",
+    "tests/test_polly_provider.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/21/bd8993ae5d/0/metadata.json",
+      "transcript": "/21/bd8993ae5d/0/full.jsonl",
+      "context": "/21/bd8993ae5d/0/context.md",
+      "content_hash": "/21/bd8993ae5d/0/content_hash.txt",
+      "prompt": "/21/bd8993ae5d/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 51,
+    "cache_creation_tokens": 288427,
+    "cache_read_tokens": 5592928,
+    "output_tokens": 3044,
+    "api_call_count": 40
+  }
+}
