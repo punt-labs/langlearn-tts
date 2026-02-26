@@ -15,8 +15,9 @@ else
   BOLD='' GREEN='' YELLOW='' NC=''
 fi
 
-info() { printf '%b==>%b %s\n' "$BOLD" "$NC" "$1"; }
+info() { printf '%b▶%b %s\n' "$BOLD" "$NC" "$1"; }
 ok()   { printf '  %b✓%b %s\n' "$GREEN" "$NC" "$1"; }
+warn() { printf '  %b!%b %s\n' "$YELLOW" "$NC" "$1"; }
 fail() { printf '  %b✗%b %s\n' "$YELLOW" "$NC" "$1"; exit 1; }
 
 # TODO: revert to "punt-langlearn-tts" once PyPI org prefix is approved
