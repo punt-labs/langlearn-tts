@@ -48,6 +48,7 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
 
   test-install:
     needs: testpypi
@@ -66,6 +67,7 @@ jobs:
             if uv pip install --system \
               --index-url https://test.pypi.org/simple/ \
               --extra-index-url https://pypi.org/simple/ \
+              --index-strategy unsafe-best-match \
               "punt-langlearn-tts==$VERSION"; then
               echo "Successfully installed punt-langlearn-tts==$VERSION"
               exit 0
