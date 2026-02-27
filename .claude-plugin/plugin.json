@@ -1,5 +1,5 @@
 {
-  "name": "langlearn-tts",
+  "name": "langlearn-tts-dev",
   "description": "Suppress MCP tool output for langlearn-tts in Claude Code.",
   "version": "0.7.0",
   "author": {
