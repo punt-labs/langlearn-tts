@@ -1,8 +1,8 @@
 # langlearn-tts
 
+[![License](https://img.shields.io/github/license/punt-labs/langlearn-tts)](LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/punt-labs/langlearn-tts/ci.yml?label=CI)](https://github.com/punt-labs/langlearn-tts/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/punt-langlearn-tts)](https://pypi.org/project/punt-langlearn-tts/)
-[![GitHub](https://img.shields.io/github/v/release/punt-labs/langlearn-tts)](https://github.com/punt-labs/langlearn-tts)
-[![Tests](https://github.com/punt-labs/langlearn-tts/actions/workflows/ci.yml/badge.svg)](https://github.com/punt-labs/langlearn-tts/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/pypi/pyversions/punt-langlearn-tts)](https://pypi.org/project/punt-langlearn-tts/)
 
 A Claude Desktop extension that gives Claude the ability to speak. Ask Claude to pronounce words, generate audio flashcards, or run a full language lesson with audio — in 70+ languages.
