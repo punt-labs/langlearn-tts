@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-02-27
+
 ### Changed
 
 - Refactored to depend on `punt-tts>=0.1.0` for TTS engine core. langlearn-tts is now a thin bridge: providers subclass punt-tts, types and core are re-exports.

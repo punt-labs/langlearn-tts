@@ -1,7 +1,7 @@
 {
   "name": "langlearn-tts-dev",
   "description": "Suppress MCP tool output for langlearn-tts in Claude Code.",
-  "version": "0.6.4",
+  "version": "0.7.0",
   "author": {
     "name": "Punt Labs",
     "email": "hello@punt-labs.com",
