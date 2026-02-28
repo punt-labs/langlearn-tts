@@ -26,28 +26,7 @@ PACKAGE_SHORT="punt-langlearn-tts"
 BINARY="langlearn-tts"
 PROVIDER="${LANGLEARN_TTS_PROVIDER:-polly}"
 
-# --- Step 1: Python ---
-
-info "Checking Python..."
-
-if command -v python3 >/dev/null 2>&1; then
-  PYTHON=python3
-elif command -v python >/dev/null 2>&1; then
-  PYTHON=python
-else
-  fail "Python not found. Install Python 3.13+ from https://python.org"
-fi
-
-PY_MAJOR=$("$PYTHON" -c 'import sys; print(sys.version_info.major)')
-PY_MINOR=$("$PYTHON" -c 'import sys; print(sys.version_info.minor)')
-
-if [ "$PY_MAJOR" -lt 3 ] || { [ "$PY_MAJOR" -eq 3 ] && [ "$PY_MINOR" -lt 13 ]; }; then
-  fail "Python ${PY_MAJOR}.${PY_MINOR} found, but 3.13+ is required"
-fi
-
-ok "Python ${PY_MAJOR}.${PY_MINOR}"
-
-# --- Step 2: uv ---
+# --- Step 1: uv ---
 
 info "Checking uv..."
 
@@ -70,12 +49,35 @@ else
   ok "uv installed"
 fi
 
+# --- Step 2: Python 3.13+ ---
+
+info "Checking Python..."
+
+PYTHON_FLAG=""
+HAVE_PYTHON=0
+if command -v python3 >/dev/null 2>&1; then
+  PY_MAJOR=$(python3 -c 'import sys; print(sys.version_info.major)')
+  PY_MINOR=$(python3 -c 'import sys; print(sys.version_info.minor)')
+  if [ "$PY_MAJOR" -gt 3 ] || { [ "$PY_MAJOR" -eq 3 ] && [ "$PY_MINOR" -ge 13 ]; }; then
+    ok "Python ${PY_MAJOR}.${PY_MINOR}"
+    HAVE_PYTHON=1
+  fi
+fi
+
+if [ "$HAVE_PYTHON" = "0" ]; then
+  info "Installing Python 3.13 via uv..."
+  uv python install 3.13 || fail "Failed to install Python 3.13"
+  ok "Python 3.13 (uv-managed)"
+  PYTHON_FLAG="--python 3.13"
+fi
+
 # --- Step 3: punt-langlearn-tts ---
 
 info "Installing $PACKAGE_SHORT..."
 
 # --force: overwrites existing binary (may exist from old package name or prior install)
-uv tool install --force "$PACKAGE" || fail "Failed to install $PACKAGE_SHORT"
+# shellcheck disable=SC2086
+uv tool install --force $PYTHON_FLAG "$PACKAGE" || fail "Failed to install $PACKAGE_SHORT"
 ok "$PACKAGE_SHORT installed"
 
 if ! command -v "$BINARY" >/dev/null 2>&1; then
