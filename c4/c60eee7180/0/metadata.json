@@ -1,0 +1,40 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "c4c60eee7180",
+  "session_id": "e16d7f5a-724b-4966-97fc-e6d6b350a1d7",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-01T02:58:55.286939Z",
+  "branch": "fix/punt-tts-compat",
+  "checkpoints_count": 5,
+  "files_touched": [
+    ".tts/config.md",
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "pyproject.toml",
+    "tests/conftest.py",
+    "tests/test_elevenlabs_integration.py",
+    "tests/test_elevenlabs_provider.py",
+    "tests/test_openai_integration.py",
+    "tests/test_openai_provider.py",
+    "tests/test_polly_integration.py",
+    "tests/test_polly_provider.py"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "092db8ec-47bd-4504-b927-3d4611328f9e",
+  "token_usage": {
+    "input_tokens": 119,
+    "cache_creation_tokens": 263003,
+    "cache_read_tokens": 10944317,
+    "output_tokens": 31324,
+    "api_call_count": 97
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-01T02:58:55.211289Z",
+    "agent_lines": 35,
+    "human_added": 183,
+    "human_modified": 11,
+    "human_removed": 0,
+    "total_committed": 226,
+    "agent_percentage": 15.486725663716813
+  }
+}

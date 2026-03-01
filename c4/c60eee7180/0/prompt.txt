@@ -1,0 +1,86 @@
+CI is failing on main.  Please investigate.
+
+---
+
+OK, two things: 1 audit your permissions and simplify them based on the standard ../punt-kit/ 2. make sure your CLAUDE.md is consistent workflow wise with ../punt-kit/
+
+---
+
+# /notify command
+
+Toggle audio notifications for Claude Code events.
+
+## Usage
+
+- `/notify y` — Notify on task completion and permission prompts
+- `/notify c` — Continuous: also announce milestones (tests passed, lint clean, code pushed) in real-time
+- `/notify n` — Off (default)
+
+## Implementation
+
+Use the `set_config` MCP tool for writes. Read `.tts/config.md` for
+status queries.
+
+- **y**: `set_config(key="notify", value="y")`
+- **c**: `set_config(key="notify", value="c")`
+- **n**: `set_config(key="notify", value="n")`
+- **no argument**: Read `.tts/config.md` and report current state
+
+After changing state, confirm with a brief message:
+
+- `y`: "Notifications on. You'll hear when tasks finish or need approval."
+- `c`: "Continuous notifications on. You'll also hear real-time milestones."
+- `n`: "Notifications off."
+
+
+ARGUMENTS: y
+
+---
+
+Stop hook feedback:
+♪ Saying my piece...
+
+---
+
+# /voice command
+
+Control TTS voice mode and session voice selection.
+
+## Usage
+
+- `/voice on` — Enable voice mode (speak text responses as audio)
+- `/voice off` — Disable voice mode
+- `/voice status` — Show current voice mode and session voice
+- `/voice <name>` — Set the session voice (e.g. `/voice aria`)
+- `/voice clear` — Clear the session voice (revert to provider default)
+
+## Implementation
+
+Use the `set_config` MCP tool for writes. Read `.tts/config.md` for
+status queries.
+
+- **on**: `set_config(key="voice_enabled", value="true")`
+- **off**: `set_config(key="voice_enabled", value="false")`
+- **status**: Read `.tts/config.md` and report voice_enabled state and
+  session voice. If the file doesn't exist, voice mode is off and no
+  session voice is set.
+- **`<name>`**: `set_config(key="voice", value="<name>")` — sets
+  the session voice. All subsequent speak/chorus/duet/ensemble calls
+  will use this voice as default (unless overridden per-call).
+  Common ElevenLabs voices: matilda, aria, roger, charlie, sarah, laura.
+- **clear**: `set_config(key="voice", value="")` — clears the session
+  voice so calls revert to the provider's default.
+
+After changing state, confirm the action to the user.
+
+
+ARGUMENTS: charlie
+
+---
+
+OK, now follow the workflow to get our changes merged, via PR, copilot fb etc.
+
+---
+
+Stop hook feedback:
+♪ Speaking my thoughts...
