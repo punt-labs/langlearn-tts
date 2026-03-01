@@ -13,6 +13,7 @@ from punt_tts.core import (
     _split_at_words,  # pyright: ignore[reportPrivateUsage]
     split_text,
 )
+from punt_tts.types import VoiceNotFoundError
 
 
 class TestSplitText:
@@ -132,8 +133,6 @@ class TestOpenAIProviderResolveVoice:
             provider.resolve_voice("nonexistent")
 
     def test_error_lists_available(self) -> None:
-        from punt_tts.types import VoiceNotFoundError
-
         provider = OpenAIProvider(client=MagicMock())
         with pytest.raises(VoiceNotFoundError) as exc_info:
             provider.resolve_voice("bad")
