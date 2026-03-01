@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Minimum `punt-tts` dependency bumped to `>=0.8.0` (was `>=0.1.0`)
+- ElevenLabs synthesis uses streaming API for lower time-to-first-audio (inherited from punt-tts 0.3.6)
+- Voice resolution errors now raise `VoiceNotFoundError` with structured `.voice_name` and `.available` attributes instead of plain `ValueError` (inherited from punt-tts 0.8.0)
+- Audio output appends 150ms trailing silence to prevent MP3 frame clipping (inherited from punt-tts 0.8.0)
+- CLAUDE.md de-duplicated to reference punt-kit standards instead of inlining them
+
+### Fixed
+
+- Tests updated for punt-tts 0.8.x: ElevenLabs mock uses `.stream()` (was `.convert()`), error assertions match `VoiceNotFoundError` message format
+
 ## [0.7.1] - 2026-02-28
 
 ### Fixed
