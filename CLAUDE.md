@@ -62,165 +62,45 @@ Module structure under `src/langlearn_tts/`:
 
 Tests mirror source: `test_types.py`, `test_core.py`, `test_cli.py`, `test_polly_provider.py`, `test_openai_provider.py`, `test_elevenlabs_provider.py` plus `conftest.py` for shared fixtures.
 
-## Python Coding Standards
+## Coding Standards
 
-### Types
+Follow [Python standards](../punt-kit/standards/python.md). Project-specific additions:
 
-- `from __future__ import annotations` in every file.
-- Full type annotations on every function signature and return type.
-- mypy strict mode and pyright strict mode. Zero errors.
-- Never `Any` unless interfacing with untyped libraries (pydub). Document why with inline ignores.
-- `@dataclass(frozen=True)` for immutable value types.
-- Use Protocol classes for abstractions. Never `hasattr()` or duck typing.
-- `cast()` in string form for ruff TC006: `cast("list[str]", x)`.
-
-### Exceptions and Error Handling
-
-- Fail fast. Raise exceptions on invalid input. No defensive fallbacks.
-- No warning filters to hide problems. Fix root causes.
-- `ValueError` for domain violations. `click.ClickException` for CLI user errors.
-- Never catch broad `Exception` unless re-raising or at a boundary (CLI entry point, MCP tool handler).
-
-### Logging
-
-- `logger = logging.getLogger(__name__)` per module.
-- `logging.basicConfig()` configured once in CLI and server entry points.
+- `click.ClickException` for CLI user errors (this project uses Click, not Typer).
 - `logger.debug()` for synthesis details. `logger.info()` for file writes.
-- MCP server logs to stderr only (stdout reserved for stdio transport).
-
-### Imports and Style
-
-- All imports at top of file, grouped per PEP 8 (stdlib → third-party → local).
-- Double quotes. 88-character line limit. Enforced by ruff.
-- No inline imports. No `type | None` parameters unless necessary.
-- No backwards-compatibility shims. No `# removed` tombstones. No re-exports of dead symbols.
-
-### Prohibited Patterns
-
-- No `hasattr()` — use protocols.
-- No mock objects in production code.
-- No defensive coding or fallback logic unless explicitly requested.
-- No `Any` without a documented reason and inline type-ignore comment.
 
 ## Testing
 
-- **All tests must pass.** No exceptions for "pre-existing failures."
-- If a test fails, fix it. Do not skip, ignore, or work around it.
+Follow [Python standards — Testing](../punt-kit/standards/python.md#testing). Project-specific notes:
+
 - Mock Polly responses need valid MP3 bytes — pydub hands files to ffmpeg which rejects fake data. Use `AudioSegment.silent(duration=50)` in fixtures.
 - Use `side_effect=lambda` instead of `return_value` for fresh mocks per call.
-- Integration tests requiring AWS credentials are marked `@pytest.mark.integration`.
-
-### Coverage
-
-| Metric | Value |
-|--------|-------|
-| Unit tests | 147 |
-| All pass | Required |
-
-## Issue Tracking with Beads
-
-This project uses **beads** (`bd`) for issue tracking. If an issue discovered here affects multiple repos or requires a standards change, escalate to a [punt-kit bead](https://github.com/punt-labs/punt-kit) instead (see [bead placement scheme](../CLAUDE.md#where-to-create-a-bead)).
-
-### When to Use Beads vs TodoWrite
-
-| Use Beads (`bd`) | Use TodoWrite |
-|------------------|---------------|
-| Multi-session work | Single-session tasks |
-| Work with dependencies | Simple linear execution |
-| Discovered work to track | Immediate TODO items |
-| Strategic planning | Tactical execution |
-
-### Essential Commands
-
-```bash
-bd ready                    # Show issues ready to work
-bd list --status=open       # All open issues
-bd show <id>                # View issue details
-bd update <id> --status=in_progress   # Claim work
-bd close <id>               # Mark complete
-bd create --title="..." --type=task   # Create issue
-bd dep add <child> <parent> # child depends on parent
-bd sync                     # Sync with git remote
-```
-
-### Creating Issues for Discovered Work
-
-When you discover work that isn't part of the current task:
-
-1. Create a beads issue: `bd create --title="..." --type=task`
-2. Add dependencies if relevant: `bd dep add <new-issue> <blocking-issue>`
-3. Continue with current work.
+- Integration tests requiring credentials are marked `@pytest.mark.integration`.
 
 ## Development Workflow
+
+Follow [Workflow standards](../punt-kit/standards/workflow.md) for branch discipline, micro-commits, session close protocol, and code review flow.
 
 ### Changelog
 
 Update `CHANGELOG.md` with every user-visible change. Follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format. Add entries under `[Unreleased]`. Categories: Added, Changed, Deprecated, Removed, Fixed, Security.
 
-### Branch Discipline
-
-All code changes go on feature branches. Never commit directly to main.
-
-```bash
-git checkout -b feat/short-description main
-# ... work, commit, push ...
-gh pr create --title "feat: description" --body "..."
-# merge via PR, then delete branch
-```
-
-| Prefix | Use |
-|--------|-----|
-| `feat/` | New features |
-| `fix/` | Bug fixes |
-| `refactor/` | Code improvements |
-| `docs/` | Documentation only |
-
-### Micro-Commits
-
-- One logical change per commit. 1-5 files, under 100 lines.
-- Quality gates pass before every commit.
-- Commit message format: `type(scope): description`
-
-| Prefix | Use |
-|--------|-----|
-| `feat:` | New feature |
-| `fix:` | Bug fix |
-| `refactor:` | Code change, no behavior change |
-| `test:` | Adding or updating tests |
-| `docs:` | Documentation |
-| `chore:` | Build, dependencies, CI |
-
 ### Release Workflow
 
-Every release follows this exact sequence. No steps skipped.
+Releases are automated via `release.yml`. A tag push triggers: build → TestPyPI → test-install → PyPI.
 
 1. **Bump version** in `pyproject.toml` and `src/langlearn_tts/__init__.py` (keep in sync)
 2. **Move `[Unreleased]`** entries in `CHANGELOG.md` to new version section with date
 3. **Run all quality gates** — ruff, mypy, pyright, pytest
 4. **Commit**: `chore: release vX.Y.Z`
-5. **Build**: `rm -rf dist/ && uv build && uvx twine check dist/*`
-6. **Upload to PyPI**: `uvx twine upload dist/*`
-7. **Tag**: `git tag vX.Y.Z`
-8. **Push**: `git push origin main vX.Y.Z`
+5. **Build locally**: `rm -rf dist/ && uv build && uvx twine check dist/*` (validation only — do NOT upload)
+6. **Tag**: `git tag vX.Y.Z`
+7. **Push**: `git push origin main vX.Y.Z` (triggers GH Actions release workflow)
+8. **Wait for GH Actions**: `gh run watch` — workflow builds, publishes to TestPyPI, verifies install, then publishes to PyPI
 9. **GitHub release**: `gh release create vX.Y.Z --title "vX.Y.Z" --notes-file -` (use CHANGELOG entry)
 10. **Verify**: `uv tool install --upgrade punt-langlearn-tts && langlearn-tts doctor`
 
-A release is not complete until all 10 steps are done.
-
-### Session Close Protocol
-
-Before ending any session:
-
-```bash
-git status                  # Check for uncommitted work
-git add <files>             # Stage changes
-git commit -m "..."         # Commit
-bd sync                     # Sync beads
-git push                    # Push to remote
-git status                  # Must show "up to date with origin"
-```
-
-Work is NOT complete until `git push` succeeds.
+A release is not complete until all 10 steps are done. PyPI publishing is owned by GH Actions — never upload manually.
 
 ## Known Type Checker Workarounds
 

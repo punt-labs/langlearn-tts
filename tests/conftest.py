@@ -134,7 +134,7 @@ def openai_provider(mock_openai_client: MagicMock) -> OpenAIProvider:
 
 
 def _make_elevenlabs_convert_response() -> list[bytes]:
-    """Create a mock ElevenLabs text_to_speech.convert() byte iterator."""
+    """Create a mock ElevenLabs text_to_speech.stream() byte iterator."""
     return [_get_valid_mp3_bytes()]
 
 
@@ -142,7 +142,7 @@ def _make_elevenlabs_convert_response() -> list[bytes]:
 def mock_elevenlabs_client() -> MagicMock:
     """Create a mock ElevenLabs client that returns valid MP3 bytes."""
     client = MagicMock()
-    client.text_to_speech.convert.side_effect = (
+    client.text_to_speech.stream.side_effect = (
         lambda **kwargs: _make_elevenlabs_convert_response()  # pyright: ignore[reportUnknownLambdaType]
     )
 

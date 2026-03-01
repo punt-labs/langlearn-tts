@@ -117,7 +117,7 @@ class TestPollyProviderResolveVoice:
         mock_client.describe_voices.return_value = _make_describe_voices_response([])
 
         provider = PollyProvider(boto_client=mock_client)
-        with pytest.raises(ValueError, match="Unknown voice 'nonexistent'"):
+        with pytest.raises(ValueError, match="nonexistent"):
             provider.resolve_voice("nonexistent")
 
     @patch("punt_tts.providers.polly.boto3")
@@ -376,7 +376,7 @@ class TestPollyProviderInferLanguage:
         mock_client.describe_voices.return_value = _make_describe_voices_response([])
 
         provider = PollyProvider(boto_client=mock_client)
-        with pytest.raises(ValueError, match="Unknown voice"):
+        with pytest.raises(ValueError, match="nonexistent"):
             provider.infer_language_from_voice("nonexistent")
 
 

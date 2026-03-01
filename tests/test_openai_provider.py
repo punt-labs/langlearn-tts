@@ -128,13 +128,16 @@ class TestOpenAIProviderResolveVoice:
 
     def test_resolve_unknown_raises(self) -> None:
         provider = OpenAIProvider(client=MagicMock())
-        with pytest.raises(ValueError, match="Unknown voice 'nonexistent'"):
+        with pytest.raises(ValueError, match="nonexistent"):
             provider.resolve_voice("nonexistent")
 
     def test_error_lists_available(self) -> None:
+        from punt_tts.types import VoiceNotFoundError
+
         provider = OpenAIProvider(client=MagicMock())
-        with pytest.raises(ValueError, match="alloy"):
+        with pytest.raises(VoiceNotFoundError) as exc_info:
             provider.resolve_voice("bad")
+        assert "alloy" in exc_info.value.available
 
 
 class TestOpenAIProviderSynthesize:

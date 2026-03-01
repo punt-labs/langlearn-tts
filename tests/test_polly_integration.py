@@ -72,7 +72,7 @@ class TestResolveVoice:
         assert provider.resolve_voice("joanna") == "Joanna"
 
     def test_unknown_raises(self, provider: PollyProvider) -> None:
-        with pytest.raises(ValueError, match="Unknown voice"):
+        with pytest.raises(ValueError, match="zzz_nonexistent_voice_zzz"):
             provider.resolve_voice("zzz_nonexistent_voice_zzz")
 
     def test_with_matching_language(self, provider: PollyProvider) -> None:

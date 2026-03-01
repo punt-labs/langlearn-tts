@@ -79,7 +79,7 @@ class TestResolveVoice:
         assert result == voice_name
 
     def test_resolve_voice_unknown_raises(self, provider: ElevenLabsProvider) -> None:
-        with pytest.raises(ValueError, match="Unknown voice"):
+        with pytest.raises(ValueError, match="zzz_nonexistent_voice_zzz"):
             provider.resolve_voice("zzz_nonexistent_voice_zzz")
 
 
