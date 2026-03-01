@@ -1,0 +1,302 @@
+CI is failing on main.  Please investigate.
+
+---
+
+OK, two things: 1 audit your permissions and simplify them based on the standard ../punt-kit/ 2. make sure your CLAUDE.md is consistent workflow wise with ../punt-kit/
+
+---
+
+# /notify command
+
+Toggle audio notifications for Claude Code events.
+
+## Usage
+
+- `/notify y` — Notify on task completion and permission prompts
+- `/notify c` — Continuous: also announce milestones (tests passed, lint clean, code pushed) in real-time
+- `/notify n` — Off (default)
+
+## Implementation
+
+Use the `set_config` MCP tool for writes. Read `.tts/config.md` for
+status queries.
+
+- **y**: `set_config(key="notify", value="y")`
+- **c**: `set_config(key="notify", value="c")`
+- **n**: `set_config(key="notify", value="n")`
+- **no argument**: Read `.tts/config.md` and report current state
+
+After changing state, confirm with a brief message:
+
+- `y`: "Notifications on. You'll hear when tasks finish or need approval."
+- `c`: "Continuous notifications on. You'll also hear real-time milestones."
+- `n`: "Notifications off."
+
+
+ARGUMENTS: y
+
+---
+
+Stop hook feedback:
+♪ Saying my piece...
+
+---
+
+# /voice command
+
+Control TTS voice mode and session voice selection.
+
+## Usage
+
+- `/voice on` — Enable voice mode (speak text responses as audio)
+- `/voice off` — Disable voice mode
+- `/voice status` — Show current voice mode and session voice
+- `/voice <name>` — Set the session voice (e.g. `/voice aria`)
+- `/voice clear` — Clear the session voice (revert to provider default)
+
+## Implementation
+
+Use the `set_config` MCP tool for writes. Read `.tts/config.md` for
+status queries.
+
+- **on**: `set_config(key="voice_enabled", value="true")`
+- **off**: `set_config(key="voice_enabled", value="false")`
+- **status**: Read `.tts/config.md` and report voice_enabled state and
+  session voice. If the file doesn't exist, voice mode is off and no
+  session voice is set.
+- **`<name>`**: `set_config(key="voice", value="<name>")` — sets
+  the session voice. All subsequent speak/chorus/duet/ensemble calls
+  will use this voice as default (unless overridden per-call).
+  Common ElevenLabs voices: matilda, aria, roger, charlie, sarah, laura.
+- **clear**: `set_config(key="voice", value="")` — clears the session
+  voice so calls revert to the provider's default.
+
+After changing state, confirm the action to the user.
+
+
+ARGUMENTS: charlie
+
+---
+
+OK, now follow the workflow to get our changes merged, via PR, copilot fb etc.
+
+---
+
+Stop hook feedback:
+♪ Speaking my thoughts...
+
+---
+
+<task-notification>
+<task-id>b4gbi9rjs</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-jfreeman-Coding-punt-labs-langlearn-tts/tasks/b4gbi9rjs.output</output-file>
+<status>completed</status>
+<summary>Background command "Watch CI checks until they resolve" completed (exit code 0)</summary>
+</task-notification>
+Read the output file to retrieve the result: /private/tmp/claude-501/-Users-jfreeman-Coding-punt-labs-langlearn-tts/tasks/b4gbi9rjs.output
+
+---
+
+This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation.
+
+Analysis:
+Let me chronologically analyze the conversation:
+
+1. **Initial request**: User says "CI is failing on main. Please investigate."
+   - I checked CI runs on GitHub, found 10 test failures across CI and Test workflows
+   - Two categories: error message mismatch (4 tests) and ElevenLabs synthesize failures (6 tests)
+
+2. **Root cause investigation**:
+   - Read test files (test_elevenlabs_provider.py, test_openai_provider.py, test_polly_provider.py)
+   - Read conftest.py for mock setup
+   - Traced upstream punt-tts providers to find `VoiceNotFoundError` replaced `ValueError`
+   - Found `text_to_speech.stream()` replaced `text_to_speech.convert()` in ElevenLabs
+   - Discovered `uv.lock` pinned punt-tts==0.1.0 but CI resolved to 0.8.0 (lockfile was gitignored!)
+   - Confirmed CI installed punt-tts==0.8.0 from the CI logs
+
+3. **User message**: "there have been some updates to punt-tts" - confirming the situation
+
+4. **User message**: "maybe use github mcp instead? These permissions are annoying" - wanting me to use MCP tools for GitHub operations instead of `gh` CLI
+
+5. **Fixes applied**:
+   - Updated uv.lock (punt-tts 0.1.0 → 0.8.1) - though this turned out to be irrelevant since uv.lock is gitignored
+   - Fixed conftest.py: mock `text_to_speech.stream` instead of `.convert`
+   - Fixed error match patterns across all test files
+   - Fixed `test_error_lists_available` to use `VoiceNotFoundError.available` attribute
+   - All quality gates passed (ruff, mypy, pyright, 241 tests)
+
+6. **Second request**: User says "OK, two things: 1 audit your permissions and simplify them based on the standard ../punt-kit/ 2. make sure your CLAUDE.md is consistent workflow wise with ../punt-kit/"
+   - Read punt-kit standards (workflow.md, python.md, github.md, cli.md)
+   - Read settings.json from punt-kit, tts, quarry for comparison
+   - Found permissions already aligned with punt-kit (only 3 project-specific allow entries + 1 deny entry + entire hooks)
+   - Rewrote CLAUDE.md from 245 lines to 131 lines, de-duplicating by referencing punt-kit standards
+   - Fixed release workflow (was manual twine upload, now automated via release.yml)
+   - Fixed session close protocol to match punt-kit
+
+7. **User**: "/notify y" - enabled TTS notifications
+
+8. **User**: "/voice charlie" - set session voice to charlie
+
+9. **Third request**: "OK, now follow the workflow to get our changes merged, via PR, copilot fb etc."
+   - User also said "changelog" and "which has to incorporate any improvements made in punt-tts that affect our surface area"
+   - User asked "do we not have uv run in permissions?" - I confirmed Bash(uv:*) covers it
+   - Updated pyproject.toml: punt-tts dependency from >=0.1.0 to >=0.8.0
+   - Updated CHANGELOG.md with punt-tts upstream changes affecting langlearn-tts surface area
+   - Created branch fix/punt-tts-compat
+   - Committed, pushed
+   - Created PR #35 via MCP (mcp__github__create_pull_request)
+   - Requested Copilot review via MCP (mcp__github__request_copilot_review)
+   - Watched CI checks - all passed (docs, lint x2, test x2)
+   - Read PR comments - Cursor Bugbot found 1 potential issue but no details shown
+
+10. **Current state**: All CI checks passed. Copilot review was requested. Cursor Bugbot left a comment saying 1 potential issue found. Need to check if there are inline review comments to address, then merge.
+
+Key files modified:
+- CLAUDE.md (rewritten)
+- CHANGELOG.md (added Unreleased entries)
+- pyproject.toml (punt-tts>=0.8.0)
+- tests/conftest.py (.stream instead of .convert)
+- tests/test_elevenlabs_provider.py (error patterns + .stream)
+- tests/test_openai_provider.py (error patterns + VoiceNotFoundError)
+- tests/test_polly_provider.py (error patterns)
+- tests/test_elevenlabs_integration.py (error patterns)
+- tests/test_openai_integration.py (error patterns)
+- tests/test_polly_integration.py (error patterns)
+
+Important discoveries:
+- uv.lock is gitignored in this project, so CI resolves fresh
+- punt-tts VoiceNotFoundError(name, available) passes just `name` to super().__init__()
+- The settings.json was already modified before the session (entire hooks) - NOT included in commit
+
+Summary:
+1. Primary Request and Intent:
+   - **Investigate and fix CI failures on main** caused by upstream punt-tts breaking changes
+   - **Audit permissions** in `.claude/settings.json` and simplify based on punt-kit standard
+   - **Make CLAUDE.md consistent** with punt-kit workflow standards (de-duplicate, reference instead of inline)
+   - **Update CHANGELOG** incorporating punt-tts upstream improvements that affect langlearn-tts's surface area
+   - **Follow the full PR workflow**: branch, commit, push, create PR, Copilot review, watch CI, read feedback, merge
+
+2. Key Technical Concepts:
+   - punt-tts 0.8.x introduced `VoiceNotFoundError` (subclass of `ValueError`) replacing plain `ValueError("Unknown voice '...'")`
+   - `VoiceNotFoundError.__init__` passes just `name` to `super().__init__()`, so `str(error)` is the bare name, not a formatted message
+   - `VoiceNotFoundError` has `.voice_name` and `.available` attributes for structured error data
+   - punt-tts 0.3.6 switched ElevenLabs from `text_to_speech.convert()` to `text_to_speech.stream()` for lower latency
+   - `uv.lock` is **gitignored** in this project — CI resolves dependencies fresh from PyPI each time
+   - langlearn-tts is a thin bridge over punt-tts: providers subclass punt-tts providers, types and core are re-exports
+   - punt-kit/standards/ is the canonical reference — child CLAUDE.md files should reference, not duplicate
+   - User preference: **ALWAYS use GitHub MCP tools** (not `gh` CLI) for GitHub operations
+   - Beads (`bd`) for issue tracking; session close protocol requires `bd sync` before AND after commit
+
+3. Files and Code Sections:
+
+   - **`pyproject.toml`** (line 31)
+     - Bumped minimum punt-tts dependency from >=0.1.0 to >=0.8.0 (required for VoiceNotFoundError import in tests)
+     - `"punt-tts>=0.8.0",`
+
+   - **`CHANGELOG.md`**
+     - Added Unreleased section documenting punt-tts upstream changes affecting surface area
+     ```
+     ### Changed
+     - Minimum `punt-tts` dependency bumped to `>=0.8.0` (was `>=0.1.0`)
+     - ElevenLabs synthesis uses streaming API for lower time-to-first-audio (inherited from punt-tts 0.3.6)
+     - Voice resolution errors now raise `VoiceNotFoundError` with structured `.voice_name` and `.available` attributes instead of plain `ValueError` (inherited from punt-tts 0.8.0)
+     - Audio output appends 150ms trailing silence to prevent MP3 frame clipping (inherited from punt-tts 0.8.0)
+     - CLAUDE.md de-duplicated to reference punt-kit standards instead of inlining them
+     
+     ### Fixed
+     - Tests updated for punt-tts 0.8.x: ElevenLabs mock uses `.stream()` (was `.convert()`), error assertions match `VoiceNotFoundError` message format
+     ```
+
+   - **`CLAUDE.md`**
+     - Rewritten from 245 lines to 131 lines
+     - Replaced duplicated Python Coding Standards with: `Follow [Python standards](../punt-kit/standards/python.md). Project-specific additions: click.ClickException for CLI errors, logger.debug()/info() usage.`
+     - Replaced duplicated Testing section with reference + project-specific pydub notes
+     - Replaced duplicated Issue Tracking, Branch Discipline, Micro-Commits with: `Follow [Workflow standards](../punt-kit/standards/workflow.md)`
+     - Fixed Release Workflow to reflect automated `release.yml` (was still describing manual `uvx twine upload`)
+     - Removed stale coverage table (said 147, actual is 241)
+
+   - **`tests/conftest.py`** (line 145)
+     - Changed mock from `.convert` to `.stream` to match punt-tts 0.3.6+ ElevenLabs streaming API
+     ```python
+     client.text_to_speech.stream.side_effect = (
+         lambda **kwargs: _make_elevenlabs_convert_response()
+     )
+     ```
+     - Also updated docstring: `"""Create a mock ElevenLabs text_to_speech.stream() byte iterator."""`
+
+   - **`tests/test_elevenlabs_provider.py`**
+     - Error match: `match="Unknown voice 'nonexistent'"` → `match="nonexistent"`
+     - All `text_to_speech.convert.call_args` → `text_to_speech.stream.call_args` (4 occurrences)
+     - `text_to_speech.convert.call_count` → `text_to_speech.stream.call_count` (1 occurrence)
+
+   - **`tests/test_openai_provider.py`**
+     - Error match: `match="Unknown voice 'nonexistent'"` → `match="nonexistent"`
+     - `test_error_lists_available` rewritten to use VoiceNotFoundError directly:
+     ```python
+     def test_error_lists_available(self) -> None:
+         from punt_tts.types import VoiceNotFoundError
+         provider = OpenAIProvider(client=MagicMock())
+         with pytest.raises(VoiceNotFoundError) as exc_info:
+             provider.resolve_voice("bad")
+         assert "alloy" in exc_info.value.available
+     ```
+
+   - **`tests/test_polly_provider.py`**
+     - Two error matches updated: `match="Unknown voice 'nonexistent'"` → `match="nonexistent"` and `match="Unknown voice"` → `match="nonexistent"`
+
+   - **`tests/test_elevenlabs_integration.py`**, **`tests/test_openai_integration.py`**, **`tests/test_polly_integration.py`**
+     - All had `match="Unknown voice"` → `match="zzz_nonexistent_voice_zzz"` (matching the test's input voice name)
+
+   - **`.claude/settings.json`**
+     - NOT modified by us (was pre-existing dirty state from entire hooks)
+     - Permissions audit found it already aligned with punt-kit: only 3 project-specific allow entries (`Bash(langlearn-tts:*)`, `Bash(langlearn-tts-server:*)`, `mcp__langlearn-tts__*`) and 1 deny (`Read(./.entire/metadata/**)`)
+
+4. Errors and Fixes:
+   - **CI failure: 10 tests failing on main**
+     - Root cause: upstream punt-tts changed from `ValueError("Unknown voice '...'")` to `VoiceNotFoundError(name, available)` and from `.convert()` to `.stream()`
+     - Fix: Updated test mocks and assertions to match new API
+   - **uv.lock appeared irrelevant**: Discovered `uv.lock` is gitignored, so CI resolves fresh. The lockfile update was useful locally but doesn't affect CI behavior.
+   - **3 additional integration test failures** found after fixing unit tests (same error message pattern issue in `test_*_integration.py` files)
+   - User feedback: "maybe use github mcp instead? These permissions are annoying" — switched to MCP tools for PR creation and Copilot review
+
+5. Problem Solving:
+   - Traced CI failure from symptoms (regex mismatch, NoneType errors) through upstream code to root cause (punt-tts API changes)
+   - Confirmed CI installed punt-tts==0.8.0 by checking CI logs: `grep -i 'punt.tts'` on the run logs
+   - Discovered uv.lock is gitignored by checking `git ls-files uv.lock` and `git check-ignore uv.lock`
+   - Identified that pyproject.toml needed `>=0.8.0` minimum because tests now import `VoiceNotFoundError` from punt_tts.types
+
+6. All User Messages:
+   - "CI is failing on main. Please investigate."
+   - "there have been some updates to punt-tts"
+   - "maybe use github mcp instead? These permissions are annoying"
+   - "OK, two things: 1 audit your permissions and simplify them based on the standard ../punt-kit/ 2. make sure your CLAUDE.md is consistent workflow wise with ../punt-kit/"
+   - "/notify y"
+   - "/voice charlie"
+   - "OK, now follow the workflow to get our changes merged, via PR, copilot fb etc."
+   - "changelog"
+   - "which has to incorporate any improvements made in punt-tts"
+   - "that affect our surface area."
+   - "do we not have uv run in permissions?"
+
+7. Pending Tasks:
+   - Review Copilot/Bugbot feedback on PR #35 (Cursor Bugbot reported "1 potential issue")
+   - Address any valid review feedback
+   - Merge PR #35 when all feedback is addressed
+   - Run session close protocol (bd sync, etc.)
+
+8. Current Work:
+   PR #35 (https://github.com/punt-labs/langlearn-tts/pull/35) on branch `fix/punt-tts-compat` was created, CI checks all passed (docs, lint x2, test x2). Copilot review was requested. Cursor Bugbot left a comment saying "1 potential issue" found. The `gh pr view 35 --comments` output showed the Bugbot review but no inline details were visible in the comment body. Need to check for inline review comments and address any valid feedback before merging.
+
+   TTS notifications are enabled (`notify: y`) with voice set to `charlie`.
+
+9. Optional Next Step:
+   Check for inline review comments from Copilot/Bugbot on PR #35 (the Bugbot comment said "1 potential issue" but details weren't in the top-level comment — they may be inline on specific lines). Address any valid issues, then merge the PR. The user explicitly asked to "follow the workflow to get our changes merged, via PR, copilot fb etc." — the workflow standard says: "Read feedback — when the watch completes, read review comments... Evaluate feedback — read each comment; decide which are valid and actionable... Merge only when all review feedback has been evaluated."
+
+If you need specific details from before compaction (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/jfreeman/.REDACTED.jsonl
+Please continue the conversation from where we left off without asking the user any further questions. Continue with the last task that you were asked to work on.
+
+---
+
+Stop hook feedback:
+♪ Saying my piece...

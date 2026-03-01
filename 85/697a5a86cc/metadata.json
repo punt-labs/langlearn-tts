@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "85697a5a86cc",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "tests/conftest.py",
+    "tests/test_openai_provider.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/85/697a5a86cc/0/metadata.json",
+      "transcript": "/85/697a5a86cc/0/full.jsonl",
+      "context": "/85/697a5a86cc/0/context.md",
+      "content_hash": "/85/697a5a86cc/0/content_hash.txt",
+      "prompt": "/85/697a5a86cc/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 35,
+    "cache_creation_tokens": 52372,
+    "cache_read_tokens": 2177045,
+    "output_tokens": 4245,
+    "api_call_count": 25
+  }
+}
