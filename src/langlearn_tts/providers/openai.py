@@ -1,4 +1,4 @@
-"""OpenAI TTS provider — re-exported from punt-tts.
+"""OpenAI TTS provider — re-exported from punt-vox.
 
 Subclass overrides generate_audio/generate_audios to use
 langlearn-tts output path resolution (~/langlearn-audio default).

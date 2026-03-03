@@ -1,4 +1,4 @@
-"""Core synthesis orchestration — re-exported from punt-tts."""
+"""Core synthesis orchestration — re-exported from punt-vox."""
 
 from __future__ import annotations
 

@@ -1,6 +1,6 @@
 """Domain types for langlearn-tts.
 
-Re-exports from punt-tts for TTS engine types, plus langlearn-types
+Re-exports from punt-vox for TTS engine types, plus langlearn-types
 AudioProvider protocol for the orchestrator boundary.
 """
 
