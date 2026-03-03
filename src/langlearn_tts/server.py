@@ -13,8 +13,8 @@ from langlearn_tts.logging_config import configure_logging
 from langlearn_tts.output import default_output_dir
 from langlearn_tts.providers import get_provider
 from langlearn_tts.types import AudioProviderId, SynthesisRequest
-from punt_tts.core import TTSClient
-from punt_tts.types import (
+from punt_vox.core import TTSClient
+from punt_vox.types import (
     MergeStrategy,
     SynthesisResult,
     TTSProvider,

@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 
-from punt_tts.providers import DEFAULT_VOICES, format_voice_hint
+from punt_vox.providers import DEFAULT_VOICES, format_voice_hint
 
 if TYPE_CHECKING:
     from langlearn_tts.types import TTSProvider
@@ -36,7 +36,7 @@ def auto_detect_provider() -> str:
 def get_provider(name: str | None = None, **kwargs: str | None) -> TTSProvider:
     """Look up a provider by name, or auto-detect.
 
-    Returns langlearn-tts subclasses (not punt-tts base classes) so that
+    Returns langlearn-tts subclasses (not punt-vox base classes) so that
     ``generate_audio``/``generate_audios`` use langlearn-specific output
     path resolution (``~/langlearn-audio``).
 

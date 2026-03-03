@@ -28,7 +28,7 @@ dependencies = [
     "click>=8.1.0",
     "mcp>=1.0.0",
     "punt-langlearn-types>=0.1.0",
-    "punt-tts>=0.8.0",
+    "punt-vox>=0.10.0",
 ]
 
 [project.urls]
@@ -84,7 +84,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["langlearn_tts", "punt_tts"]
+known-first-party = ["langlearn_tts", "punt_vox"]
 combine-as-imports = true
 
 [tool.ruff.format]

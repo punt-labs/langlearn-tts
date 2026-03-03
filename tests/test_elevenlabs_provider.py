@@ -41,7 +41,7 @@ class TestElevenLabsProviderResolveVoice:
 
     def test_resolve_from_api(self, mock_elevenlabs_client: MagicMock) -> None:
         """Voice not in cache triggers API fetch."""
-        import punt_tts.providers.elevenlabs as elevenlabs
+        import punt_vox.providers.elevenlabs as elevenlabs
 
         saved_voices = dict(elevenlabs.VOICES)
         saved_loaded = elevenlabs._voices_loaded  # pyright: ignore[reportPrivateUsage]
@@ -63,7 +63,7 @@ class TestElevenLabsProviderResolveVoice:
         self, mock_elevenlabs_client: MagicMock
     ) -> None:
         """Lookup of 'matilda' works when API returns description."""
-        import punt_tts.providers.elevenlabs as elevenlabs
+        import punt_vox.providers.elevenlabs as elevenlabs
 
         saved_voices = dict(elevenlabs.VOICES)
         saved_loaded = elevenlabs._voices_loaded  # pyright: ignore[reportPrivateUsage]

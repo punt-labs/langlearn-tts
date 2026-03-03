@@ -1,4 +1,4 @@
-"""OpenAI TTS provider — re-exported from punt-tts.
+"""OpenAI TTS provider — re-exported from punt-vox.
 
 Subclass overrides generate_audio/generate_audios to use
 langlearn-tts output path resolution (~/langlearn-audio default).
@@ -10,7 +10,7 @@ from collections.abc import Sequence
 
 from langlearn_tts.output import resolve_output_path
 from langlearn_tts.types import SynthesisRequest, SynthesisResult
-from punt_tts.providers.openai import VOICES, OpenAIProvider as _OpenAIProvider
+from punt_vox.providers.openai import VOICES, OpenAIProvider as _OpenAIProvider
 
 __all__ = ["VOICES", "OpenAIProvider"]
 
