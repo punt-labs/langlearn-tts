@@ -16,8 +16,8 @@ import click
 
 from langlearn_tts.output import default_output_dir
 from langlearn_tts.providers import DEFAULT_VOICES, auto_detect_provider, get_provider
-from punt_tts.core import TTSClient
-from punt_tts.types import (
+from punt_vox.core import TTSClient
+from punt_vox.types import (
     MergeStrategy,
     SynthesisRequest,
     SynthesisResult,

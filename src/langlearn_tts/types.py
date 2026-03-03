@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from langlearn_types import AudioProvider
 
-from punt_tts.types import (
+from punt_vox.types import (
     SUPPORTED_LANGUAGES,
     AudioProviderId,
     AudioRequest,

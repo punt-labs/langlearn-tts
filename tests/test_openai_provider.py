@@ -9,11 +9,11 @@ import pytest
 
 from langlearn_tts.providers.openai import OpenAIProvider
 from langlearn_tts.types import SynthesisRequest
-from punt_tts.core import (
+from punt_vox.core import (
     _split_at_words,  # pyright: ignore[reportPrivateUsage]
     split_text,
 )
-from punt_tts.types import VoiceNotFoundError
+from punt_vox.types import VoiceNotFoundError
 
 
 class TestSplitText:

@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 
-from punt_tts.providers import DEFAULT_VOICES, format_voice_hint
+from punt_vox.providers import DEFAULT_VOICES, format_voice_hint
 
 if TYPE_CHECKING:
     from langlearn_tts.types import TTSProvider

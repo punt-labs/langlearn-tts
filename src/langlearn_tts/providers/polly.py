@@ -10,7 +10,7 @@ from collections.abc import Sequence
 
 from langlearn_tts.output import resolve_output_path
 from langlearn_tts.types import SynthesisRequest, SynthesisResult
-from punt_tts.providers.polly import (
+from punt_vox.providers.polly import (
     VOICES,
     PollyProvider as _PollyProvider,
     VoiceConfig,
