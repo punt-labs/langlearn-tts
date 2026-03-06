@@ -23,6 +23,10 @@ uv run langlearn-tts doctor
 uv run langlearn-tts-server
 ```
 
+## Scratch Files
+
+Use `.tmp/` at the project root for scratch and temporary files — never `/tmp`. The `TMPDIR` environment variable is set via `.envrc` so that `tempfile` and subprocesses automatically use it. Contents are gitignored; only `.gitkeep` is tracked.
+
 ## Quality Gates
 
 Run after every code change. All must pass with zero violations.
@@ -123,3 +127,31 @@ Use `Any` annotations and pyright inline ignores. These are the acceptable `Any`
 - Do not present workarounds for failing tests — fix the actual problem.
 - Report complete, unfiltered data.
 - The user makes decisions. Ask before making up rationales.
+
+# Agent Instructions
+
+This project follows [Punt Labs standards](https://github.com/punt-labs/punt-kit).
+
+## Quality Gates
+
+Run before every commit. Zero violations, zero errors, all tests green.
+
+```bash
+uv run ruff check . && uv run ruff format --check . && uv run mypy src/ tests/ && uv run pyright && uv run pytest
+```
+
+## Standards References
+- [Python](https://github.com/punt-labs/punt-kit/blob/main/standards/python.md)
+- [Plugins](https://github.com/punt-labs/punt-kit/blob/main/standards/plugins.md)
+- [GitHub](https://github.com/punt-labs/punt-kit/blob/main/standards/github.md)
+- [Workflow](https://github.com/punt-labs/punt-kit/blob/main/standards/workflow.md)
+- [CLI](https://github.com/punt-labs/punt-kit/blob/main/standards/cli.md)
+
+## Available Tooling
+
+| Tool | What It Does |
+|------|-------------|
+| `punt init` | Scaffold missing files (CI, config, permissions, beads) |
+| `punt audit` | Check compliance against Punt Labs standards |
+| `punt audit --fix` | Auto-create missing mechanical files |
+| `/punt reconcile` | LLM-powered contextual reconciliation (workflows, CLAUDE.md, permissions) |
