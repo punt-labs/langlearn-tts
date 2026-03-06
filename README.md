@@ -94,13 +94,13 @@ Everything below is for developers using the CLI, integrating with other MCP cli
 ### Claude Code / CLI
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/punt-labs/langlearn-tts/fd8199e/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/punt-labs/langlearn-tts/14f4194/install.sh | sh
 ```
 
 The default provider is AWS Polly. To use a different provider:
 
 ```bash
-LANGLEARN_TTS_PROVIDER=elevenlabs curl -fsSL https://raw.githubusercontent.com/punt-labs/langlearn-tts/fd8199e/install.sh | sh
+LANGLEARN_TTS_PROVIDER=elevenlabs curl -fsSL https://raw.githubusercontent.com/punt-labs/langlearn-tts/14f4194/install.sh | sh
 ```
 
 <details>
@@ -118,7 +118,7 @@ langlearn-tts doctor
 <summary>Verify before running</summary>
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/punt-labs/langlearn-tts/fd8199e/install.sh -o install.sh
+curl -fsSL https://raw.githubusercontent.com/punt-labs/langlearn-tts/14f4194/install.sh -o install.sh
 shasum -a 256 install.sh
 cat install.sh
 sh install.sh
