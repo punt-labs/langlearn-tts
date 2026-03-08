@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "72eba20151be",
+  "session_id": "9c700ca1-c97a-4025-8a87-88a047b1ad8c",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-08T18:39:41.179211Z",
+  "branch": "chore/bump-punt-vox",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "pyproject.toml"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "588b9399-600f-4d75-8bcf-a8defbdeae2a",
+  "token_usage": {
+    "input_tokens": 6408,
+    "cache_creation_tokens": 3929475,
+    "cache_read_tokens": 53647229,
+    "output_tokens": 52726,
+    "api_call_count": 524
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-08T18:39:40.683075Z",
+    "agent_lines": 0,
+    "human_added": 191,
+    "human_modified": 7,
+    "human_removed": 0,
+    "total_committed": 192,
+    "agent_percentage": 0
+  }
+}
