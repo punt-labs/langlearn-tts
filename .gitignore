@@ -27,3 +27,6 @@ lancedb/
 
 # Scratch/temp directory (TMPDIR set via .envrc)
 .tmp/
+
+# Entire session logs
+.entire/
