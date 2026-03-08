@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-03-08
+
 ### Changed
 
 - Minimum `punt-tts` dependency bumped to `>=0.8.0` (was `>=0.1.0`)
