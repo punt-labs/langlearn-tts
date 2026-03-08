@@ -41,10 +41,13 @@ class TestDefaultOutputDir:
             result = default_output_dir()
         assert result == Path.home() / "my-audio"
 
-    def test_expands_env_var_in_env_var(self) -> None:
-        with patch.dict("os.environ", {"TTS_OUTPUT_DIR": "$HOME/my-audio"}):
+    def test_expands_env_var_in_env_var(self, tmp_path: Path) -> None:
+        with patch.dict(
+            "os.environ",
+            {"TTS_OUTPUT_DIR": "$MY_BASE/my-audio", "MY_BASE": str(tmp_path)},
+        ):
             result = default_output_dir()
-        assert result == Path.home() / "my-audio"
+        assert result == tmp_path / "my-audio"
 
     def test_falls_back_to_home_langlearn_audio(self) -> None:
         with patch.dict("os.environ", {}, clear=False):
