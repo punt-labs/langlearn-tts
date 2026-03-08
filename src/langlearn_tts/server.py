@@ -10,7 +10,7 @@ from mcp.server.fastmcp import FastMCP
 
 from langlearn_tts import __version__
 from langlearn_tts.logging_config import configure_logging
-from langlearn_tts.output import default_output_dir
+from langlearn_tts.output import expand_path, default_output_dir
 from langlearn_tts.providers import get_provider
 from langlearn_tts.types import AudioProviderId, SynthesisRequest
 from punt_vox.core import TTSClient
@@ -48,7 +48,7 @@ def _validate_voice_settings(
 def _resolve_output_dir(output_dir: str | None) -> Path:
     """Resolve an output directory, using the default if not specified."""
     if output_dir:
-        return Path(output_dir)
+        return expand_path(output_dir)
     return default_output_dir()
 
 
@@ -57,7 +57,7 @@ def _resolve_output_path(
 ) -> Path:
     """Resolve an output file path."""
     if output_path:
-        return Path(output_path)
+        return expand_path(output_path)
     return output_dir / default_name
 
 
