@@ -10,7 +10,7 @@ from mcp.server.fastmcp import FastMCP
 
 from langlearn_tts import __version__
 from langlearn_tts.logging_config import configure_logging
-from langlearn_tts.output import expand_path, default_output_dir
+from langlearn_tts.output import default_output_dir, expand_path
 from langlearn_tts.providers import get_provider
 from langlearn_tts.types import AudioProviderId, SynthesisRequest
 from punt_vox.core import TTSClient

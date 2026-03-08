@@ -5,21 +5,21 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import patch
 
-from langlearn_tts.output import expand_path, default_output_dir, resolve_output_path
+from langlearn_tts.output import default_output_dir, expand_path, resolve_output_path
 from langlearn_tts.types import SynthesisRequest
 
 
 class TestExpand:
-    def testexpand_paths_tilde(self) -> None:
+    def test_expands_tilde(self) -> None:
         result = expand_path("~/audio")
         assert result == Path.home() / "audio"
 
-    def testexpand_paths_env_var(self, tmp_path: Path) -> None:
+    def test_expands_env_var(self, tmp_path: Path) -> None:
         with patch.dict("os.environ", {"MY_DIR": str(tmp_path)}):
             result = expand_path("$MY_DIR/audio")
         assert result == tmp_path / "audio"
 
-    def testexpand_paths_both_tilde_and_var(self, tmp_path: Path) -> None:
+    def test_expands_both_tilde_and_var(self, tmp_path: Path) -> None:
         with patch.dict("os.environ", {"SUB": "sub"}):
             result = expand_path("~/$SUB/audio")
         assert result == Path.home() / "sub" / "audio"
@@ -36,12 +36,12 @@ class TestDefaultOutputDir:
             result = default_output_dir()
         assert result == Path(custom)
 
-    def testexpand_paths_tilde_in_env_var(self) -> None:
+    def test_expands_tilde_in_env_var(self) -> None:
         with patch.dict("os.environ", {"TTS_OUTPUT_DIR": "~/my-audio"}):
             result = default_output_dir()
         assert result == Path.home() / "my-audio"
 
-    def testexpand_paths_env_var_in_env_var(self, tmp_path: Path) -> None:
+    def test_expands_env_var_in_env_var(self) -> None:
         with patch.dict("os.environ", {"TTS_OUTPUT_DIR": "$HOME/my-audio"}):
             result = default_output_dir()
         assert result == Path.home() / "my-audio"
@@ -75,7 +75,7 @@ class TestResolveOutputPath:
         result = resolve_output_path(request)
         assert result.parent == tmp_path
 
-    def testexpand_paths_tilde_in_output_path(self) -> None:
+    def test_expands_tilde_in_output_path(self) -> None:
         request = SynthesisRequest(
             text="hello",
             voice="joanna",
@@ -85,7 +85,7 @@ class TestResolveOutputPath:
             result = resolve_output_path(request)
         assert result == Path.home() / "audio" / "test.mp3"
 
-    def testexpand_paths_env_var_in_output_dir(self, tmp_path: Path) -> None:
+    def test_expands_env_var_in_output_dir(self, tmp_path: Path) -> None:
         with patch.dict("os.environ", {"MY_AUDIO": str(tmp_path)}):
             request = SynthesisRequest(
                 text="hello",

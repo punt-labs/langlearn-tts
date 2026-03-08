@@ -8,9 +8,9 @@ from pathlib import Path
 from punt_vox.types import AudioRequest as SynthesisRequest, generate_filename
 
 
-def expand_path(raw: str) -> Path:
+def expand_path(raw: str | os.PathLike[str]) -> Path:
     """Expand shell variables and tilde in a path string."""
-    return Path(os.path.expandvars(raw)).expanduser()
+    return Path(os.path.expandvars(os.fspath(raw))).expanduser()
 
 
 def default_output_dir() -> Path:
@@ -32,7 +32,9 @@ def resolve_output_path(request: SynthesisRequest) -> Path:
         path = expand_path(output_path)
     else:
         output_dir_raw = metadata.get("output_dir")
-        output_dir = expand_path(output_dir_raw) if output_dir_raw else default_output_dir()
+        output_dir = (
+            expand_path(output_dir_raw) if output_dir_raw else default_output_dir()
+        )
         filename = metadata.get("filename") or generate_filename(request.text)
         path = output_dir / filename
 
