@@ -85,9 +85,30 @@ Follow [Python standards — Testing](../punt-kit/standards/python.md#testing). 
 
 Follow [Workflow standards](../punt-kit/standards/workflow.md) for branch discipline, micro-commits, session close protocol, and code review flow.
 
+### Code Review Flow
+
+Do **not** merge immediately after creating a PR. Expect **2–6 review cycles** before merging.
+
+1. **Create PR** — push branch, open PR via `mcp__github__create_pull_request`. Prefer MCP GitHub tools over `gh` CLI.
+2. **Request Copilot review** — use `mcp__github__request_copilot_review`.
+3. **Watch for feedback in the background** — `gh pr checks <number> --watch` (run in background). Do not stop waiting. Copilot and Bugbot may take 1–3 minutes after CI completes.
+4. **Read all feedback** via MCP: `mcp__github__pull_request_read` with `get_reviews` and `get_review_comments`.
+5. **Take every comment seriously.** Do not dismiss feedback as "unrelated to the change" or "pre-existing." If you disagree, explain why in a reply.
+6. **Fix and re-push** — commit fixes, push, re-run quality gates.
+7. **Repeat steps 3–6** until the latest review is **uneventful** — zero new comments, all checks green.
+8. **Merge only when the last review was clean** — use `mcp__github__merge_pull_request`.
+
 ### Changelog
 
-CHANGELOG entries are written **in the PR branch, before merge** — not retroactively on main. The entry is part of the diff that gets reviewed. Follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format. Add entries under `[Unreleased]`. Categories: Added, Changed, Deprecated, Removed, Fixed, Security. See [Workflow standards §6](../punt-kit/standards/workflow.md) for full guidance.
+CHANGELOG entries are written **in the PR branch, before merge** — not retroactively on main. The entry is part of the diff that gets reviewed. If a PR changes user-facing behavior and the diff does not include a CHANGELOG entry, the PR is not ready to merge. Follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format. Add entries under `[Unreleased]`. Categories: Added, Changed, Deprecated, Removed, Fixed, Security. See [Workflow standards §6](../punt-kit/standards/workflow.md) for full guidance.
+
+### README
+
+Update `README.md` when user-facing behavior changes — new flags, commands, defaults, providers, or config. The README is the first thing users and contributors read; if the behavior changed but the README did not, the PR is not ready to merge.
+
+### PR/FAQ
+
+Update `prfaq.tex` when a change shifts product direction or validates/invalidates a risk assumption. The PR/FAQ is the strategic document — feature additions, pivots, and resolved risks should be reflected there.
 
 ### Release Workflow
 
@@ -105,6 +126,13 @@ Releases are automated via `release.yml`. A tag push triggers: build → TestPyP
 10. **Verify**: `uv tool install --upgrade punt-langlearn-tts && langlearn-tts doctor`
 
 A release is not complete until all 10 steps are done. PyPI publishing is owned by GH Actions — never upload manually.
+
+## Pre-PR Checklist
+
+- [ ] **CHANGELOG entry included in the PR diff** under `## [Unreleased]` — if user-facing behavior changed, this is a merge blocker
+- [ ] **README updated** if user-facing behavior changed (new commands, flags, providers, config)
+- [ ] **PR/FAQ updated** if the change shifts product direction or validates/invalidates a risk assumption
+- [ ] **Quality gates pass** — `uv run ruff check src/ tests/ && uv run ruff format --check src/ tests/ && uv run mypy src/ tests/ && uv run pyright src/ tests/ && uv run pytest tests/ -v`
 
 ## Known Type Checker Workarounds
 
