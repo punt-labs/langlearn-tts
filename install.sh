@@ -20,9 +20,8 @@ ok()   { printf '  %b✓%b %s\n' "$GREEN" "$NC" "$1"; }
 warn() { printf '  %b!%b %s\n' "$YELLOW" "$NC" "$1"; }
 fail() { printf '  %b✗%b %s\n' "$YELLOW" "$NC" "$1"; exit 1; }
 
-# TODO: revert to "punt-langlearn-tts" once PyPI org prefix is approved
-PACKAGE="punt-langlearn-tts@git+https://github.com/punt-labs/langlearn-tts.git"
-PACKAGE_SHORT="punt-langlearn-tts"
+PACKAGE="punt-langlearn-tts"
+VERSION="0.7.2"
 BINARY="langlearn-tts"
 PROVIDER="${LANGLEARN_TTS_PROVIDER:-polly}"
 
@@ -73,17 +72,17 @@ fi
 
 # --- Step 3: punt-langlearn-tts ---
 
-info "Installing $PACKAGE_SHORT..."
+info "Installing $PACKAGE==$VERSION..."
 
 # --force: overwrites existing binary (may exist from old package name or prior install)
 # shellcheck disable=SC2086
-uv tool install --force $PYTHON_FLAG "$PACKAGE" || fail "Failed to install $PACKAGE_SHORT"
-ok "$PACKAGE_SHORT installed"
+uv tool install --force $PYTHON_FLAG "$PACKAGE==$VERSION" || fail "Failed to install $PACKAGE==$VERSION"
+ok "$PACKAGE==$VERSION installed"
 
 if ! command -v "$BINARY" >/dev/null 2>&1; then
   export PATH="$HOME/.local/bin:$PATH"
   if ! command -v "$BINARY" >/dev/null 2>&1; then
-    fail "$PACKAGE_SHORT installed but '$BINARY' not found on PATH"
+    fail "$PACKAGE installed but '$BINARY' not found on PATH"
   fi
 fi
 
@@ -105,6 +104,6 @@ printf '\n'
 
 # --- Done ---
 
-printf '%b%b%s is ready!%b\n\n' "$GREEN" "$BOLD" "$PACKAGE_SHORT" "$NC"
+printf '%b%b%s is ready!%b\n\n' "$GREEN" "$BOLD" "$PACKAGE" "$NC"
 printf 'Provider: %s\n' "$PROVIDER"
 printf 'To change provider: langlearn-tts install --provider <name>\n\n'
