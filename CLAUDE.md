@@ -1,5 +1,9 @@
 # CLAUDE.md
 
+## No "Pre-existing" Excuse
+
+There is no such thing as a "pre-existing" issue. If you see a problem — in code you wrote, code a reviewer flagged, or code you happen to be reading — you fix it. Do not classify issues as "pre-existing" to justify ignoring them. Do not suggest that something is "outside the scope of this change." If it is broken and you can see it, it is your problem now.
+
 ## Project Overview
 
 TTS MCP server and CLI for language learning. Supports ElevenLabs (premium), AWS Polly, and OpenAI TTS.
@@ -93,7 +97,7 @@ Do **not** merge immediately after creating a PR. Expect **2–6 review cycles**
 2. **Request Copilot review** — use `mcp__github__request_copilot_review`.
 3. **Watch for feedback in the background** — `gh pr checks <number> --watch` in a background task or separate session. Do not stop waiting. Copilot and Bugbot may take 1–3 minutes after CI completes.
 4. **Read all feedback** via MCP: `mcp__github__pull_request_read` with `get_reviews` and `get_review_comments`.
-5. **Take every comment seriously.** Do not dismiss feedback as "unrelated to the change" or "pre-existing." If you disagree, explain why in a reply.
+5. **Take every comment seriously.** There is no such thing as "pre-existing" or "unrelated to this change" — if you can see it, you own it. If you disagree, explain why in a reply.
 6. **Fix and re-push** — commit fixes, push, re-run quality gates.
 7. **Repeat steps 3–6** until the latest review is **uneventful** — zero new comments, all checks green.
 8. **Merge only when the last review was clean** — use `mcp__github__merge_pull_request`.
@@ -155,25 +159,6 @@ Use `Any` annotations and pyright inline ignores. These are the acceptable `Any`
 - Do not present workarounds for failing tests — fix the actual problem.
 - Report complete, unfiltered data.
 - The user makes decisions. Ask before making up rationales.
-
-# Agent Instructions
-
-This project follows [Punt Labs standards](https://github.com/punt-labs/punt-kit).
-
-## Quality Gates
-
-Run before every commit. Zero violations, zero errors, all tests green.
-
-```bash
-uv run ruff check . && uv run ruff format --check . && uv run mypy src/ tests/ && uv run pyright && uv run pytest
-```
-
-## Standards References
-- [Python](https://github.com/punt-labs/punt-kit/blob/main/standards/python.md)
-- [Plugins](https://github.com/punt-labs/punt-kit/blob/main/standards/plugins.md)
-- [GitHub](https://github.com/punt-labs/punt-kit/blob/main/standards/github.md)
-- [Workflow](https://github.com/punt-labs/punt-kit/blob/main/standards/workflow.md)
-- [CLI](https://github.com/punt-labs/punt-kit/blob/main/standards/cli.md)
 
 ## Available Tooling
 
