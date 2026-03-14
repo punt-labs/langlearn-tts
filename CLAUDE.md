@@ -127,7 +127,7 @@ punt release --dry-run        # Preview without changes
 punt release --resume-from ci # Resume from a specific phase
 ```
 
-See [release-process.md](../punt-kit/standards/release-process.md) for
+See [release-process.md](https://github.com/punt-labs/punt-kit/blob/main/standards/release-process.md) for
 the full 11-phase specification. PyPI publishing is owned by the
 tag-triggered `release.yml` workflow — never upload manually.
 
