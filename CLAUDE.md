@@ -116,20 +116,20 @@ Update `prfaq.tex` when a change shifts product direction or validates/invalidat
 
 ### Release Workflow
 
-Releases are automated via `release.yml`. A tag push triggers: build → TestPyPI → test-install → PyPI.
+Run `punt release` from the repo root. It handles all phases automatically:
+preflight, version bump, build, release PR, tag, CI wait, GitHub release,
+PyPI verify, post-release (README SHA bump), cross-repo propagation
+(install-all.sh SHA in punt-kit), and verification.
 
-1. **Bump version** in `pyproject.toml` and `src/langlearn_tts/__init__.py` (keep in sync)
-2. **Move `[Unreleased]`** entries in `CHANGELOG.md` to new version section with date
-3. **Run all quality gates** — ruff, mypy, pyright, pytest
-4. **Commit**: `chore: release vX.Y.Z`
-5. **Build locally**: `rm -rf dist/ && uv build && uvx twine check dist/*` (validation only — do NOT upload)
-6. **Tag**: `git tag vX.Y.Z`
-7. **Push**: `git push origin main vX.Y.Z` (triggers GH Actions release workflow)
-8. **Wait for GH Actions**: `gh run watch` — workflow builds, publishes to TestPyPI, verifies install, then publishes to PyPI
-9. **GitHub release**: `gh release create vX.Y.Z --title "vX.Y.Z" --notes-file -` (use CHANGELOG entry)
-10. **Verify**: `uv tool install --upgrade punt-langlearn-tts && langlearn-tts doctor`
+```bash
+punt release <version>        # Full release
+punt release --dry-run        # Preview without changes
+punt release --resume-from ci # Resume from a specific phase
+```
 
-A release is not complete until all 10 steps are done. PyPI publishing is owned by GH Actions — never upload manually.
+See [release-process.md](../punt-kit/standards/release-process.md) for
+the full 11-phase specification. PyPI publishing is owned by the
+tag-triggered `release.yml` workflow — never upload manually.
 
 ## Pre-PR Checklist
 
