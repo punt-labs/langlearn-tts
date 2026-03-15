@@ -116,15 +116,14 @@ Update `prfaq.tex` when a change shifts product direction or validates/invalidat
 
 ### Release Workflow
 
-Run `punt release` from the repo root. It handles all phases automatically:
-preflight, version bump, build, release PR, tag, CI wait, GitHub release,
-PyPI verify, post-release (README SHA bump), cross-repo propagation
-(install-all.sh SHA in punt-kit), and verification.
+Use `/punt:auto release` (the slash command), which runs the `punt release` CLI
+through the playbook executor with LLM-driven error diagnosis. It handles all
+phases automatically: preflight, version bump, build, release PR, tag, CI wait,
+GitHub release, PyPI verify, post-release (README SHA bump), cross-repo
+propagation (install-all.sh SHA in punt-kit), and verification.
 
-```bash
-punt release <version>        # Full release
-punt release --dry-run        # Preview without changes
-punt release --resume-from ci # Resume from a specific phase
+```
+/punt:auto release [version=X.Y.Z]
 ```
 
 See [release-process.md](https://github.com/punt-labs/punt-kit/blob/main/standards/release-process.md) for
