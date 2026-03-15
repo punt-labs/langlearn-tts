@@ -122,7 +122,7 @@ phases automatically: preflight, version bump, build, release PR, tag, CI wait,
 GitHub release, PyPI verify, post-release (README SHA bump), cross-repo
 propagation (install-all.sh SHA in punt-kit), and verification.
 
-```
+```text
 /punt:auto release [version=X.Y.Z]
 ```
 
