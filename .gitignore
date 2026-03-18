@@ -30,3 +30,5 @@ lancedb/
 
 # Entire session logs
 .entire/
+
+uv.toml
