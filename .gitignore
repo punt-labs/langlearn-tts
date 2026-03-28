@@ -30,3 +30,4 @@ lancedb/
 
 # Entire session logs
 .entire/
+.envrc.local
