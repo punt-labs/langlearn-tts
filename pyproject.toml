@@ -113,7 +113,7 @@ module = "tests.*"
 disallow_untyped_defs = false
 
 [[tool.mypy.overrides]]
-module = "pydub.*"
+module = ["pydub", "pydub.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

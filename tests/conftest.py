@@ -9,7 +9,7 @@ from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
-from pydub import AudioSegment  # type: ignore[import-untyped]
+from pydub import AudioSegment
 
 from langlearn_tts.core import TTSClient
 from langlearn_tts.providers.elevenlabs import ElevenLabsProvider
