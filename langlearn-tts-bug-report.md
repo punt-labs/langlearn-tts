@@ -8,9 +8,11 @@
 All four synthesis functions (`synthesize`, `synthesize_batch`, `synthesize_pair`, `synthesize_pair_batch`) fail when called without an explicit `voice` parameter. The server defaults to `"rachel"`, which is not in the available voice list.
 
 **Error message:**
-```
+
+```text
 Error executing tool synthesize: Unknown voice 'rachel'. Available: adam, alice, bella, bill, brian, callum, charlie, chris, daniel, eric ... (22 total)
 ```
+
 
 ## Expected Behavior
 

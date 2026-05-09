@@ -7,14 +7,17 @@
 When `output_dir` is not explicitly provided, the server uses a default path containing the literal string `${HOME}` instead of expanding it to the actual home directory. Files are written to a directory literally named `${HOME}/langlearn-audio/` rather than `/Users/<username>/langlearn-audio/`.
 
 **Returned path (broken):**
-```
+
+```text
 ${HOME}/langlearn-audio/daniel_Guten_Tag,_wie_geht_.mp3
 ```
 
 **Expected path:**
-```
+
+```text
 /Users/jfreeman/langlearn-audio/daniel_Guten_Tag,_wie_geht_.mp3
 ```
+
 
 **Workaround confirmed:** Passing an absolute path via `output_dir` works correctly.
 
