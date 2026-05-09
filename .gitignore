@@ -29,5 +29,15 @@ lancedb/
 
 # Entire session logs
 .entire/
-.envrc.local
+
+# Local test output (TTS_OUTPUT_DIR override)
+.tts/
+
 uv.toml
+
+# Local-only files (machine-specific, per-user)
+*.local
+*.local.*
+
+# Punt CLAUDE.md template engine staging file
+CLAUDE.md.tmp
