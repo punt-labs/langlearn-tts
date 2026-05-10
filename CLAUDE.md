@@ -167,3 +167,24 @@ Use `Any` annotations and pyright inline ignores. These are the acceptable `Any`
 | `punt audit` | Check compliance against Punt Labs standards |
 | `punt audit --fix` | Auto-create missing mechanical files |
 | `/punt reconcile` | LLM-powered contextual reconciliation (workflows, CLAUDE.md, permissions) |
+
+## Ethos & Delegation
+
+Identity: `agent: claude` per `.punt-labs/ethos.yaml`. Sub-agent calls match ethos identity handles.
+
+This repo is a thin bridge over `punt-vox`: it adds langlearn-specific output paths and the `AudioProvider` protocol, then re-exports the TTS engine. Most code is provider thin-subclasses. Worker and evaluator must be distinct handles with no shared role. Claude is the leader, never the evaluator.
+
+| Task type | Worker | Evaluator |
+|-----------|--------|-----------|
+| Provider thin-subclass (Polly / OpenAI / ElevenLabs) | `rmh` (Hettinger) | `gvr` (van Rossum) |
+| Provider protocol / `AudioProvider` evolution | `gvr` | `rmh` |
+| Output path resolution | `rmh` | `mdm` (McIlroy) |
+| CLI surface (Click) | `mdm` | `rop` (Pike) |
+| MCP tool definitions | `rmh` | `mdm` |
+| API key / credential handling | `rmh` | `djb` (Bernstein) |
+| Audio quality / voice selection | `claude` (leader) | `edt` (Tufte) — info-design parallel |
+| Pedagogy — pronunciation for learners | `claude` (leader) | `dna` (Norman) — UX cognition |
+| Cross-repo coordination with langlearn-types | `rmh` | `gvr` |
+| Infra / CI / release | `adb` (Lovelace) | `kth` (Hightower) |
+
+Use the `standard` pipeline for features, `coverage` for test gaps, `coe` for failure investigation across providers.
