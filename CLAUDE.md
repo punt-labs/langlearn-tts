@@ -172,15 +172,15 @@ Use `Any` annotations and pyright inline ignores. These are the acceptable `Any`
 
 Identity: `agent: claude` per `.punt-labs/ethos.yaml`. Sub-agent calls match ethos identity handles.
 
-This repo is a thin bridge over `punt-vox`: it adds langlearn-specific output paths and the `AudioProvider` protocol, then re-exports the TTS engine. Most code is provider thin-subclasses. Worker and evaluator must be distinct handles with no shared role. Claude is the leader, never the evaluator.
+This repo is a thin bridge over `punt-vox`: it adds langlearn-specific output paths and the `AudioProvider` protocol, then re-exports the TTS engine. Most code is provider thin-subclasses. Within each row, the worker and evaluator must be distinct handles. Claude is the leader, never the evaluator.
 
 | Task type | Worker | Evaluator |
 |-----------|--------|-----------|
 | Provider thin-subclass (Polly / OpenAI / ElevenLabs) | `rmh` (Hettinger) | `gvr` (van Rossum) |
 | Provider protocol / `AudioProvider` evolution | `gvr` | `rmh` |
-| Output path resolution | `rmh` | `mdm` (McIlroy) |
-| CLI surface (Click) | `mdm` | `rop` (Pike) |
-| MCP tool definitions | `rmh` | `mdm` |
+| Output path resolution | `rmh` | `rop` (Pike) — Unix path conventions |
+| CLI surface (Click) | `mdm` (McIlroy) | `rop` |
+| MCP tool definitions | `rmh` | `rop` — surface design |
 | API key / credential handling | `rmh` | `djb` (Bernstein) |
 | Audio quality / voice selection | `claude` (leader) | `edt` (Tufte) — info-design parallel |
 | Pedagogy — pronunciation for learners | `claude` (leader) | `dna` (Norman) — UX cognition |
