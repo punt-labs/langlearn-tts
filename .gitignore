@@ -41,3 +41,6 @@ uv.toml
 
 # Punt CLAUDE.md template engine staging file
 CLAUDE.md.tmp
+
+# Quarry session-transcript captures (pkit-kcps)
+.punt-labs/quarry/captures/
