@@ -13,10 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   vox's private module structure (`punt_vox.providers.{elevenlabs,polly}`
   internals — `VOICES`, `_voices_loaded`, `DEFAULT_VOICES`), none of which
   are in vox's `__all__`. vox 4.6.0 renamed `_voices_loaded` →
-  `_voices_loaded_at`, and 4.9.0 removed `VOICES` entirely — every 2.x/4.x
-  release currently breaks langlearn-tts's tests or its CLI startup.
-  Locking to the 1.x line matches what CI passes on main. The deeper fix
-  (stop importing vox's private module structure) is tracked separately.
+  `_voices_loaded_at`, and 4.9.0 removed `VOICES` entirely. With current
+  vox installed, `langlearn-tts --help` still returns cleanly, but every
+  subcommand that runs the Click `main` callback (which calls
+  `get_provider`, importing the provider modules) fails with
+  `ImportError`; the test suite fails the same way at collection. Locking
+  to the 1.x line matches what CI passes on main. The deeper fix (stop
+  importing vox's private module structure) is tracked separately.
 
 ## [0.7.2] - 2026-03-08
 
