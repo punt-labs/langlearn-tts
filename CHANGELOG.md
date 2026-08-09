@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Pin `punt-vox<4.9.0` to unblock installation. vox 4.9.0 removed the
+  `VOICES` symbol from `punt_vox.providers.elevenlabs` (and Polly) during
+  a coupling-fix refactor. langlearn-tts imports that symbol at CLI startup,
+  so any resolver that pulled current vox raised `ImportError` on
+  `langlearn-tts doctor`. This restores the working install; the deeper
+  fix (stop importing vox's private module structure) is tracked separately.
+
 ## [0.7.2] - 2026-03-08
 
 ### Changed
