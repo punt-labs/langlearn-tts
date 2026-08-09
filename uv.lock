@@ -775,7 +775,7 @@ requires-dist = [
     { name = "mcp", specifier = ">=1.0.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.14.0" },
     { name = "punt-langlearn-types", git = "https://github.com/punt-labs/langlearn-types?rev=7ca74011c014de62236373cf4d364ad2758e5f06" },
-    { name = "punt-vox", specifier = ">=1.2.0,<4.9.0" },
+    { name = "punt-vox", specifier = ">=1.2.0,<2.0.0" },
     { name = "pyright", marker = "extra == 'dev'", specifier = ">=1.1.390" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=6.0.0" },
@@ -795,7 +795,7 @@ dependencies = [
 
 [[package]]
 name = "punt-vox"
-version = "4.8.1"
+version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "audioop-lts" },
@@ -807,11 +807,10 @@ dependencies = [
     { name = "openai" },
     { name = "pydub" },
     { name = "typer" },
-    { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/46/df/9c6546687e7a71e67be7075dfc821b2cb4ac8fb1f1b28220894e230d07b6/punt_vox-4.8.1.tar.gz", hash = "sha256:e5fafa0e35a56cdc4a4896325e1d29518442bf65a85e8e595b8307a922649621", size = 302513, upload-time = "2026-05-12T23:54:59.486Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/de/f8/0ac27b455c7dd71c53230b366ebaffeae7cad214b2f4b20639853a049e42/punt_vox-1.3.0.tar.gz", hash = "sha256:d5f5d848295d577d5d7db9645cf9d8b12e195fe58e27f84efded3640f7e99de5", size = 49716, upload-time = "2026-03-09T21:48:16.251Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/31/57/6eeaaf96184f4f2b4c54e0607ce36ce70b718417ee0171a422651cd56800/punt_vox-4.8.1-py3-none-any.whl", hash = "sha256:1b29cb50bfe69e41aaee013f32df10ed2b36c657273f8a8250a368f1c4c7eb97", size = 329693, upload-time = "2026-05-12T23:54:57.542Z" },
+    { url = "https://files.pythonhosted.org/packages/46/fa/7e5e3e68b2cef9a0572ebd72ba1c41fcf8c68943bedb3f52d56a7e12bb62/punt_vox-1.3.0-py3-none-any.whl", hash = "sha256:af609b3de96aa77ccb31c81d8cb91fc90204328a03ccc7938e77560c262fefdd", size = 63880, upload-time = "2026-03-09T21:48:14.767Z" },
 ]
 
 [[package]]
