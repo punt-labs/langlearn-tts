@@ -12,14 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pin `punt-vox<2.0.0` to unblock installation. Tests and source reach into
   vox's private module structure (`punt_vox.providers.{elevenlabs,polly}`
   internals — `VOICES`, `_voices_loaded`, `DEFAULT_VOICES`), none of which
-  are in vox's `__all__`. vox 4.6.0 renamed `_voices_loaded` →
-  `_voices_loaded_at`, and 4.9.0 removed `VOICES` entirely. With current
-  vox installed, `langlearn-tts --help` still returns cleanly, but every
-  subcommand that runs the Click `main` callback (which calls
-  `get_provider`, importing the provider modules) fails with
-  `ImportError`; the test suite fails the same way at collection. Locking
-  to the 1.x line matches what CI passes on main. The deeper fix (stop
-  importing vox's private module structure) is tracked separately.
+  are in vox's `__all__`. Two known breakages in the removed range: vox
+  4.6.0 renamed `_voices_loaded` → `_voices_loaded_at` (breaks test
+  collection), and 4.9.0 removed `VOICES` entirely (breaks CLI subcommand
+  startup via `get_provider`, though `langlearn-tts --help` still loads).
+  `<4.9.0` would only fix the `ImportError`; `<4.6.0` might work but has no
+  CI evidence. `<2.0.0` matches what main's lockfile has been resolving to
+  (1.3.0) — the last known-good range. The deeper fix (stop importing vox's
+  private module structure) is tracked separately.
 
 ## [0.7.2] - 2026-03-08
 
