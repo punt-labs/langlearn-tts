@@ -76,8 +76,8 @@ and let the application configure the handler.
 Log messages use `%s`-style formatting (lazy evaluation), not f-strings:
 
 ```python
-logger.info("Wrote %s", output_path)                         # correct
-logger.info(f"Wrote {output_path}")                           # incorrect
+logger.info("Wrote %s", output_path)  # correct
+logger.info(f"Wrote {output_path}")  # incorrect
 ```
 
 ### Structured context
