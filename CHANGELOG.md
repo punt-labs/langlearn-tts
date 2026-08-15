@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Migrate from `mcp` (>=1.28.1,<2) to `fastmcp` (>=2,<3). FastMCP was
+  extracted from the mcp SDK into its own package as part of mcp 2.0 —
+  `mcp.server.fastmcp` no longer exists in the 2.x line. The only change
+  needed is the import site: `from mcp.server.fastmcp import FastMCP` →
+  `from fastmcp import FastMCP`. All 249 tests pass, `langlearn-tts doctor`
+  clean, MCP server starts and shows the FastMCP banner. Unblocks (and
+  supersedes) Dependabot PR #83 which was trying to bump `mcp` to 2.0 but
+  would have failed at import.
+
 ### Fixed
 
 - Pin `punt-vox<2.0.0` to unblock installation. Tests and source reach into

@@ -6,7 +6,7 @@ import logging
 import subprocess
 from pathlib import Path
 
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 from langlearn_tts import __version__
 from langlearn_tts.logging_config import configure_logging
