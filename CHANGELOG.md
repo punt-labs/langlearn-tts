@@ -33,6 +33,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   what main's lockfile has been resolving to (`1.3.0`) — the last known-good
   range. The deeper fix (stop importing vox's private module structure) is
   tracked separately.
+- Action pin comments now state the version actually pinned.
+  `actions/checkout` was pinned to v7.0.1's SHA but labelled `# v4`, and
+  `markdownlint-cli2-action` was pinned to an unreleased commit on the
+  action's default branch — ahead of every tag including v24.2.0 — while
+  labelled `# v22`. The latter is repinned to the v24.2.0 release commit
+  so it references an immutable released artifact, not a moving branch
+  head
 
 ## [0.7.2] - 2026-03-08
 
