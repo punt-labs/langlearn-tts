@@ -207,3 +207,6 @@ CLAUDE.md.tmp
 # differ on the suffix — .CLAUDE.md.lock and .CLAUDE.md.punt-import.lock
 # both appear.
 .*.lock
+
+# Local session-capture metadata stays untracked
+.entire/
