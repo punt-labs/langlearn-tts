@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.13"
 resolution-markers = [
     "python_full_version >= '3.15'",
@@ -1235,7 +1235,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "click", specifier = ">=8.1.0" },
-    { name = "fastmcp", specifier = ">=2,<4" },
+    { name = "fastmcp", specifier = ">=3,<4" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.14.0" },
     { name = "punt-langlearn-types", git = "https://github.com/punt-labs/langlearn-types?rev=7ca74011c014de62236373cf4d364ad2758e5f06" },
     { name = "punt-vox", specifier = ">=1.2.0,<2.0.0" },
