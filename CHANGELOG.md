@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Migrate from `mcp` (>=1.28.1,<2) to `fastmcp` (>=2,<3). FastMCP was
+- Pass the server version to `FastMCP(name, version=...)` instead of mutating
+  the private `_mcp_server.version` attribute, for fastmcp 3.x compatibility.
+  Behavior unchanged; the public constructor kwarg replaces the private access.
+
+- Migrate from `mcp` (>=1.28.1,<2) to `fastmcp` (>=3,<4). FastMCP was
   extracted from the mcp SDK into its own package as part of mcp 2.0 —
   `mcp.server.fastmcp` no longer exists in the 2.x line. The only change
   needed is the import site: `from mcp.server.fastmcp import FastMCP` →
