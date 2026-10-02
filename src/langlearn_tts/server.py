@@ -25,8 +25,7 @@ from punt_vox.types import (
 
 logger = logging.getLogger(__name__)
 
-mcp = FastMCP("langlearn-tts")
-mcp._mcp_server.version = __version__  # pyright: ignore[reportPrivateUsage]
+mcp = FastMCP("langlearn-tts", version=__version__)
 
 
 def _validate_voice_settings(
