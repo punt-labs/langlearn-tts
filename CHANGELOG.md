@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- Clear 19 open Dependabot alerts (2 critical, 7 high) by bumping `uv.lock`:
+  PyJWT 2.13.0 → 2.15.1, anyio 4.12.1 → 4.14.2, urllib3 2.7.0 → 2.8.0, mcp
+  1.29.0 → 1.30.0.
+
 ### Changed
 
 - Pass the server version to `FastMCP(name, version=...)` instead of mutating
