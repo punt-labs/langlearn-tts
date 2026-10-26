@@ -185,9 +185,6 @@ lancedb/
 
 # Scratch/temp directory (TMPDIR set via .envrc)
 
-# Entire session logs
-.entire/
-
 # Local test output (TTS_OUTPUT_DIR override)
 .tts/
 
