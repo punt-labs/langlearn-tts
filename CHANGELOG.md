@@ -28,6 +28,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   supersedes) Dependabot PR #83 which was trying to bump `mcp` to 2.0 but
   would have failed at import.
 
+### Removed
+
+- Claude Code sessions in this repo no longer run the Entire CLI hooks
+  (`entire hooks claude-code ...`). `.entire/` stays gitignored so leftover
+  local session logs cannot be committed by accident.
+
 ### Fixed
 
 - Pin `punt-vox<2.0.0` to unblock installation. Tests and source reach into
