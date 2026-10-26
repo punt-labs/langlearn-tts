@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- Clear 4 open Dependabot alerts (1 critical) by bumping `uv.lock`: certifi
+  2026.1.4 → 2026.10.23, fastmcp/fastmcp-slim 3.4.7 → 3.4.11,
+  opentelemetry-api 1.44.0 → 1.45.1.
+
 - Clear 19 open Dependabot alerts (2 critical, 7 high) by bumping `uv.lock`:
   PyJWT 2.13.0 → 2.15.1, anyio 4.12.1 → 4.14.2, urllib3 2.7.0 → 2.8.0, mcp
   1.29.0 → 1.30.0.
