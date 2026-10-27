@@ -91,16 +91,12 @@ Follow [Workflow standards](../punt-kit/standards/workflow.md) for branch discip
 
 ### Code Review Flow
 
-Do **not** merge immediately after creating a PR. Expect **2–6 review cycles** before merging.
+PR review follows punt-kit/standards/pr-review.md: local review (qodo review + silent-failure-hunter + code-reviewer) before the PR, then Qodo and Bugbot once at open, at most two rounds, Copilot only on request.
 
-1. **Create PR** — push branch, open PR via `mcp__github__create_pull_request`. Prefer MCP GitHub tools over `gh` CLI.
-2. **Request Copilot review** — use `mcp__github__request_copilot_review`.
-3. **Watch for feedback in the background** — `gh pr checks <number> --watch` in a background task or separate session. Do not stop waiting. Copilot and Bugbot may take 1–3 minutes after CI completes.
-4. **Read all feedback** via MCP: `mcp__github__pull_request_read` with `get_reviews` and `get_review_comments`.
-5. **Take every comment seriously.** There is no such thing as "pre-existing" or "unrelated to this change" — if you can see it, you own it. If you disagree, explain why in a reply.
-6. **Fix and re-push** — commit fixes, push, re-run quality gates.
-7. **Repeat steps 3–6** until the latest review is **uneventful** — zero new comments, all checks green.
-8. **Merge only when the last review was clean** — use `mcp__github__merge_pull_request`.
+1. **Run local review** — `qodo review` + silent-failure-hunter + code-reviewer on the diff; fix what they find before the PR opens.
+2. **Create PR** — push branch, open PR via `mcp__github__create_pull_request`. Prefer MCP GitHub tools over `gh` CLI.
+3. **Answer every finding.** Qodo findings through the qodo CLI (`mark-implemented` or `dismiss`, with the reason); every other finding by a commit or a reasoned reply. There is no such thing as "pre-existing" or "unrelated to this change" — if you can see it, you own it.
+4. **Merge** via `mcp__github__merge_pull_request` (not `gh pr merge`) when `merge_gate` in punt-kit/standards/pr-review.md holds.
 
 ### Changelog
 
