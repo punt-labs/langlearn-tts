@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- Clear 8 open Dependabot alerts (1 critical, 2 high) by bumping authlib
+  1.7.2 → 1.9.2 in `uv.lock`.
 - Clear 4 open Dependabot alerts (1 critical) by bumping `uv.lock`: certifi
   2026.1.4 → 2026.10.23, fastmcp/fastmcp-slim 3.4.7 → 3.4.11,
   opentelemetry-api 1.44.0 → 1.45.1.
