@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- Clear 3 open Dependabot alerts (2 high, 1 medium) by bumping joserfc
+  1.7.4 → 1.7.7 and dnspython 2.8.0 → 2.9.1 in `uv.lock`.
 - Clear 8 open Dependabot alerts (1 critical, 2 high) by bumping authlib
   1.7.2 → 1.9.2 in `uv.lock`.
 - Clear 4 open Dependabot alerts (1 critical) by bumping `uv.lock`: certifi
