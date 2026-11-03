@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Vendor the gstack ethos team under `.punt-labs/ethos/` with layered
+  resolution (repo-local gstack first, then the global store), so a fresh
+  clone resolves its ethos identities without the retired team-registry
+  submodule.
+- Pass the server version to `FastMCP(name, version=...)` instead of mutating
+  the private `_mcp_server.version` attribute, for fastmcp 3.x compatibility.
+  Behavior unchanged; the public constructor kwarg replaces the private access.
+- Migrate from `mcp` (>=1.28.1,<2) to `fastmcp` (>=3,<4). FastMCP was
+  extracted from the mcp SDK into its own package as part of mcp 2.0 —
+  `mcp.server.fastmcp` no longer exists in the 2.x line. The only change
+  needed is the import site: `from mcp.server.fastmcp import FastMCP` →
+  `from fastmcp import FastMCP`. All 249 tests pass, `langlearn-tts doctor`
+  clean, MCP server starts and shows the FastMCP banner. Unblocks (and
+  supersedes) Dependabot PR #83 which was trying to bump `mcp` to 2.0 but
+  would have failed at import.
+
 ### Security
 
 - Clear 3 open Dependabot alerts (2 high, 1 medium) by bumping joserfc
@@ -20,21 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clear 19 open Dependabot alerts (2 critical, 7 high) by bumping `uv.lock`:
   PyJWT 2.13.0 → 2.15.1, anyio 4.12.1 → 4.14.2, urllib3 2.7.0 → 2.8.0, mcp
   1.29.0 → 1.30.0.
-
-### Changed
-
-- Pass the server version to `FastMCP(name, version=...)` instead of mutating
-  the private `_mcp_server.version` attribute, for fastmcp 3.x compatibility.
-  Behavior unchanged; the public constructor kwarg replaces the private access.
-
-- Migrate from `mcp` (>=1.28.1,<2) to `fastmcp` (>=3,<4). FastMCP was
-  extracted from the mcp SDK into its own package as part of mcp 2.0 —
-  `mcp.server.fastmcp` no longer exists in the 2.x line. The only change
-  needed is the import site: `from mcp.server.fastmcp import FastMCP` →
-  `from fastmcp import FastMCP`. All 249 tests pass, `langlearn-tts doctor`
-  clean, MCP server starts and shows the FastMCP banner. Unblocks (and
-  supersedes) Dependabot PR #83 which was trying to bump `mcp` to 2.0 but
-  would have failed at import.
 
 ### Removed
 

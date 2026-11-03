@@ -207,3 +207,7 @@ CLAUDE.md.tmp
 # differ on the suffix — .CLAUDE.md.lock and .CLAUDE.md.punt-import.lock
 # both appear.
 .*.lock
+
+# ethos runtime (never track) — DES-058 live zone + mission locks
+.punt-labs/ethos/missions/**/*.lock
+.punt-labs/**/*.ethos-tmp*
