@@ -184,3 +184,4 @@ This repo is a thin bridge over `punt-vox`: it adds langlearn-specific output pa
 | Infra / CI / release | `adb` (Lovelace) | `kth` (Hightower) |
 
 Use the `standard` pipeline for features, `coverage` for test gaps, `coe` for failure investigation across providers.
+@.punt-labs/ethos/CLAUDE.md

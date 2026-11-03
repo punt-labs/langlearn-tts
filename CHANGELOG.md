@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Vendor the gstack ethos team under `.punt-labs/ethos/` and set
+  `resolution: repo-only`, so a fresh clone resolves its ethos identities
+  without the retired team-registry submodule or a global store.
+
 ### Security
 
 - Clear 3 open Dependabot alerts (2 high, 1 medium) by bumping joserfc
